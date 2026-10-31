@@ -1,0 +1,149 @@
+{
+  "schema": 3,
+  "id": "pinterest",
+  "name": "Pinterest",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "developers.pinterest.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 38,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "review",
+  "verdict": "Two reviews: Pinterest approves Trial access before you get an app ID, then a Standard access upgrade with an OAuth demo video is needed for production. About 1-3 weeks in total.",
+  "needGuide": "Yes — request Trial access first, then record the OAuth demo video for the Standard upgrade.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code at https://www.pinterest.com/oauth/; token endpoint https://api.pinterest.com/v5/oauth/token with Basic auth. Access tokens last 30 days; only continuous refresh tokens are supported (60-day expiry, refreshable indefinitely; apps created before 2025-09-25 must send continuous_refresh=true). PKCE not documented. Sandbox host api-sandbox.pinterest.com.",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-3 days (Trial approval email)",
+    "timeToProduction": "about 1-3 weeks (Trial review plus Standard review; Pinterest says allow a few days before following up)",
+    "firstShort": "1–3 days",
+    "prodShort": "1–3 weeks incl. review",
+    "difficulty": "Moderate",
+    "prodDays": 21
+  },
+  "approval": {
+    "gate": "Two reviews. Trial access is reviewed by Pinterest before you get an app ID and secret; Trial apps have daily rate limits and Pins and Boards they create are visible only to the creator (sandbox). Standard access (higher per-minute limits, recommended for production) requires an Upgrade request with a demo video showing the OAuth flow, an API action and that no sensitive data is stored; Pinterest asks even for a single-user app.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Read and write scopes per resource (boards, pins, ads); new apps can get 403s on boards or Pins without user authorization.",
+    "summary": "Examples: boards:read (and boards:read_secret), pins:write (and pins:write_secret), ads:read. Apps registered on or after 2026-09-14 may get 403 PINNER_DATA_ACCESS_DENIED when requesting boards or Pins without user authorization. Scope-specific review gates were not documented beyond the Standard upgrade.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Pinterest business account administers the app, with a verified email and accepted Developer Terms of Service under My apps. Use a company-owned business account.",
+    "Where you register: Pinterest business account -> developers.pinterest.com -> My apps -> Connect app -> request Trial access; later Manage -> Configure -> Redirect URIs; My apps -> Upgrade for Standard access",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://developers.pinterest.com/apps/",
+    "path": "Pinterest business account -> developers.pinterest.com -> My apps -> Connect app -> request Trial access; later Manage -> Configure -> Redirect URIs; My apps -> Upgrade for Standard access"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Log in with a company business account, verify email and accept the Developer Terms of Service under My apps",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Connect app: complete the request form (name without the word Pinterest, use case, privacy policy link) and submit for Trial",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "After approval, copy app ID and secret; add redirect URIs under Manage -> Configure -> Redirect URIs (exact match)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement OAuth with Basic-auth token exchange; refresh before 60 days; use the sandbox for test calls",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Record a demo video showing the OAuth flow and one API action (Postman or terminal is accepted)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "My apps -> Upgrade on the app card: verify details, upload the video, submit; watch email",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Pinterest business account administers the app, with a verified email and accepted Developer Terms of Service under My apps. Use a company-owned business account.",
+    "console": "none documented in the pages read.",
+    "customer": "The Pinterest account owner who authorizes in the OAuth dialog; for ads:read, access to the relevant ad account is likely required.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "After Trial approval you get product-limited test tokens (24-hour expiry) and a Sandbox that does not affect production.",
+    "Trial output is visible only to its creator."
+  ],
+  "blockers": [
+    {
+      "problem": "Trial denial for an inaccessible privacy policy or vague app description",
+      "fix": "Publish a working policy and a specific use case."
+    },
+    {
+      "problem": "Standard denial when the demo does not show authentication, uses non-OAuth methods like credentials or cookies, or lacks a live Pinterest integration",
+      "fix": ""
+    },
+    {
+      "problem": "Trial-created Pins are visible only to the creator",
+      "fix": "Production behavior cannot be validated until Standard."
+    },
+    {
+      "problem": "Refresh tokens expire after 60 days unused",
+      "fix": "Refresh regularly or users must re-authorize."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and refresh code, draft the use-case and privacy-policy text, script the demo flow, run sandbox test calls.",
+    "humanMust": "Sign in and accept developer terms, submit the Trial and Upgrade requests, record the demo video, handle appeals through the Help Center."
+  },
+  "uncertain": [
+    "Exact review durations are not published beyond 'a few days'; scope list and per-scope requirements were not read in full; PKCE not mentioned."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.pinterest.com/docs/getting-started/set-up-app/",
+      "label": "developers.pinterest.com/docs/getting-started/set-up-app"
+    },
+    {
+      "url": "https://developers.pinterest.com/docs/key-concepts/access-tiers/",
+      "label": "developers.pinterest.com/docs/key-concepts/access-tiers"
+    },
+    {
+      "url": "https://developers.pinterest.com/docs/getting-started/authentication-and-scopes/",
+      "label": "developers.pinterest.com/docs/getting-started/authentication-and-scopes"
+    },
+    {
+      "url": "https://developers.pinterest.com/docs/getting-started/apply-for-standard-access/",
+      "label": "developers.pinterest.com/docs/getting-started/apply-for-standard-access"
+    }
+  ]
+}

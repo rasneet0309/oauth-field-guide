@@ -1,0 +1,160 @@
+{
+  "schema": 3,
+  "id": "monday",
+  "name": "Monday.com",
+  "category": "Productivity & PM",
+  "website": "monday.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 76,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: promote a version to live, accept the developer terms and share the auth link, with no review. Customers see an unvetted-app banner, and the optional marketplace listing is reviewed; personal-token apps are not eligible.",
+  "needGuide": "Short one: build the app, set scopes, share the link; skip the marketplace unless you want it.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code at auth.monday.com/oauth2/authorize. Legacy flow: non-expiring access tokens, no refresh tokens. New OAuth 2.1 flow (per app version toggle): PKCE S256 required, expiring JWT access tokens, rotating refresh tokens, token endpoint auth.monday.com/oauth_ms/oauth/token, revoke and RFC 8414 discovery endpoints. Authorization codes are valid 10 minutes.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "1-3 days via share link; marketplace several weeks (likely)",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days; marketplace weeks",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No review needed to share a public app by link: after promoting a version to live, accept the developer terms on the Share tab and copy the auth.monday.com link (can restrict to specific accounts). Unreviewed apps show a banner saying monday has not vetted them. Marketplace listing is optional but needs review (initial response within 72 business hours); apps using the personal API token, or built mainly with no-code/AI-generated code, are not eligible.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (listing optional)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Read and write scopes across many areas; requested scopes must match the app's configured scopes.",
+    "summary": "Scopes cover account, boards, docs, updates, users, teams, workspaces, webhooks, tags, notifications and profile, mostly with read and write variants; the requested scope must match the app's configured scopes. Full list at the discovery endpoint. Scope-specific review not documented; marketplace review covers security and privacy generally.",
+    "table": []
+  },
+  "cost": "Free to build; free developer accounts offered; marketplace listing terms (e.g. revenue share) not confirmed",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A monday user who can open the Developer Center; use a company account on a dedicated developer account. Exact role needed not documented.",
+    "Where you register: monday avatar → Developers (Developer Center) → Create app → OAuth & Permissions tab (scopes, redirect URLs, 'New OAuth Flow' toggle) → App versions → promote to live → Share tab",
+    "Cost: Free to build; free developer accounts offered; marketplace listing terms (e.g. revenue share) not confirmed"
+  ],
+  "registerAt": {
+    "url": "https://developer.monday.com/apps/docs/oauth",
+    "path": "monday avatar → Developers (Developer Center) → Create app → OAuth & Permissions tab (scopes, redirect URLs, 'New OAuth Flow' toggle) → App versions → promote to live → Share tab"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a monday developer account and open Developers → Create app",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "On OAuth & Permissions set redirect URLs and minimum scopes (e.g. me:read, boards:read, boards:write); enable the New OAuth Flow toggle on the draft",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorize with PKCE S256, token exchange at the oauth_ms endpoint, proactive refresh (under 5 minutes left) and refresh-token rotation",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with the draft 'Active for me' and app_version_id, then promote the version to live",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Install on your account (Install tab), then on the Share tab accept developer terms and copy the share link or restrict to specific accounts",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Have an admin of a separate monday account install via the link and run an end-to-end test",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Optionally submit to the marketplace using the listing guidelines and review checklist",
+          "who": "Owner",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A monday user who can open the Developer Center; use a company account on a dedicated developer account. Exact role needed not documented.",
+    "console": "App collaborators exist (they can run the OAuth flow on draft versions via app_version_id); exact add-collaborator UI path not confirmed.",
+    "customer": "An account admin typically installs (force_install_if_needed returns users after an admin installs). Recipients find shared apps under Apps → Installed Apps → 'Installed outside the marketplace'. Admin install restrictions not documented.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Install on your own account via Developer Center → Install tab; keep the draft version 'Active for me' to test the new OAuth flow before promoting.",
+    "Free developer accounts are available for fuller testing.",
+    "Private apps are limited to one account; public apps can be shared."
+  ],
+  "blockers": [
+    {
+      "problem": "Legacy tokens never expire but have no refresh; the new flow expires tokens",
+      "fix": "Migrate and store rotating refresh tokens (migration endpoint is temporary)."
+    },
+    {
+      "problem": "Personal API token auth blocks marketplace approval",
+      "fix": "Use OAuth only."
+    },
+    {
+      "problem": "Unvetted-app banner appears for non-marketplace installs",
+      "fix": "Warn customers or pursue marketplace review."
+    },
+    {
+      "problem": "Vibe-coded or no-code-built apps are ineligible for the marketplace",
+      "fix": "Plan for hand-written code."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write PKCE and refresh code, draft listing copy and review-checklist answers, run test GraphQL calls, and prepare admin install guidance.",
+    "humanMust": "Developer Center sign-in, accepting developer and listing terms, marketplace submission form and board follow-ups, and customer admin installation."
+  },
+  "uncertain": [
+    "Whether an OAuth-only app needs a feature or view to be valid, admin controls restricting installs, collaborator UI path, the legacy flow deprecation date, and marketplace fees were not confirmed; several doc pages failed to fetch.",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.monday.com/apps/docs/oauth",
+      "label": "developer.monday.com/apps/docs/oauth"
+    },
+    {
+      "url": "https://developer.monday.com/apps/docs/migrating-to-the-new-oauth-flow",
+      "label": "developer.monday.com/apps/docs/migrating-to-the-new-oauth-flow"
+    },
+    {
+      "url": "https://developer.monday.com/apps/docs/choosing-auth",
+      "label": "developer.monday.com/apps/docs/choosing-auth"
+    },
+    {
+      "url": "https://developer.monday.com/apps/docs/install-and-share-your-apps",
+      "label": "developer.monday.com/apps/docs/install-and-share-your-apps"
+    },
+    {
+      "url": "https://developer.monday.com/apps/docs/submit-your-app",
+      "label": "developer.monday.com/apps/docs/submit-your-app"
+    }
+  ]
+}

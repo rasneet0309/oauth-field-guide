@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "supabase",
+  "name": "Supabase",
+  "category": "Developer, Infra & Data",
+  "website": "supabase.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 65,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: add an OAuth app in organization settings, with no review documented, likely in 1-3 days. Scopes are fixed at creation, so changing them forces users to re-authorize.",
+  "needGuide": "Short one, but pick scopes carefully because changing them forces re-authorization.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "OAuth 2.0 authorization code flow for the Management API: authorize at https://api.supabase.com/v1/oauth/authorize (client_id, redirect_uri, response_type=code, state, optional organization_slug), exchange at POST https://api.supabase.com/v1/oauth/token with Basic auth. PKCE (S256) is strongly recommended. Refresh tokens work via the same endpoint; access-token lifetime is not stated. Revoked access makes refresh fail with 401.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (likely)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (likely)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No review documented. The guide says the OAuth app must be 'published' before use, without explaining how; likely just saving it in org settings. Scopes are fixed at app creation; changing them forces users to re-authorize.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Per-app Read/Write scopes set at creation; no scope triggers approval.",
+    "summary": "Per-app scopes set at creation: Auth, Database, Domains, Edge Functions, Environment, Projects, Rest, Secrets (Read/Write), Organizations and Storage (Read only). The authorize 'scope' parameter is deprecated. Only some features are available until fine-grained access control rolls out. No scope triggers approval.",
+    "table": []
+  },
+  "cost": "Free (requires a Supabase organization; plan requirements not stated)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Create the app inside an organization your company owns, in the org settings. Which org roles can create apps is not documented; use an Owner (likely safest).",
+    "Where you register: Dashboard → Organization settings → OAuth Apps → Add application → fill details → Confirm",
+    "Cost: Free (requires a Supabase organization; plan requirements not stated)"
+  ],
+  "registerAt": {
+    "url": "https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration",
+    "path": "Dashboard → Organization settings → OAuth Apps → Add application → fill details → Confirm"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Open Dashboard → Organization settings → OAuth Apps in a company-owned org",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Add application: name, website, redirect URI(s), select scopes (Auth, Database, Domains, Edge Functions, Environment, Projects, Rest, Secrets, read-only Organizations/Storage); Confirm",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Save client ID and secret in a secrets manager",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Redirect users to /v1/oauth/authorize with state and PKCE S256 code_challenge; validate state on callback",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "POST /v1/oauth/token with Basic auth, code, redirect_uri and code_verifier; store refresh token encrypted; handle 401 by refreshing or re-authorizing",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test end to end against a scratch project and a second account; verify re-authorize after scope change",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Create the app inside an organization your company owns, in the org settings. Which org roles can create apps is not documented; use an Owner (likely safest).",
+    "console": "none documented beyond org membership",
+    "customer": "The authorizing user selects which of their organizations to grant. Their org role limits what the token can do (likely Owner/Admin for project management). Token access is described as full Management API access, restricted only by app scopes.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create the app in your own org and authorize with your own account; no sandbox.",
+    "Use a throwaway Supabase project for create/delete tests."
+  ],
+  "blockers": [
+    {
+      "problem": "Database password cannot be fetched via the Management API",
+      "fix": "Collect it from the user in your UI for existing projects."
+    },
+    {
+      "problem": "Changing scopes later forces every user to re-authorize",
+      "fix": "Choose scopes carefully up front."
+    },
+    {
+      "problem": "redirect_uri plus state must not exceed 4 kB",
+      "fix": ""
+    },
+    {
+      "problem": "Unclear 'publish' step",
+      "fix": "Confirm in the dashboard or with Supabase support before launch."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth/PKCE client, token refresh logic and Management API calls, and draft the app description and scope justification.",
+    "humanMust": "Log in to the dashboard and create the OAuth app; a customer user must consent and choose an organization."
+  },
+  "uncertain": [
+    "Access-token lifetime, which org roles can create apps, what 'publish' entails, and rate limits were not documented in fetched pages.",
+    "Community sources not consulted; fetch limit reached before further checks."
+  ],
+  "sources": [
+    {
+      "url": "https://supabase.com/docs/guides/integrations/build-a-supabase-integration",
+      "label": "supabase.com/docs/guides/integrations/build-a-supabase-integration"
+    },
+    {
+      "url": "https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration",
+      "label": "supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration"
+    },
+    {
+      "url": "https://supabase.com/docs/guides/platform/oauth-apps/build-a-supabase-integration",
+      "label": "supabase.com/docs/guides/platform/oauth-apps/build-a-supabase-integrat…"
+    },
+    {
+      "url": "https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration/oauth-scopes",
+      "label": "supabase.com/docs/guides/integrations/build-a-supabase-oauth-integrati…"
+    }
+  ]
+}

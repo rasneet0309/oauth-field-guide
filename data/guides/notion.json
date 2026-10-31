@@ -1,0 +1,316 @@
+{
+  "schema": 3,
+  "id": "notion",
+  "name": "Notion",
+  "category": "Productivity & PM",
+  "website": "developers.notion.com",
+  "tagline": "Public connection · page picker · rotating refresh tokens",
+  "kind": "in-depth",
+  "featured": true,
+  "listNumber": 71,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Create a self-serve public connection in Notion's new Developer portal. A review is only needed for a Marketplace listing, but check that your Authorization URL is active.",
+  "needGuide": "Short guide. Setup takes about an hour. Most of the effort goes into rotating refresh tokens, users having to pick pages, and rate limits.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code with HTTP Basic client auth. The response includes access_token, a rotating refresh_token, bot_id and workspace_id, but no expires_in. Send a Notion-Version header (currently 2026-03-11) on every call.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1–3 hours",
+    "timeToProduction": "3–10 working days · add 2–4 weeks for a Marketplace listing",
+    "firstShort": "1–3 hours",
+    "prodShort": "3–10 days",
+    "difficulty": "Moderate",
+    "prodDays": 10
+  },
+  "approval": {
+    "gate": "",
+    "when": "Notion's docs say a connection can be used through OAuth without being listed. A Marketplace listing needs Any workspace scope and a security review.",
+    "timeline": [
+      {
+        "label": "Public connection",
+        "official": "No review per the docs",
+        "reported": "One Notion caption says the Authorization URL appears after you submit for review"
+      },
+      {
+        "label": "Marketplace listing",
+        "official": "5–10 business days",
+        "reported": "Realistically 2–4 weeks with resubmissions"
+      }
+    ],
+    "recurring": "Changing capabilities forces every user to re-authenticate. Watch the Health tab and changes to the Notion-Version header.",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Five capabilities (read, update and insert content, comments, user information) and no scope-specific review.",
+    "summary": "",
+    "table": [
+      {
+        "use": "Search and read",
+        "scope": "Read content",
+        "tier": "Capability",
+        "note": "/v1/search matches titles only"
+      },
+      {
+        "use": "Create pages",
+        "scope": "Insert content",
+        "tier": "Capability",
+        "note": "Public connections can create pages in the user's Private section"
+      },
+      {
+        "use": "Update databases",
+        "scope": "Update + Read content",
+        "tier": "Capability",
+        "note": "Query through /v1/data_sources/{id}/query; results are capped at 10,000"
+      },
+      {
+        "use": "Comments",
+        "scope": "Read / Insert comments",
+        "tier": "Capability",
+        "note": ""
+      },
+      {
+        "use": "People",
+        "scope": "User information (with or without email)",
+        "tier": "Capability",
+        "note": "Choose “without email” unless you need email"
+      }
+    ]
+  },
+  "cost": "No documented fee. A free workspace is enough for development.",
+  "tiers": [
+    {
+      "label": "Public connection, Any workspace",
+      "eg": "AI agent for many customers",
+      "difficulty": "Moderate",
+      "time": "3–10 days",
+      "note": "No review per the docs. Confirm with an install from a second workspace."
+    },
+    {
+      "label": "Marketplace listing",
+      "eg": "Discoverable in Notion",
+      "difficulty": "Moderate",
+      "time": "5–10 business days per round",
+      "note": "Needs a security review and brand-quality checks."
+    }
+  ],
+  "prerequisites": [
+    "A company-owned development workspace with 2 or more Workspace owners.",
+    "Developer Mode turned on (Settings → Developer Mode). It's set per browser and isn't available on mobile.",
+    "An HTTPS callback for production. http://localhost works for dev.",
+    "A website, privacy policy, terms of use, support email and square logo. Keep them ready even if the new form doesn't ask.",
+    "A second workspace, under a different account, to act as the customer."
+  ],
+  "registerAt": {
+    "url": "https://developers.notion.com/guides/get-started/public-connections",
+    "path": "app.notion.com/developers/connections → Build → Public connections → Create new connection, with Installation scope set to Any workspace."
+  },
+  "phases": [
+    {
+      "name": "Create the connection",
+      "duration": "30 min",
+      "steps": [
+        {
+          "do": "Turn on Settings → Developer Mode in your development workspace.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Go to app.notion.com/developers/connections → Build → Public connections → Create new connection. Old notion.so/my-integrations links redirect here.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Fill in the name, development workspace and redirect URIs (exact match, no trailing slash). Set Installation scope to Any workspace; you can't change it later. Choose only the capabilities you need: Read, Update and Insert content, Read and Insert comments, and user info without email.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "On the Configuration tab, copy the OAuth client ID and secret into your secret manager. Check that the Authorization URL is filled in. If it's empty, complete the submit step.",
+          "who": "Security",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Build",
+      "duration": "2–5 days",
+      "steps": [
+        {
+          "do": "Redirect to https://api.notion.com/v1/oauth/authorize?client_id=…&response_type=code&owner=user&redirect_uri=…&state=…",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange the code with POST /v1/oauth/token using a Basic auth header and Notion-Version: 2026-03-11. Always send redirect_uri. Store the response by bot_id, encrypted.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "To refresh, call the same endpoint with grant_type=refresh_token. You get a new pair, so overwrite both values at once and lock per grant to avoid invalid_grant.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle 429 and 529 using Retry-After, paginate 100 at a time, use the data-source endpoints, and keep payloads under 1,000 blocks and 500 KB.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Test with a second workspace",
+      "duration": "1–2 days",
+      "steps": [
+        {
+          "do": "Using workspace B on a different account, connect as a member and as a non-owner, and confirm guests are blocked. Also test cancel (access_denied), template duplication, re-auth (you get a new token pair), disconnect, and changing a capability (forces re-auth).",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Watch the connection's Health tab for failures and rate-limit warnings.",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Launch",
+      "duration": "1 day (+ listing)",
+      "steps": [
+        {
+          "do": "Get security sign-off: least privilege, encryption, a revoke path (POST /v1/oauth/revoke) and logging.",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Optional listing: notion.so/profile/connections → Listings → Connections → Start a new connection listing → Submit. Notion replies in 5–10 business days.",
+          "who": "Design",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Workspace owners hold the dev workspace and connection. Developers build and test. Security handles secrets and the revoke path. Legal provides the privacy policy and terms. Design prepares the optional listing.",
+    "console": "Workspace owner and Member. Owners can restrict who creates connections, personal access tokens and Workers. Add owners in Settings → People → role dropdown.",
+    "customer": "Each user authorizes the connection and picks pages. Guests can't add connections. On Enterprise, owners can set “Limit which connections members can install” to No restrictions, Approved & recommended, or Approved only.",
+    "consoleRoles": [
+      {
+        "role": "Workspace owner",
+        "can": "Create connections, restrict who can create them, see the workspace's connections, set Enterprise approval controls",
+        "who": "2 or more engineering leads in the dev workspace"
+      },
+      {
+        "role": "Member",
+        "can": "Since May 2026 can build connections unless restricted (the docs conflict)",
+        "who": "Developers"
+      },
+      {
+        "role": "Membership admin (Enterprise)",
+        "can": "Manage members, but not workspace settings",
+        "who": "IT"
+      },
+      {
+        "role": "Guest / Restricted member",
+        "can": "Can't add connections",
+        "who": "—"
+      },
+      {
+        "role": "(No collaborator feature)",
+        "can": "There's no documented way to share or transfer a connection",
+        "who": "Use a company workspace"
+      }
+    ]
+  },
+  "customerExperience": [
+    "The consent screen lists your capabilities. The user clicks Select pages and only the pages they pick are shared (child pages are included).",
+    "Each user authorizes separately, and only the user who authorized can share more pages.",
+    "On Enterprise with Approved only, members can't install you until an owner approves.",
+    "Notion MCP is an alternative: it acts with the user's full permissions and has no page picker. Admins can restrict AI apps."
+  ],
+  "testing": [
+    "Workspace A (yours, Free plan) hosts the connection. Workspace B, on a separate account, plays the customer.",
+    "An optional staging connection limited to selected workspaces can't later become Marketplace-eligible. Free workspaces with more than one member also have a 1,000-block limit on it (since Sep 1, 2026).",
+    "Re-authorizing returns a fresh token pair for connections created after Jun 8, 2026."
+  ],
+  "blockers": [
+    {
+      "problem": "object_not_found",
+      "fix": "The user didn't share that page. Send them back through the flow, or tell them to use ••• → Connections → Add connections."
+    },
+    {
+      "problem": "invalid_grant on token exchange",
+      "fix": "The redirect_uri doesn't match. Send the same value in both requests."
+    },
+    {
+      "problem": "invalid_grant on refresh",
+      "fix": "Two refreshes raced. Make refresh serial and save the newest pair."
+    },
+    {
+      "problem": "Wrong installation scope",
+      "fix": "You can't change it. Create a new connection."
+    },
+    {
+      "problem": "Customer can't install",
+      "fix": "They're a guest or restricted member, or their workspace allows approved connections only."
+    }
+  ],
+  "gotchas": [
+    "The rate limit is 180 requests per minute, or 600 on Business and Enterprise, depending on the customer workspace's plan. There's also a per-workspace limit.",
+    "File URLs expire after about an hour, so don't cache them.",
+    "Some older docs still say tokens never expire. That's out of date: refresh tokens exist and rotate.",
+    "Payload limits are 100 items per array and 2,000 characters per rich-text item."
+  ],
+  "automation": {
+    "agentCan": "Write the OAuth and refresh code with locking, retries and data-source queries; draft the listing; and script the QA matrix against a test workspace.",
+    "humanMust": "Turn on Developer Mode, create the connection in the portal, copy secrets, choose the installation scope, test consent in a second workspace, and submit any listing."
+  },
+  "uncertain": [
+    "It's unconfirmed whether “Any workspace” connections need a review before the Authorization URL works. Test an install from a second workspace before launch.",
+    "Docs conflict on whether only owners, or any member, can create connections.",
+    "How long access and refresh tokens last isn't documented.",
+    "It's unclear whether rate limits apply per installation or across all installs."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.notion.com/guides/get-started/authorization",
+      "label": "Authorization, token exchange and refresh"
+    },
+    {
+      "url": "https://developers.notion.com/guides/get-started/public-connections",
+      "label": "Public connections and installation scope"
+    },
+    {
+      "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+      "label": "Marketplace listing"
+    },
+    {
+      "url": "https://developers.notion.com/page/changelog",
+      "label": "Changelog (portal, tokens, limits)"
+    },
+    {
+      "url": "https://developers.notion.com/reference/request-limits",
+      "label": "Request limits"
+    },
+    {
+      "url": "https://www.notion.com/help/enterprise-connection-settings",
+      "label": "Enterprise connection controls"
+    },
+    {
+      "url": "https://www.notion.com/releases/2026-05-13",
+      "label": "Developer portal launch"
+    },
+    {
+      "url": "https://nango.dev/blog/notion-oauth-refresh-token-invalid-grant",
+      "label": "Community: refresh races"
+    }
+  ]
+}

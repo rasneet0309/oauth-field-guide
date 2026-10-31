@@ -1,0 +1,146 @@
+{
+  "schema": 3,
+  "id": "snowflake",
+  "name": "Snowflake",
+  "category": "Developer, Infra & Data",
+  "website": "snowflake.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 67,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No Snowflake review, but each customer's admin must run CREATE SECURITY INTEGRATION in their own account and send you the client ID, secret and account URL. You ship in 1-3 days; onboarding is likely 15-60 minutes each.",
+  "needGuide": "Yes — give customers a copy-paste SQL template for the security integration.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "No central developer registration: each customer account admin creates a custom OAuth client with CREATE SECURITY INTEGRATION (TYPE=OAUTH, OAUTH_CLIENT=CUSTOM) and hands you a client ID/secret and their account URL. Authorization code grant at <account_url>/oauth/authorize and /oauth/token-request; PKCE S256 optional but recommended (can be required). Access token 600 s default (60-3600 s); refresh tokens only if OAUTH_ISSUE_REFRESH_TOKENS is on, with the refresh-token scope, validity set per integration. Alternatives: PATs (15-day default, 365-day max, network policy needed) and key-pair auth (not re-verified).",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours (needs a Snowflake account where you hold admin rights)",
+    "timeToProduction": "1-3 days to ship; each customer onboarding takes their admin about 15-60 min plus change approval (likely)",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days + per-customer setup",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None from Snowflake for custom clients: no review or partner agreement. The gate is per customer: their admin must create the security integration in their account. Partner OAuth (Tableau, Looker, Alation, ThoughtSpot, Collibra) uses predefined OAUTH_CLIENT values; no route for arbitrary developers is described.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Tokens are pinned to a role (session:role:<name>); admin roles are blocked unless Snowflake Support changes it.",
+    "summary": "session:role:<role_name> pins the token to one case-sensitive role; session:role-any allows USE ROLE only if OAUTH_ANY_ROLE_MODE is enabled; refresh_token requests offline access. Pin to a read-only role for agent use. Blocked admin roles need a Snowflake Support request.",
+    "table": []
+  },
+  "cost": "Free to implement; needs a Snowflake account (trial likely sufficient) for testing.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Developer team needs a test Snowflake account where one member is ACCOUNTADMIN (or has CREATE INTEGRATION) to run the SQL.",
+    "Where you register: In the customer's account, as ACCOUNTADMIN or a role with global CREATE INTEGRATION: CREATE SECURITY INTEGRATION ... TYPE=OAUTH OAUTH_CLIENT=CUSTOM OAUTH_REDIRECT_URI='<your callback>' (plus token-validity and refresh-token options); then retrieve the generated client ID and secrets",
+    "Cost: Free to implement; needs a Snowflake account (trial likely sufficient) for testing."
+  ],
+  "registerAt": {
+    "url": "https://docs.snowflake.com/en/user-guide/oauth-custom",
+    "path": "In the customer's account, as ACCOUNTADMIN or a role with global CREATE INTEGRATION: CREATE SECURITY INTEGRATION ... TYPE=OAUTH OAUTH_CLIENT=CUSTOM OAUTH_REDIRECT_URI='<your callback>' (plus token-validity and refresh-token options); then retrieve the generated client ID and secrets"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Give customers a copy-paste SQL template for CREATE SECURITY INTEGRATION (OAUTH_CLIENT=CUSTOM, your redirect URI, OAUTH_ISSUE_REFRESH_TOKENS=TRUE, PKCE required)",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Customer ACCOUNTADMIN runs the SQL and sends client ID, client secret and account URL",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store per-customer client credentials and account URL encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Redirect to <account_url>/oauth/authorize with session:role:<ROLE>, refresh_token scope, state and S256 PKCE; exchange at /oauth/token-request",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Refresh before the 10-minute access token expires; handle refresh-token expiry by re-prompting the user",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Verify with a non-ACCOUNTADMIN role and a network policy in place",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Developer team needs a test Snowflake account where one member is ACCOUNTADMIN (or has CREATE INTEGRATION) to run the SQL.",
+    "console": "none documented (no developer console; configuration is SQL per account)",
+    "customer": "Customer ACCOUNTADMIN or a role with global CREATE INTEGRATION creates the integration. Admin controls: BLOCKED_ROLES_LIST, ALLOWED_ROLES_LIST, token validity, refresh-token toggle, network policies. ACCOUNTADMIN, SECURITYADMIN, GLOBALORGADMIN and ORGADMIN roles can never be consented to by default.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create the integration in your own trial/dev account and run the full authorize, token and refresh cycle in a browser (the authorize URL cannot be curled).",
+    "Test per-account URL handling with two accounts if possible."
+  ],
+  "blockers": [
+    {
+      "problem": "Each customer must create their own integration",
+      "fix": "Ship a clear SQL template and runbook."
+    },
+    {
+      "problem": "Admin roles are blocked from OAuth consent",
+      "fix": "Use a dedicated lower-privilege role."
+    },
+    {
+      "problem": "Short access tokens (default 600 s)",
+      "fix": "Refresh proactively."
+    },
+    {
+      "problem": "Redirect URI must match exactly and use TLS unless OAUTH_ALLOW_NON_TLS_REDIRECT_URI is set",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft and parameterize the SQL template, write the OAuth/PKCE client and token refresh, generate the customer runbook, and run test queries.",
+    "humanMust": "A customer ACCOUNTADMIN must run the SQL, share secrets securely and approve network policies; your team must log in to a test account."
+  },
+  "uncertain": [
+    "Default refresh-token validity, key-pair auth details and current partner-program rules were not confirmed (fetch limit reached).",
+    "Custom-client OAuth for multi-tenant SaaS pitfalls from community sources were not consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.snowflake.com/en/user-guide/oauth-custom",
+      "label": "docs.snowflake.com/en/user-guide/oauth-custom"
+    },
+    {
+      "url": "https://docs.snowflake.com/en/user-guide/oauth-partner",
+      "label": "docs.snowflake.com/en/user-guide/oauth-partner"
+    },
+    {
+      "url": "https://docs.snowflake.com/en/user-guide/programmatic-access-tokens",
+      "label": "docs.snowflake.com/en/user-guide/programmatic-access-tokens"
+    }
+  ]
+}

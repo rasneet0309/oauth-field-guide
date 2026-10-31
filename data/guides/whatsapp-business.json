@@ -1,0 +1,161 @@
+{
+  "schema": 3,
+  "id": "whatsapp-business",
+  "name": "WhatsApp Business",
+  "category": "Communications & Messaging",
+  "website": "developers.facebook.com/docs/whatsapp",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 28,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Build as a Meta Tech Provider with Embedded Signup: business verification first, then App Review for Advanced access on two permissions with a screencast each. Onboarding is capped at 10 new customers a week at first.",
+  "needGuide": "Yes — follow the Tech Provider path: business verification, then App Review with screencasts for both permissions.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Meta Embedded Signup (Facebook Login for Business): customer completes a popup, your server exchanges the code (30-second TTL) via GET /oauth/access_token for a customer-scoped business token. Tech Providers use business tokens exclusively. Token lifetime not stated in the pages read.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 weeks (business verification plus App Review, which averages about 24 hours per Meta)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 weeks incl. review",
+    "difficulty": "Complex",
+    "prodDays": 21
+  },
+  "approval": {
+    "gate": "Tech Provider path: verify your business (required before App Review), submit App Review for Advanced access to whatsapp_business_management and whatsapp_business_messaging (separate screencast per permission, privacy policy, app icon). Without Advanced access you cannot onboard customers. Onboarding is capped at 10 new customers per rolling 7 days until the limit is raised to 200; above that you must become a Meta Business Partner.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Both whatsapp_business_management and whatsapp_business_messaging need Advanced Access through App Review.",
+    "summary": "whatsapp_business_management (account settings, templates) and whatsapp_business_messaging (phone numbers, send/receive) both need Advanced access via App Review; whatsapp_business_manage_events only for Marketing Messages with Conversions API. Requesting unneeded permissions causes rejection.",
+    "table": []
+  },
+  "cost": "Free to build; customers add a payment method in WhatsApp Manager and Meta bills them (Tech Providers have no credit line)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Admin on the Meta app and a business portfolio admin to complete Business Verification; use a company-owned business portfolio.",
+    "Where you register: Meta App Dashboard → Create app (Business type, WhatsApp use case) → Use cases → Customize → Tech Provider onboarding → Start verification → App Review; Embedded Signup Builder under WhatsApp",
+    "Cost: Free to build; customers add a payment method in WhatsApp Manager and Meta bills them (Tech Providers have no credit line)"
+  ],
+  "registerAt": {
+    "url": "https://developers.facebook.com/apps/",
+    "path": "Meta App Dashboard → Create app (Business type, WhatsApp use case) → Use cases → Customize → Tech Provider onboarding → Start verification → App Review; Embedded Signup Builder under WhatsApp"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a Meta Business-type app with the WhatsApp use case and a business portfolio",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Complete Business Verification (name, address, phone, website, documents)",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Set app icon, privacy policy URL and category; record two screencasts (send message; create template)",
+          "who": "Design",
+          "agent": false
+        },
+        {
+          "do": "Submit App Review for Advanced access to both WhatsApp permissions with written explanations",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Implement Embedded Signup v5 (v4 min): Facebook Login for Business configuration, FB.login with config_id, response_type code",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange the code server-side within 30 s, call POST /<WABA_ID>/subscribed_apps, register the phone number with a 6-digit PIN",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Subscribe to the account_update webhook and have the customer add a payment method",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Admin on the Meta app and a business portfolio admin to complete Business Verification; use a company-owned business portfolio.",
+    "console": "App Dashboard → App roles → Roles → Add People (Admin, Developer, Tester); in development mode only these roles see unapproved permissions.",
+    "customer": "Customer signs in with Facebook/Meta Business credentials and completes Embedded Signup (likely needs admin on their business portfolio; docs do not state the role), then adds a payment method; business verification gives them higher limits.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "In development mode, test with users holding Admin/Developer/Tester roles; business apps get Standard Access automatically.",
+    "Test Embedded Signup with your own credentials on an HTTPS domain added to Allowed domains.",
+    "Sandbox accounts are being deleted gradually."
+  ],
+  "blockers": [
+    {
+      "problem": "Embedded Signup v2/v3 were deprecated Oct 15, 2026 and are now served as v4; v5 was released Oct 20, 2026",
+      "fix": "Target v5 or v4."
+    },
+    {
+      "problem": "Code expires in 30 seconds",
+      "fix": "Exchange immediately on the server."
+    },
+    {
+      "problem": "Drafts are not reviewed",
+      "fix": "Click submit; one video per permission, no screenshots."
+    },
+    {
+      "problem": "Accounts created via the developer app cannot be onboarded through Embedded Signup",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write Embedded Signup front and back end, webhook handling, template calls, and draft App Review explanations and shot lists.",
+    "humanMust": "Business verification with documents, Meta login and 2FA, recording and submitting screencasts, customer payment method, possible Meta Business Partner agreement above 200 customers."
+  },
+  "uncertain": [
+    "The brief says Meta retired Access Verification around Oct 9, 2026.",
+    "The Embedded Signup overview I fetched still listed Access Verification as a requirement for the 10-to-200 limit increase, while the Tech Provider and version pages never mention it: likely retired or folded into Business Verification, but unconfirmed.",
+    "Business verification wait time not stated."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.facebook.com/docs/whatsapp/embedded-signup/overview",
+      "label": "developers.facebook.com/docs/whatsapp/embedded-signup/overview"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/business-messaging/whatsapp/solution-providers/get-started-for-tech-providers.md",
+      "label": "developers.facebook.com/documentation/business-messaging/whatsapp/solu…"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/business-messaging/whatsapp/solution-providers/app-review",
+      "label": "developers.facebook.com/documentation/business-messaging/whatsapp/solu…"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/onboarding-customers-as-a-tech-provider.md",
+      "label": "developers.facebook.com/documentation/business-messaging/whatsapp/embe…"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/versions",
+      "label": "developers.facebook.com/documentation/business-messaging/whatsapp/embe…"
+    }
+  ]
+}

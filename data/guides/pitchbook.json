@@ -1,0 +1,137 @@
+{
+  "schema": 3,
+  "id": "pitchbook",
+  "name": "PitchBook",
+  "category": "Finance & Fintech",
+  "website": "pitchbook.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 90,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "key",
+  "verdict": "No OAuth or marketplace review was found. A paid PitchBook subscription with API entitlement is needed and license terms on redistribution and AI use likely apply; mostly unconfirmed, low confidence.",
+  "needGuide": "Yes — ask PitchBook sales whether a customer-facing AI agent is permitted before building.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "No public OAuth app registration or developer portal could be confirmed. Programmatic access is likely a paid add-on to an enterprise subscription (data API or data feeds), provisioned by PitchBook sales or account management with credentials issued to the licensed customer. These details are from background knowledge; none of the pitchbook.com pages tried returned developer content.",
+    "userOAuth": "no",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "unknown (needs a paid subscription and API entitlement first)",
+    "timeToProduction": "unknown",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "The customer (or you, as the licensee) must hold a PitchBook subscription with API entitlement. License terms on redistribution, caching and AI or LLM use likely apply and need review. There is no marketplace or OAuth review to pass.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scope model confirmed; access follows the licence entitlement.",
+    "summary": "No scope model confirmed; access is governed by the licence entitlement (datasets and entities the subscription covers).",
+    "table": []
+  },
+  "cost": "Requires a paid PitchBook subscription plus API entitlement (enterprise pricing, amount unknown)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A procurement or business owner who can contract with PitchBook; a developer to store the credentials as secrets.",
+    "Where you register: No self-serve console found. The customer's licensed user asks their PitchBook account manager for API access; credentials are issued by PitchBook.",
+    "Cost: Requires a paid PitchBook subscription plus API entitlement (enterprise pricing, amount unknown)"
+  ],
+  "registerAt": {
+    "url": "https://pitchbook.com/",
+    "path": "No self-serve console found. The customer's licensed user asks their PitchBook account manager for API access; credentials are issued by PitchBook."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Confirm with PitchBook sales whether your intended use (customer-facing AI agent) is permitted by the license",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Ask for API access and documentation under the subscription",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Receive credentials and store them encrypted, one set per licensed customer",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Build a credentials form for customers to paste their own API credentials",
+          "who": "Design",
+          "agent": true
+        },
+        {
+          "do": "Validate with a test query and enforce query and caching limits from the contract",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Add monitoring for quota use and credential expiry",
+          "who": "Security",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A procurement or business owner who can contract with PitchBook; a developer to store the credentials as secrets.",
+    "console": "none documented",
+    "customer": "The customer's PitchBook admin or licensed user requests API credentials through their account manager; the agent uses credentials the customer supplies.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "No sandbox known; ask PitchBook for a trial or test credentials during contracting."
+  ],
+  "blockers": [
+    {
+      "problem": "No self-serve access",
+      "fix": "Every customer needs their own license and entitlement, so plan the sales process."
+    },
+    {
+      "problem": "License restrictions on redistribution, caching and AI use can block agent features",
+      "fix": "Get them in writing."
+    },
+    {
+      "problem": "Cost and quotas are opaque until contracting",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the licensing questions, build the credential intake and query code once docs and keys are provided, and write tests.",
+    "humanMust": "Contract and payment with PitchBook, sales conversations, licence review, and issuance of credentials by PitchBook or the customer's admin."
+  },
+  "uncertain": [
+    "Everything: the PitchBook API product name, auth method, entitlement process, pricing, sandbox and AI-use terms.",
+    "Fetches of pitchbook.com product pages failed or showed no developer links, so this profile is an inference."
+  ],
+  "sources": [
+    {
+      "url": "https://pitchbook.com/",
+      "label": "pitchbook.com"
+    },
+    {
+      "url": "https://pitchbook.com/products/api",
+      "label": "pitchbook.com/products/api"
+    }
+  ]
+}

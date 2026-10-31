@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "waterfall-io",
+  "name": "Waterfall.io",
+  "category": "Data, SEO & Scraping",
+  "website": "waterfall.io",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 59,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "Keys appear to be issued by Waterfall's team after a call, so email them for access and pricing. Customers do not connect accounts; you use your own key, with usage-based pricing.",
+  "needGuide": "Yes — contact Waterfall for access and pricing first; no self-serve key was found.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "API key in the x-api-key header against https://api.waterfall.io (the marketing page shows two header spellings, the docs say x-api-key). A master key can create and manage sub-keys for teams or workflows. Async endpoints return a job_id; results come via a Finder call or a signed webhook (Ed25519, verified with a public JWKS endpoint). No OAuth.",
+    "userOAuth": "no",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "unknown (depends on Waterfall issuing a key)",
+    "timeToProduction": "unknown, likely days after the onboarding call",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown, likely days",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Keys appear to be issued by Waterfall's team after a call (the docs say to contact them for access and pricing). Pricing is usage-based with no monthly commitment or credit expiry, but figures are not published. Customers do not connect accounts.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes documented; sub-keys partition access and usage.",
+    "summary": "No scopes documented; sub-keys partition access and usage.",
+    "table": []
+  },
+  "cost": "Usage-based pricing quoted by sales; no published prices",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Whoever holds the master key owns the account and can create sub-keys. Use a company-owned contact and shared mailbox.",
+    "Where you register: Contact support@waterfall.io or book a call on waterfall.io to receive the first (master) API key; no self-serve signup was documented",
+    "Cost: Usage-based pricing quoted by sales; no published prices"
+  ],
+  "registerAt": {
+    "url": "https://docs.waterfall.io/v1/authentication",
+    "path": "Contact support@waterfall.io or book a call on waterfall.io to receive the first (master) API key; no self-serve signup was documented"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Email support@waterfall.io or book a call to request API access and pricing",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store the master key in a secrets manager and create sub-keys per environment via the API Key Management endpoints",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call POST /v1/prospector or contact enrichment with x-api-key and a webhook_url",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement webhook verification with the Ed25519 JWKS and polling fallback via job_id",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Review data-privacy obligations for enriched contact data (emails, phones)",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Whoever holds the master key owns the account and can create sub-keys. Use a company-owned contact and shared mailbox.",
+    "console": "Sub-keys via API Key Management endpoints (list, create, update) using the master key.",
+    "customer": "None for the standard model. Sub-keys could separate your customers' usage, but this was not documented.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "No sandbox or test mode is documented.",
+    "Ask support about trial credits and use small batches.",
+    "Test webhook delivery with signature verification against the public JWKS."
+  ],
+  "blockers": [
+    {
+      "problem": "No self-serve key",
+      "fix": "The first key requires contacting Waterfall; start early."
+    },
+    {
+      "problem": "Rate limits and sandbox are not documented",
+      "fix": "Ask during onboarding."
+    },
+    {
+      "problem": "Contact data is personal data",
+      "fix": "Confirm a lawful basis and opt-out handling."
+    },
+    {
+      "problem": "Async jobs",
+      "fix": "Handle webhook failures by polling job_id results."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the access request email, write the client, webhook verifier and sub-key management code, and run test enrichments.",
+    "humanMust": "Contact Waterfall or join a sales call, agree to pricing and terms, and approve privacy and compliance use."
+  },
+  "uncertain": [
+    "How the first key is issued, trial credits, rate limits, sandbox, and sub-key use for customers.",
+    "The Authentication and API key overview pages were only partly visible."
+  ],
+  "sources": [
+    {
+      "url": "https://waterfall.io",
+      "label": "waterfall.io"
+    },
+    {
+      "url": "https://docs.waterfall.io/v1/introduction",
+      "label": "docs.waterfall.io/v1/introduction"
+    },
+    {
+      "url": "https://docs.waterfall.io/v1/authentication",
+      "label": "docs.waterfall.io/v1/authentication"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "threads",
+  "name": "Threads (Meta)",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "developers.facebook.com/docs/threads",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 39,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Only people with a role on your Meta app can connect until each permission passes App Review and the app is published. Business Verification is likely also needed; likely 2-6 weeks, unconfirmed.",
+  "needGuide": "Yes — plan Meta App Review for each permission and check whether Business Verification applies.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Meta app with the Threads use case; authorization window code lasts 1 hour and is exchanged for a short-lived token (1 hour), then a long-lived token (60 days) that can be refreshed. Permission grants last 90 days for public profiles and are extended by refreshing; private profiles cannot extend an expired grant and must re-grant. Authorize and token hosts (threads.net/oauth/authorize, graph.threads.net) are from general knowledge, since the token page failed to fetch.",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours (tester invite accepted in Threads)",
+    "timeToProduction": "unknown; likely 2-6 weeks including Business Verification and App Review",
+    "firstShort": "1–2 hours",
+    "prodShort": "Likely 2–6 weeks incl. review",
+    "difficulty": "Moderate",
+    "prodDays": 42
+  },
+  "approval": {
+    "gate": "Users without a role on the app can grant permissions only after each permission passes App Review and the app is published. Business Verification is likely also required for Advanced Access (Meta states Advanced Access requires it), though the Threads page did not say so.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Each Threads permission (publish, replies, insights) needs App Review before non-role users can grant it.",
+    "summary": "threads_basic (required for all endpoints), threads_content_publish, threads_manage_replies (POST replies), threads_read_replies (GET replies), threads_manage_insights. Each needs App Review for non-role users.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A developer who is Administrator on the Meta app; an Admin of the company Business to complete Business Verification (likely). Use a company-owned Business portfolio.",
+    "Where you register: My Apps -> Create App -> Threads use case; use the separate Threads app ID and secret shown in the app (not the main app ID/secret); App roles for testers; App Review -> Permissions and Features",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://developers.facebook.com/apps/",
+    "path": "My Apps -> Create App -> Threads use case; use the separate Threads app ID and secret shown in the app (not the main app ID/secret); App roles for testers; App Review -> Permissions and Features"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a Meta app with the Threads use case; note the Threads app ID and secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "App roles: invite test Threads accounts; each accepts in Threads account settings",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Configure redirect URIs; build the authorization window redirect and code exchange; swap short-lived for 60-day tokens and refresh before expiry",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Build and test threads_basic plus publish, replies and insights calls with testers",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Start Business Verification (Business Admin) if Advanced Access requires it",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "App Review: request each permission with a screencast and test instructions; publish the app",
+          "who": "Developer",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A developer who is Administrator on the Meta app; an Admin of the company Business to complete Business Verification (likely). Use a company-owned Business portfolio.",
+    "console": "App Dashboard -> App roles -> Roles -> Add People; for Threads testers, send an invitation from App roles and the user accepts it in their Threads account settings.",
+    "customer": "The Threads account owner (any account holder) authorizes in the OAuth window; no admin approval is documented. Private-profile users must re-grant after expiry.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Threads Testers (invited via App roles, accepted in Threads settings) can grant permissions any time before review.",
+    "Media for publishing must be at a publicly reachable URL at each attempt."
+  ],
+  "blockers": [
+    {
+      "problem": "Using the main app ID and secret instead of the Threads-specific ones breaks OAuth",
+      "fix": ""
+    },
+    {
+      "problem": "App Review fails if Meta cannot access or test the flow",
+      "fix": "Provide test accounts and a full screencast."
+    },
+    {
+      "problem": "Grants from private profiles cannot be extended once expired",
+      "fix": "Prompt for re-authorization."
+    },
+    {
+      "problem": "Publishing needs publicly reachable media URLs at each attempt",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write OAuth, token refresh and publish-flow code, draft permission justifications and screencast scripts, run test calls with tester accounts.",
+    "humanMust": "Meta developer login and 2FA, Business Verification, accept platform terms, record screencasts, submit App Review, tester acceptance in Threads."
+  },
+  "uncertain": [
+    "Business Verification applicability to Threads, App Review turnaround, rate limits and endpoint hosts were not confirmed because the access-token page failed to fetch and search budget ran out."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.facebook.com/docs/threads/get-started",
+      "label": "developers.facebook.com/docs/threads/get-started"
+    },
+    {
+      "url": "https://developers.facebook.com/docs/development/release/business-verification",
+      "label": "developers.facebook.com/docs/development/release/business-verification"
+    },
+    {
+      "url": "https://developers.facebook.com/docs/resp-plat-initiatives/individual-processes/app-review",
+      "label": "developers.facebook.com/docs/resp-plat-initiatives/individual-processe…"
+    }
+  ]
+}

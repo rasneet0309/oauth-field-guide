@@ -1,0 +1,138 @@
+{
+  "schema": 3,
+  "id": "salesforce-commerce-cloud",
+  "name": "Salesforce Commerce Cloud",
+  "category": "Ecommerce",
+  "website": "developer.salesforce.com/docs/commerce",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 44,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No self-serve multi-customer app: each customer's admins create an API client in Account Manager, allow it in Business Manager and send you client ID, secret, short code, organization ID and site ID. Days to weeks per customer.",
+  "needGuide": "Yes — write a customer setup guide, since each customer admin does the Account Manager and Business Manager steps.",
+  "auth": {
+    "model": "Client credentials only",
+    "detail": "B2C Commerce has no multi-tenant app install. Back-office integrations use an Account Manager API client (client credentials, created and permissioned per customer org and instance). SLAS (Shopper Login and API Access Service) is OAuth 2.0 authorization code with PKCE, but only for shoppers of one storefront: each SLAS client is tied to one SLAS tenant (one instance). Access tokens last 30 min; refresh tokens 90 days (registered), 30 days (guest), 9 days non-production.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "unknown; needs a sandbox realm (hours once you have one)",
+    "timeToProduction": "per customer: days to weeks depending on their admin availability; no vendor review",
+    "firstShort": "Unknown",
+    "prodShort": "Days to weeks per customer",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "No Salesforce approval to connect, but no self-serve multi-customer registration either: every customer must create an API client in their own Account Manager organization and grant it permissions on their instances, then give you client ID, secret, short code, organization ID and site ID. Optional LINK/AppExchange partner listing is a separate program (not confirmed).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Roles and scopes on the API client plus per-client resource permissions in Business Manager; SLAS clients carry their own scopes.",
+    "summary": "Back-office access is set by roles and scopes on the API client and by per-client resource permissions in Business Manager. SLAS clients carry their own scopes, channels and redirect URIs. No Salesforce review gate was found.",
+    "table": []
+  },
+  "cost": "Requires a licensed B2C Commerce realm/sandbox; integration itself has no fee.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Developer needs a customer-granted or partner sandbox realm; use a company-owned Account Manager user, not a personal login.",
+    "Where you register: Customer side: Account Manager → API Client → Add API Client (likely), then Business Manager API permissions. SLAS: SLAS Admin UI/API or B2C CLI with the SLAS Organization Administrator role.",
+    "Cost: Requires a licensed B2C Commerce realm/sandbox; integration itself has no fee."
+  ],
+  "registerAt": {
+    "url": "https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html",
+    "path": "Customer side: Account Manager → API Client → Add API Client (likely), then Business Manager API permissions. SLAS: SLAS Admin UI/API or B2C CLI with the SLAS Organization Administrator role."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Decide scope: back-office (Account Manager API client + OCAPI/SCAPI Admin APIs) or shopper-facing (SLAS client + Shopper APIs)",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Write a customer setup guide: create API client in Account Manager, set scopes/roles, and allow it in Business Manager API settings per site/instance",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Customer admin performs the setup and sends client ID, secret, short code, organization ID, site ID and instance host",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Obtain tokens with client credentials against Account Manager and call a test endpoint; store secrets encrypted per customer",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "For shoppers, create a SLAS client with the B2C CLI or Admin API, register redirect URIs, and implement authorization_code_pkce with token refresh handling",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test against a sandbox, including expired refresh tokens and rotation of single-use public-client refresh tokens",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Developer needs a customer-granted or partner sandbox realm; use a company-owned Account Manager user, not a personal login.",
+    "console": "Account Manager access controls via roles; SLAS administration requires the SLAS Organization Administrator role with instance filters. Add users in Account Manager (customer admin).",
+    "customer": "Account Manager administrator (to create the API client and assign roles/scopes) plus Business Manager admin (to allow the client under API settings) at each instance; SLAS Organization Administrator for shopper auth.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use an on-demand sandbox or a customer-provided staging instance; SLAS refresh tokens in non-production last only 9 days.",
+    "No free public developer tenant was confirmed."
+  ],
+  "blockers": [
+    {
+      "problem": "Each SLAS client maps to one tenant/instance",
+      "fix": "You need one client per customer instance and cannot reuse a global client."
+    },
+    {
+      "problem": "Customer needs two admin consoles (Account Manager and Business Manager)",
+      "fix": "Send a precise checklist."
+    },
+    {
+      "problem": "Public-client refresh tokens are single-use and rotate",
+      "fix": "Losing one forces re-login."
+    },
+    {
+      "problem": "Non-production refresh tokens expire in 9 days",
+      "fix": "Tests that pass in a sandbox may differ in production."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the customer onboarding checklist, write token acquisition/refresh code, configure SLAS clients through the B2C CLI or Admin API, and run test calls.",
+    "humanMust": "Customer admins must log in to Account Manager and Business Manager (with 2FA) to create and permission clients; the developer needs a sandbox entitlement."
+  },
+  "uncertain": [
+    "Only the SLAS page was retrieved.",
+    "Account Manager API client menu names, role names, OCAPI/SCAPI permission screens, sandbox availability and LINK partner details come from background knowledge, not fetched sources."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html",
+      "label": "developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html"
+    }
+  ]
+}

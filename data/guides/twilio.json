@@ -1,0 +1,152 @@
+{
+  "schema": 3,
+  "id": "twilio",
+  "name": "Twilio",
+  "category": "Communications & Messaging",
+  "website": "twilio.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 22,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "key",
+  "verdict": "No OAuth app was confirmed. Either each customer's admin pastes a Twilio API key (Account SID, key SID, secret) or you create a subaccount per customer; 1-3 days, though number registration may add more (unverified).",
+  "needGuide": "No — just collect the Account SID, API key SID and secret, though messaging number registration may be a separate step.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Customers connect with an Account SID plus an API Key SID/secret (Standard or Restricted key) over HTTP Basic auth; there is no documented self-serve authorization-code flow for third-party apps. Legacy Twilio Connect apps (connect_apps / authorized_connect_apps) still appear in API payloads, but I could not confirm whether new Connect apps can be registered in 2026 (likely closed or legacy).",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days for the connection itself; messaging-number registration can add days to weeks (unverified)",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days, registration extra",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for API keys or subaccounts. Per-product compliance (for example A2P 10DLC, toll-free or short-code registration, WhatsApp sender approval) is likely required before sending at scale; not verified this session. Connect app registration: unconfirmed.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No OAuth scopes; ask customers for a Restricted key limited to the resources you use.",
+    "summary": "No OAuth scopes. Standard keys cover all resources except Accounts and Keys; Restricted keys give fine-grained per-resource access (Console-created; via REST only with Key v1). Prefer Restricted keys for agents.",
+    "table": []
+  },
+  "cost": "Free to build; pay-as-you-go usage billed to whichever account owns the resources",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Developer needs a Twilio Console user who can create API keys on the dev account (owner/admin-level, likely). Main-type keys are Console-only.",
+    "Where you register: Twilio Console → Account → API keys & tokens → Create API key (type Standard or Restricted); secret is shown once",
+    "Cost: Free to build; pay-as-you-go usage billed to whichever account owns the resources"
+  ],
+  "registerAt": {
+    "url": "https://www.twilio.com/docs/iam/api-keys",
+    "path": "Twilio Console → Account → API keys & tokens → Create API key (type Standard or Restricted); secret is shown once"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Choose model: customer-owned account (paste API key) or ISV-owned subaccount per customer",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customer-owned: have the customer's admin create a Standard or Restricted API key in Console → Account → API keys & tokens",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Build a connect form collecting Account SID (AC...), API Key SID (SK...), API secret; encrypt at rest",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with a test call, e.g. GET /2010-04-01/Accounts/{AccountSid}.json using key auth",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "ISV-owned alternative: POST /Accounts.json to create a subaccount per customer; use parent credentials for v2010 resources and subaccount keys for Studio/TaskRouter-style subdomains",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Subscribe webhook URLs per customer number and verify X-Twilio-Signature",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Document compliance registration steps (A2P/sender approvals) for customers",
+          "who": "Legal",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Developer needs a Twilio Console user who can create API keys on the dev account (owner/admin-level, likely). Main-type keys are Console-only.",
+    "console": "Twilio Console user roles and Organizations (Organizations page lists managed accounts, standard users and external users). Invite via Organization admin; exact role names not verified.",
+    "customer": "Customer's Twilio account owner or admin must create an API key and paste it into your app (Standard key = all resources except Accounts and Keys). Alternative: you create a subaccount under your own account per customer, so no customer admin is needed.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a trial or your own account.",
+    "Standard/Restricted keys can be revoked any time.",
+    "Trial-account restrictions (verified numbers only) are likely but not verified here."
+  ],
+  "blockers": [
+    {
+      "problem": "Customers pasting master Auth Tokens",
+      "fix": "Require API keys instead so access can be revoked without rotating the Auth Token."
+    },
+    {
+      "problem": "Region-specific credentials if the account uses Twilio Regions",
+      "fix": "Store region/edge with the key."
+    },
+    {
+      "problem": "Subaccount credentials cannot reach other accounts",
+      "fix": "Keep per-customer keys and do not expect cross-account access."
+    },
+    {
+      "problem": "Connect-app OAuth is unconfirmed for new developers",
+      "fix": "Contact Twilio before designing around it."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the credential-capture form, key validation, encrypted storage, subaccount provisioning code, webhook signature checks and customer-facing setup instructions.",
+    "humanMust": "Customer admin creates and shares the key (or you accept subaccount billing responsibility); complete any messaging compliance registration and Twilio account verification."
+  },
+  "uncertain": [
+    "Could not fetch Twilio Connect or OAuth Apps docs (fetch errors, then fetch quota exhausted), so Connect-app status in 2026 and any new Twilio OAuth for third parties is unconfirmed.",
+    "Console role names and trial limits not verified."
+  ],
+  "sources": [
+    {
+      "url": "https://www.twilio.com/docs/iam/api-keys",
+      "label": "twilio.com/docs/iam/api-keys"
+    },
+    {
+      "url": "https://www.twilio.com/docs/iam/api/subaccounts",
+      "label": "twilio.com/docs/iam/api/subaccounts"
+    },
+    {
+      "url": "https://www.twilio.com/docs/iam/organizations",
+      "label": "twilio.com/docs/iam/organizations"
+    }
+  ]
+}

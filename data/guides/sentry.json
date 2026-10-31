@@ -1,0 +1,143 @@
+{
+  "schema": 3,
+  "id": "sentry",
+  "name": "Sentry",
+  "category": "Developer, Infra & Data",
+  "website": "sentry.io",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 70,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Self-serve to build, but a public integration is visible only to your own organization until you click Publish, which sends it to Sentry for review. Criteria and timeline are undocumented; likely 2-6 weeks.",
+  "needGuide": "Yes — build and test in your org, then request publication so other organizations can install.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Integration Platform. Internal integrations: org-only, token auto-generated on install. Public integrations: OAuth authorization-code style. After install Sentry sends a grant code and installation ID (redirect URL and installation.created webhook); exchange via POST /api/0/sentry-app-installations/{id}/authorizations/ with client ID/secret. Tokens expire after 8 hours; refresh with a client-secret-signed JWT (jwt-bearer grant, recommended) or a refresh token. Permissions are scoped to the organization.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown (likely 2-6 weeks incl. Sentry review)",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely 2–6 weeks)",
+    "difficulty": "Moderate",
+    "prodDays": 42
+  },
+  "approval": {
+    "gate": "A public integration starts unpublished: only the organization that created it can see or install it. To serve other organizations you click Publish, which emails integrations-platform@sentry.io for review. Review criteria and timeline are not documented in the pages read. Logo PNG 256-1024 px required.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Standard org-wide API permissions chosen on the integration and approved by users at install.",
+    "summary": "Standard Sentry API permissions (for example project, issue and event read/write) are chosen when creating the integration and become the token's scopes; users approve them at install. Scopes are org-wide. Which scopes draw extra review is not documented.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Create it under your company's Sentry organization; you cannot grant the integration permissions beyond the creating user's own. Specific org role needed not documented (likely Manager or Owner).",
+    "Where you register: sentry.io → Settings → Developer Settings → New Public Integration (name, webhook URL, redirect URL, permissions, logo)",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://docs.sentry.io/organization/integrations/integration-platform/",
+    "path": "sentry.io → Settings → Developer Settings → New Public Integration (name, webhook URL, redirect URL, permissions, logo)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "In your Sentry org go to Settings → Developer Settings and create a new public integration; set webhook URL, redirect URL, permissions and logo",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Implement the redirect/setup endpoint: receive code and installation ID, exchange at /sentry-app-installations/{id}/authorizations/, store token and refresh token encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement 8-hour token refresh using the JWT grant; handle installation.deleted webhooks",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If Verify Install is on, PUT status=installed to /sentry-app-installations/{id}/",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Install and test in your own org; ask a friendly second org to test after publishing",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Click Publish next to the integration and answer follow-ups from integrations-platform@sentry.io",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Create it under your company's Sentry organization; you cannot grant the integration permissions beyond the creating user's own. Specific org role needed not documented (likely Manager or Owner).",
+    "console": "none documented (integrations belong to the organization)",
+    "customer": "A customer organization admin/owner installs the integration and approves the requested permissions (likely; roles not stated). Org-wide scope means issue/event access spans the whole organization.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Develop as an unpublished public integration and install it in your own Sentry org, or use an internal integration for quick tests; use the external-install URL https://sentry.io/sentry-apps/<slug>/external-install/.",
+    "Sentry offers an example app (Python/TypeScript) with testing advice.",
+    "No sandbox documented."
+  ],
+  "blockers": [
+    {
+      "problem": "Only the creating org can install until Sentry approves publication",
+      "fix": "Plan the review wait before customer launches."
+    },
+    {
+      "problem": "Tokens die after 8 hours",
+      "fix": "Implement refresh early."
+    },
+    {
+      "problem": "Cannot request permissions the creator does not have",
+      "fix": "Create it from an org owner/manager account."
+    },
+    {
+      "problem": "Browser use of tokens needs authorized origins listed (no wildcards)",
+      "fix": "Prefer server-side calls."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the setup endpoint, JWT refresh and webhook handlers, draft listing description and permission justification, and run test API calls.",
+    "humanMust": "Log in (2FA) and create the integration, upload the logo, press Publish, and handle any Sentry review correspondence; a customer admin must install it."
+  },
+  "uncertain": [
+    "Review criteria, timeline and eligibility for publication, plus exact org roles for creating and installing, were not documented in fetched pages.",
+    "Community sources not consulted; fetch limit reached."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.sentry.io/organization/integrations/integration-platform/",
+      "label": "docs.sentry.io/organization/integrations/integration-platform"
+    },
+    {
+      "url": "https://docs.sentry.io/organization/integrations/integration-platform/public-integration/",
+      "label": "docs.sentry.io/organization/integrations/integration-platform/public-i…"
+    }
+  ]
+}

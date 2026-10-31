@@ -1,0 +1,260 @@
+{
+  "schema": 3,
+  "id": "shopify",
+  "name": "Shopify",
+  "category": "Ecommerce",
+  "website": "shopify.dev",
+  "tagline": "Public distribution · App Store review · Protected customer data",
+  "kind": "in-depth",
+  "featured": true,
+  "listNumber": 41,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "review",
+  "verdict": "Custom distribution covers only one store or one Plus organization, so serving arbitrary merchants needs public App Store review, a registration fee, the billing API and compliance webhooks. Duration is not stated; plan several weeks.",
+  "needGuide": "Yes. Public distribution has a long checklist: App Store review, compliance webhooks, the Billing API and protected customer data access.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Embedded apps use the token exchange grant (App Bridge ID token to access token); non-embedded apps use the authorization code grant; managed installation (scopes declared in shopify.app.toml) is the default for CLI-built apps. Offline tokens are per store. Expiring offline tokens last 1 hour with a 90-day refresh token (rotating); public apps must use expiring tokens for the GraphQL Admin API by 2027-01-01 (new public apps cannot use non-expiring ones). Per-shop URLs ({shop}.myshopify.com).",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "1–2 hours (CLI template + dev store)",
+    "timeToProduction": "Unknown; review duration is not stated in official docs. Plan several weeks including resubmissions.",
+    "firstShort": "1–2 hours",
+    "prodShort": "Several weeks incl. review",
+    "difficulty": "Complex",
+    "prodDays": 28
+  },
+  "approval": {
+    "gate": "Creating apps, dev stores and custom-distribution apps is self-serve, but custom distribution only covers one store or stores in one Plus organization. Serving arbitrary other merchants needs public distribution: Shopify App Store review (automated checks, then human review), a one-time registration fee, the Shopify Billing API for any charges, compliance webhooks, and protected customer data access (Level 1, or Level 2 for name/email/phone/address, with possible data protection review).",
+    "when": "Serving arbitrary merchants needs public distribution, which needs Shopify App Store review: automated checks, then human review.",
+    "timeline": [
+      {
+        "label": "Automated checks",
+        "official": "Run before you submit",
+        "reported": ""
+      },
+      {
+        "label": "Human review",
+        "official": "Duration not stated in official docs",
+        "reported": "Plan several weeks including resubmissions"
+      },
+      {
+        "label": "Repeated failures",
+        "official": "Trigger a submission cooldown",
+        "reported": ""
+      }
+    ],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Customer data needs protected customer data Level 1, and name, email, phone or address need Level 2; both are checked at App Store review.",
+    "summary": "",
+    "table": [
+      {
+        "use": "Store data",
+        "scope": "read_/write_ pairs (products, orders, customers, inventory)",
+        "tier": "Declared in shopify.app.toml",
+        "note": "Request only what the app uses"
+      },
+      {
+        "use": "Any customer data",
+        "scope": "Protected customer data, Level 1",
+        "tier": "Checked at App Store review",
+        "note": "Request it in the app's API access requests"
+      },
+      {
+        "use": "Name, email, phone or address",
+        "scope": "Protected customer data, Level 2",
+        "tier": "Checked at App Store review",
+        "note": "Possible data protection review; unapproved fields are redacted"
+      }
+    ]
+  },
+  "cost": "Free to build and test. Public listing: a one-time App Store registration fee (amount not on the fetched pages; commonly cited as US$19, verify) plus Shopify revenue share on app billing.",
+  "tiers": [
+    {
+      "label": "Custom distribution",
+      "eg": "One store or one Plus organization",
+      "difficulty": "Moderate",
+      "time": "1–2 hours to first test",
+      "note": "Self-serve, but it only reaches one store or the stores of one Plus organization."
+    },
+    {
+      "label": "Public distribution (App Store)",
+      "eg": "Any merchant",
+      "difficulty": "Hard",
+      "time": "Several weeks (not stated officially)",
+      "note": "App Store review, a one-time registration fee, the Billing API for charges and mandatory compliance webhooks."
+    }
+  ],
+  "prerequisites": [
+    "A company-owned Shopify ID that owns the Dev Dashboard organization and has app development access, not a personal login.",
+    "Free development stores for testing (no real payments).",
+    "The Shopify CLI (shopify app init, shopify app dev).",
+    "For the listing: a 1200×1200 icon, an English screencast, test credentials, an emergency contact and a privacy policy.",
+    "Budget for the one-time App Store registration fee (commonly cited as US$19; verify)."
+  ],
+  "registerAt": {
+    "url": "https://dev.shopify.com/dashboard",
+    "path": "Dev Dashboard → Apps → Create app (or shopify app init); then set Distribution = Public on the production app (it can't be changed later). Protected customer data: app → API access requests → Protected customer data access → Request access."
+  },
+  "phases": [
+    {
+      "name": "Set up and scaffold",
+      "duration": "1–2 hours",
+      "steps": [
+        {
+          "do": "Create a company-owned Shopify ID and Dev Dashboard organization.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Scaffold the app with shopify app init, set distribution to Public on the production app, and keep a separate dev app.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Build for review",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Declare scopes in shopify.app.toml and rely on managed installation. Implement token exchange (embedded) or the authorization code grant (standalone) with expiring=1 and refresh-token handling.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement the mandatory compliance webhooks (customers/data_request, customers/redact, shop/redact) and use only the GraphQL Admin API.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Request protected customer data access in the app's API access requests, with a reason per field and data protection details.",
+          "who": "Security",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Test on development stores",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Install on a dev store and run end-to-end tests, including uninstall and reinstall and token refresh.",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "App Store review",
+      "duration": "Several weeks (not stated officially)",
+      "gate": "required",
+      "steps": [
+        {
+          "do": "Prepare the listing: 1200×1200 icon, English screencast, test credentials, emergency contact and privacy policy. Run the automated checks.",
+          "who": "Design",
+          "agent": true
+        },
+        {
+          "do": "Pay the registration fee and submit to App Store review. Answer reviewer email from noreply@shopify.com.",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A company-owned Shopify ID that owns the Dev Dashboard organization and has app development access. Use one org-level owner, not a personal login, since distribution and the app listing belong to the org.",
+    "console": "Dev Dashboard documents two permissions: app development access and View financials. Org settings hold users and payout/billing (replaces the Partner Dashboard); the exact add-user path is not confirmed.",
+    "customer": "Store owner or staff with permission to install apps approves the scopes on install. Unapproved protected-customer-data fields come back redacted for public apps.",
+    "consoleRoles": [
+      {
+        "role": "App development access",
+        "can": "Build and manage the organization's apps in the Dev Dashboard.",
+        "who": "Developers"
+      },
+      {
+        "role": "View financials",
+        "can": "See payouts and billing for the organization.",
+        "who": "Whoever owns finance"
+      }
+    ]
+  },
+  "customerExperience": [
+    "A store owner, or staff with permission to install apps, approves the scopes at install.",
+    "Unapproved protected-customer-data fields come back redacted for public apps."
+  ],
+  "testing": [
+    "Free development stores via the Dev Dashboard; shopify app dev tunnels.",
+    "Apps installed only on dev stores can read protected customer data without review (after the access-request form is filled).",
+    "No real payments on dev stores."
+  ],
+  "blockers": [
+    {
+      "problem": "The distribution method can't be changed once chosen",
+      "fix": "Create the production app as Public from the start."
+    },
+    {
+      "problem": "Non-expiring offline tokens stop working for public-app GraphQL Admin calls after 2027-01-01",
+      "fix": "Use expiring tokens, and never refresh and re-acquire at the same time for one store."
+    },
+    {
+      "problem": "Missing compliance webhooks, off-platform billing or REST Admin API use cause review rejection",
+      "fix": "Fix them before submitting: repeated failures trigger a submission cooldown."
+    },
+    {
+      "problem": "Unapproved protected customer data fields are redacted (GraphQL returns HTTP 200 with an error)",
+      "fix": "Request access before testing against real merchants."
+    }
+  ],
+  "gotchas": [
+    "Embedded apps use token exchange (App Bridge ID token to access token); non-embedded apps use the authorization code grant.",
+    "Expiring offline tokens last 1 hour with a rotating 90-day refresh token.",
+    "Tokens are per store, on per-shop URLs ({shop}.myshopify.com)."
+  ],
+  "automation": {
+    "agentCan": "Write the token-exchange/refresh code, shopify.app.toml scopes, compliance webhook handlers, GraphQL queries and test calls, and draft listing copy, data-protection answers and screencast scripts.",
+    "humanMust": "Create and own the Shopify ID/org, accept Partner agreements, pay the registration fee, record the screencast, submit for review, and handle reviewer correspondence."
+  },
+  "uncertain": [
+    "App Store review turnaround and the exact fee amount were not on the fetched pages.",
+    "The Dev Dashboard URL and add-user path are inferred.",
+    "The protected-data page still says Partner Dashboard (likely stale since the Dev Dashboard replaced it).",
+    "Managed-installation pages for token exchange returned errors."
+  ],
+  "sources": [
+    {
+      "url": "https://shopify.dev/docs/apps/launch/distribution",
+      "label": "App distribution"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens",
+      "label": "Offline access tokens"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/build/authentication-authorization",
+      "label": "Authentication and authorization"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/launch/protected-customer-data",
+      "label": "Protected customer data"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/build/dev-dashboard",
+      "label": "Dev Dashboard"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review",
+      "label": "Submit for App Store review"
+    }
+  ]
+}

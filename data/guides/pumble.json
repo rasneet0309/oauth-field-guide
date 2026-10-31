@@ -1,0 +1,154 @@
+{
+  "schema": 3,
+  "id": "pumble",
+  "name": "Pumble",
+  "category": "Communications & Messaging",
+  "website": "pumble.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 25,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "partner",
+  "verdict": "Likely needs a CAKE.com Marketplace listing to reach other workspaces; submission and review steps are unconfirmed. A workspace admin installs and then each member authorizes; low confidence, timeline unknown.",
+  "needGuide": "Yes — confirm the Marketplace publishing process with Pumble before building for outside workspaces.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Pumble Add-ons (apps) get an app id (used as clientId in OAuth2 requests) and clientSecret; on install they receive User and Bot tokens split by user scopes and bot scopes. The SDK supports an OAuth2 redirect handler. Separately, personal API keys are generated via the API add-on. Token lifetimes not documented in what I read.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Likely a CAKE.com Marketplace / Pumble App Directory listing is needed to reach other workspaces (SDK docs have a Publishing to CAKE.com Marketplace page; submission and review steps not confirmed). Installing into your own workspace needs only an admin.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "User scopes and bot scopes; no scope-level review documented.",
+    "summary": "User scopes (act as the user) and bot scopes (adds a bot user). Personal API keys allow send/reply/delete messages, reactions, create channels, list messages and channels; 1,000 requests/min per user. No scope-level review documented.",
+    "table": []
+  },
+  "cost": "Free to build; installed-add-on cap per workspace (3 Free, 10 Pro, unlimited Business/Enterprise)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Admin (or owner) of a Pumble workspace creates the add-on; use a company-owned workspace.",
+    "Where you register: Pumble → Workspace settings → Configure apps → Create app (or npx pumble-cli create after pumble-cli login)",
+    "Cost: Free to build; installed-add-on cap per workspace (3 Free, 10 Pro, unlimited Business/Enterprise)"
+  ],
+  "registerAt": {
+    "url": "https://pumble.com/help/integrations/add-pumble-apps/guide-to-pumble-integrations/",
+    "path": "Pumble → Workspace settings → Configure apps → Create app (or npx pumble-cli create after pumble-cli login)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a company-owned Pumble workspace and become its admin",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Run npm i -g pumble-cli; pumble-cli login (email + code); pumble-cli create",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Define bot/user scopes and event subscriptions in the app setup",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Configure oauth2Config.redirect (enable, onSuccess, onError) and verify signing secret on incoming requests",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Run npm run dev; install the add-on in the test workspace and click Allow",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Prepare listing copy and request publishing to the CAKE.com Marketplace for external workspaces",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Fallback for single customers: have the customer generate a personal API key with /api-keys generate",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Admin (or owner) of a Pumble workspace creates the add-on; use a company-owned workspace.",
+    "console": "none documented.",
+    "customer": "Only workspace admins and owners can install an add-on; afterwards each member must click Authorize to connect their own account. Guests (single- and multi-channel) cannot connect.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a free Pumble workspace, run pumble-cli dev, install the add-on there.",
+    "Free plan allows 3 add-ons."
+  ],
+  "blockers": [
+    {
+      "problem": "Add-on limits per plan",
+      "fix": "Customers on Free can have only 3 add-ons."
+    },
+    {
+      "problem": "Members must click Authorize after admin install",
+      "fix": "Build onboarding that tells them."
+    },
+    {
+      "problem": "Bot cannot list private channel messages unless it is a channel member",
+      "fix": ""
+    },
+    {
+      "problem": "Distribution path to other workspaces is unclear",
+      "fix": "Contact Pumble/CAKE.com support early."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Scaffold the app with pumble-cli, write handlers and OAuth redirect code, verify signatures, draft listing copy.",
+    "humanMust": "Admin login and install consent; marketplace submission and any CAKE.com agreement."
+  },
+  "uncertain": [
+    "Whether any developer can distribute an add-on to external workspaces, review/approval process, token expiry and refresh, and the OAuth authorize URL were not documented in the pages I could fetch (several pumble.com and SDK pages failed or were thin)."
+  ],
+  "sources": [
+    {
+      "url": "https://pumble.com/help/integrations/add-pumble-apps/guide-to-pumble-integrations/",
+      "label": "pumble.com/help/integrations/add-pumble-apps/guide-to-pumble-integrati…"
+    },
+    {
+      "url": "https://pumble.com/help/integrations/automation-workflow-integrations/api-keys-integration/",
+      "label": "pumble.com/help/integrations/automation-workflow-integrations/api-keys…"
+    },
+    {
+      "url": "https://cake-com.github.io/pumble-node-sdk/getting-started",
+      "label": "cake-com.github.io/pumble-node-sdk/getting-started"
+    },
+    {
+      "url": "https://github.com/CAKE-com/pumble-node-sdk",
+      "label": "github.com/CAKE-com/pumble-node-sdk"
+    }
+  ]
+}

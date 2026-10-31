@@ -1,0 +1,141 @@
+{
+  "schema": 3,
+  "id": "reducto",
+  "name": "Reducto",
+  "category": "AI, Research & Media",
+  "website": "reducto.ai",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 95,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No OAuth: you use your own key from Studio and send customer documents under your account, about 1-3 days. A customer who wants their own account pastes their key, and enterprise terms likely need sales.",
+  "needGuide": "No — just create an API key in Studio and store it server-side.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Reducto is a document-parsing API, not a user-data app. API keys are created in Studio and sent as `Authorization: Bearer $REDUCTO_API_KEY` to https://platform.reducto.ai. The hosted MCP server (https://mcp.reducto.ai/mcp) also takes the API key as a bearer token. The local MCP server's `--login` uses a browser device-code flow only to fetch and save a key. No OAuth app registration for third parties.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "under 30 min",
+    "timeToProduction": "1-3 days (no review); enterprise/data-handling terms unknown",
+    "firstShort": "Under 30 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for OAuth because none exists. You use your own key (your customers' documents are sent to Reducto under your account). Enterprise terms, zero-retention or higher limits likely need a Reducto sales contact (unconfirmed).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Keys are all-or-nothing for the account.",
+    "summary": "None. Keys are all-or-nothing for the account; no per-scope model documented.",
+    "table": []
+  },
+  "cost": "Free signup with credits (amount not stated); usage billed in credits",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Anyone who can sign up at Studio. Use a company-owned account so keys are not tied to a personal email.",
+    "Where you register: studio.reducto.ai → sign up → sidebar API Keys → create key, name it and copy.",
+    "Cost: Free signup with credits (amount not stated); usage billed in credits"
+  ],
+  "registerAt": {
+    "url": "https://studio.reducto.ai/api-keys",
+    "path": "studio.reducto.ai → sign up → sidebar API Keys → create key, name it and copy."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign up at studio.reducto.ai with a company email.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Open API Keys in the Studio sidebar, create a key named for the environment and store it in a secrets manager.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Call POST https://platform.reducto.ai/upload and /parse with the Bearer key or via the Python/Node/Go SDK (reads REDUCTO_API_KEY).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "For agent tooling, add the hosted MCP server with an Authorization: Bearer header, or run `uvx mcp-server-reducto`.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If supporting bring-your-own-key, add a settings field that stores the customer's key encrypted and validates it with a test parse.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Review data-processing terms and retention for customer documents.",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Anyone who can sign up at Studio. Use a company-owned account so keys are not tied to a personal email.",
+    "console": "none documented",
+    "customer": "Customers do not connect an account. If a customer wants to bring their own key, they create it in Studio and paste it into your app.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Free Studio account; each parse response reports credits used in usage.credits.",
+    "Rate limits not stated in the quickstart."
+  ],
+  "blockers": [
+    {
+      "problem": "No OAuth, so customers cannot connect their own account",
+      "fix": "Use your own key or a BYO-key field."
+    },
+    {
+      "problem": "Customer documents are processed under your account",
+      "fix": "Cover this in your DPA and ask Reducto about retention options."
+    },
+    {
+      "problem": "Rate limits and credit amounts are not documented in the quickstart",
+      "fix": "Check the account dashboard or contact Reducto."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the parse client, configure MCP, run test parses, and build the BYO-key form and validation call.",
+    "humanMust": "Sign up, create and rotate the key, accept terms, add payment, and sign any enterprise or data-handling agreement."
+  },
+  "uncertain": [
+    "Rate limits, free credit amount, SOC2/retention options, and whether Reducto offers OAuth on request were not found."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.reducto.ai/quickstart.md",
+      "label": "docs.reducto.ai/quickstart.md"
+    },
+    {
+      "url": "https://docs.reducto.ai/mcp-server.md",
+      "label": "docs.reducto.ai/mcp-server.md"
+    },
+    {
+      "url": "https://docs.reducto.ai",
+      "label": "docs.reducto.ai"
+    }
+  ]
+}

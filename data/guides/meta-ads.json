@@ -1,0 +1,156 @@
+{
+  "schema": 3,
+  "id": "meta-ads",
+  "name": "Meta Ads",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "developers.facebook.com/docs/marketing-apis",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 32,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Managing other people's ad accounts needs Advanced Access through App Review, which requires Business Verification. Full Marketing API access also needs 500 successful calls in 15 days; likely 3-8 weeks, unconfirmed.",
+  "needGuide": "Yes — start Business Verification early, then App Review, and plan for the Full access activity requirement.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Facebook Login OAuth dialog with scope parameter (ads_read, ads_management); user clicks Allow. Token lifetimes were not on the pages read; commonly short-lived tokens are exchanged for ~60-day long-lived tokens, and system-user tokens exist for business-level access (from general knowledge, unverified here).",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "1-2 hours (dev mode, app role users only)",
+    "timeToProduction": "unknown; likely 3-8 weeks (Business Verification plus one or more App Review rounds plus the 15-day activity requirement)",
+    "firstShort": "1–2 hours",
+    "prodShort": "Likely 3–8 weeks incl. review",
+    "difficulty": "Complex",
+    "prodDays": 56
+  },
+  "approval": {
+    "gate": "Managing other people's ad accounts needs Advanced Access to ads_read and/or ads_management via App Review, and Advanced Access requires Business Verification (since 2023-02-01). Separately, the Marketing API tier starts at Limited access (development only, heavily rate-limited, not for live advertisers) and upgrades to Full access after App Review plus 500 successful Marketing API calls in the last 15 days with under 15% errors over the last 500.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "ads_read and ads_management need Advanced Access through App Review to serve other businesses.",
+    "summary": "ads_read (read ad data) and ads_management (create and edit ads). Standard Access is enough only for your own ad accounts; both need Advanced Access to serve other businesses. Related permissions such as business_management or page permissions (not covered by pages read) likely need review as well.",
+    "table": []
+  },
+  "cost": "Free (customers pay for ad spend)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Developer with a personal Facebook login who is an Administrator on the app and an Admin of the company's Business (portfolio). Use a company-owned Business, not a personal one.",
+    "Where you register: My Apps -> Create App -> choose the Marketing API (create and manage ads) use case; App settings -> Basic for App ID/secret; Use cases -> Customize -> Permissions and features; App Review -> Permissions and Features",
+    "Cost: Free (customers pay for ad spend)"
+  ],
+  "registerAt": {
+    "url": "https://developers.facebook.com/apps/",
+    "path": "My Apps -> Create App -> choose the Marketing API (create and manage ads) use case; App settings -> Basic for App ID/secret; Use cases -> Customize -> Permissions and features; App Review -> Permissions and Features"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Register as Meta developer and create an app with the Marketing API use case in the App Dashboard, owned by the company Business",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Settings -> Basic: add privacy policy URL, app icon, data deletion URL; set Valid OAuth Redirect URIs",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Settings -> Basic -> Verification -> Start Verification; Business Admin completes Business Verification with legal documents",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Implement OAuth with scope ads_read,ads_management; exchange for long-lived tokens; test with role users and own ad accounts",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "App Review -> Permissions and Features: request Advanced Access for ads_read/ads_management with screencast of the full login-to-ad-action flow and reviewer test instructions",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Switch app to Live; generate at least 500 successful Marketing API calls in 15 days with under 15% errors to reach Full tier",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Keep traffic steady: Advanced Access lapses if the 500-calls-in-15-days and under 15% error rule is not maintained",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Developer with a personal Facebook login who is an Administrator on the app and an Admin of the company's Business (portfolio). Use a company-owned Business, not a personal one.",
+    "console": "App Dashboard -> App roles -> Roles -> Add People (Administrators, Developers, Testers). Only a Business Admin can finish Business Verification, though any app Administrator can link the app to a Business.",
+    "customer": "A person with a role on the ad account (admin or advertiser, via their Business portfolio) who grants permission in the OAuth dialog. Business-level admins can restrict who holds ad account roles (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Until approved, only people with a role on the app can grant permissions (dev mode).",
+    "Limited tier allows 1 system user plus 1 admin system user; Full allows 10 plus 1.",
+    "Both tiers can reach unlimited ad accounts.",
+    "A Marketing API sandbox may exist but was not confirmed."
+  ],
+  "blockers": [
+    {
+      "problem": "Advanced Access is blocked until Business Verification completes",
+      "fix": "Start it first because only a Business Admin can finish it."
+    },
+    {
+      "problem": "App Review rejects the whole submission if Meta cannot access the app",
+      "fix": "Provide working test credentials and a complete screencast."
+    },
+    {
+      "problem": "Naming confusion",
+      "fix": "Permission levels (Standard/Advanced) versus Marketing API tiers (Limited/Full, renamed from Standard/Advanced); the Full tier needs 500 calls in 15 days and an error rate under 15%."
+    },
+    {
+      "problem": "Limited tier is for development only and heavily rate-limited",
+      "fix": "Do not onboard live advertisers on it."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write OAuth and token-exchange code, generate call volume and monitor error rates, draft App Review use-case descriptions per permission, test-instruction text and screencast scripts, run test calls.",
+    "humanMust": "Business Verification (legal documents, Business Admin), login and 2FA, recording the screencast, accepting platform terms, submitting App Review."
+  },
+  "uncertain": [
+    "Business Verification and App Review timelines, token lifetimes, sandbox availability and exact current use-case names were not on the pages read; search budget ran out, so no community timelines were checked."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.facebook.com/docs/marketing-api/overview/authorization",
+      "label": "developers.facebook.com/docs/marketing-api/overview/authorization"
+    },
+    {
+      "url": "https://developers.facebook.com/docs/development/release/business-verification",
+      "label": "developers.facebook.com/docs/development/release/business-verification"
+    },
+    {
+      "url": "https://developers.facebook.com/docs/resp-plat-initiatives/individual-processes/app-review",
+      "label": "developers.facebook.com/docs/resp-plat-initiatives/individual-processe…"
+    },
+    {
+      "url": "https://developers.facebook.com/docs/marketing-api/get-started",
+      "label": "developers.facebook.com/docs/marketing-api/get-started"
+    }
+  ]
+}

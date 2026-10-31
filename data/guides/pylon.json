@@ -1,0 +1,137 @@
+{
+  "schema": 3,
+  "id": "pylon",
+  "name": "Pylon",
+  "category": "Support & Helpdesk",
+  "website": "usepylon.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 15,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth. Each customer's workspace Admin creates an API token and pastes it into your app along with their region (US or EU); no review, about 1-3 days.",
+  "needGuide": "No — just collect an Admin-created API token and the region.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Bearer API tokens created by workspace Admins. Tokens do not expire and have no scopes (access follows the assigned role). Regional hosts: api.usepylon.com (US) and api.eu.usepylon.com (EU); a wrong-region token returns 401 wrong_region_token. Optional IP allowlist (up to 20 entries). The API docs do not mention OAuth.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None: each customer creates and pastes their own token. No OAuth, app review or partner program was found in the docs.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes: permissions come from the token's role; older tokens without a role act as Admin.",
+    "summary": "No scopes: permissions come from the role on a token with its own identity, or from the user/bot it acts as. Older tokens without a role act as Admin.",
+    "table": []
+  },
+  "cost": "Requires a Pylon workspace (paid customers); no developer fee found",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Pylon workspace Admin is needed to create tokens for your own testing.",
+    "Where you register: Customer admin creates the token in Pylon settings; bots under Settings → Workspace → Users (token creation page path not verified)",
+    "Cost: Requires a Pylon workspace (paid customers); no developer fee found"
+  ],
+  "registerAt": {
+    "url": "https://docs.usepylon.com/pylon-docs/developer/api/authentication",
+    "path": "Customer admin creates the token in Pylon settings; bots under Settings → Workspace → Users (token creation page path not verified)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Add a connect screen asking for API token and region (US or EU)",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Customer Admin creates a token with its own identity and a least-privilege role (or a bot token)",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Pick the base URL from the token prefix; validate with a read-only API call",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store tokens encrypted; tell customers they may add your egress IPs to the 20-entry allowlist",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Ask Pylon (sales or support) whether OAuth or a partner/marketplace path is planned",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Pylon workspace Admin is needed to create tokens for your own testing.",
+    "console": "none documented",
+    "customer": "A workspace Admin (only Admins can create and manage tokens). Tokens can have their own identity and role, or act as a user or bot. Deactivating a user deletes every token they created.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "No sandbox documented; use a trial or customer-provided workspace and a low-privilege role token.",
+    "Check the region prefix (pylon_api_eu_ for EU)."
+  ],
+  "blockers": [
+    {
+      "problem": "Wrong-region token returns 401",
+      "fix": "Derive host from the token prefix or ask the customer."
+    },
+    {
+      "problem": "Rotating a token immediately invalidates the old one",
+      "fix": "Support re-entry flows."
+    },
+    {
+      "problem": "Tokens acting as a user vanish if that user is deactivated",
+      "fix": "Recommend a bot or own-identity token."
+    },
+    {
+      "problem": "IP allowlist rejects with 401 invalid_api_token",
+      "fix": "Give customers your static egress IPs."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the token-entry flow, region handling and test calls, and draft customer setup instructions.",
+    "humanMust": "A customer Admin creates the token; you contact Pylon about any OAuth/partner options."
+  },
+  "uncertain": [
+    "Whether Pylon offers OAuth or a partner program on request (not found); rate limit values; exact UI path for token creation; sandbox availability.",
+    "The fetched docs page also contained an embedded agent instruction, which I ignored."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.usepylon.com/pylon-docs/developer/api",
+      "label": "docs.usepylon.com/pylon-docs/developer/api"
+    },
+    {
+      "url": "https://docs.usepylon.com/pylon-docs/developer/api/authentication",
+      "label": "docs.usepylon.com/pylon-docs/developer/api/authentication"
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "schema": 3,
+  "id": "podio",
+  "name": "Podio",
+  "category": "CRM & Sales",
+  "website": "podio.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 6,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "self",
+  "verdict": "Likely self-serve: register an API key and run the authorization-code flow against any Podio user's account, with no marketplace review known. Low confidence, recalled from memory, not verified; likely 1-3 days.",
+  "needGuide": "Short one, but confirm the registration steps and token details in current docs first.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Likely: server-side authorization-code flow (podio.com/oauth/authorize, token at api.podio.com/oauth/token), plus client-side, password and app-authentication flows. Access tokens last about 8 hours with a refresh token. Unverified this session.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days (no review)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None known: any registered API key can use the authorization-code flow against any Podio user's account. No marketplace review is known for API clients.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Likely one coarse scope (for example global:all); access follows the user's Podio permissions (unverified).",
+    "summary": "Likely a coarse scope parameter (for example global:all) rather than fine-grained scopes; permissions follow the user's Podio access. Unverified.",
+    "table": []
+  },
+  "cost": "Free to register an API key; Podio has paid plans for customers",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Podio user can register an API key; use a company-owned Podio account, since the key belongs to the account that created it.",
+    "Where you register: Logged-in Podio user → Account Settings → API Keys (podio.com/settings/api): register a key tied to your domain to get client ID and secret (from memory, not verified).",
+    "Cost: Free to register an API key; Podio has paid plans for customers"
+  ],
+  "registerAt": {
+    "url": "https://developers.podio.com/authentication",
+    "path": "Logged-in Podio user → Account Settings → API Keys (podio.com/settings/api): register a key tied to your domain to get client ID and secret (from memory, not verified)."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a company Podio account and a test workspace",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Register an API key in Account Settings with your app domain; copy client ID and secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement server-side authorization-code flow with a redirect on the registered domain",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store access and refresh tokens; refresh before the roughly 8-hour expiry",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test calls against org, space and app item endpoints; handle rate limiting",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Podio user can register an API key; use a company-owned Podio account, since the key belongs to the account that created it.",
+    "console": "none documented",
+    "customer": "The connecting Podio user approves access to workspaces and orgs they belong to; org admins may limit membership and API usage (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Free Podio account and a test organization or workspace; no separate sandbox.",
+    "API rate limits apply (about 1000 calls per hour, from memory)."
+  ],
+  "blockers": [
+    {
+      "problem": "Redirect URI must match the domain registered on the API key",
+      "fix": "Register the production domain."
+    },
+    {
+      "problem": "Rate limits are low and shared per user",
+      "fix": "Batch and cache."
+    },
+    {
+      "problem": "Account-based keys are tied to a person",
+      "fix": "Register under a shared company account."
+    },
+    {
+      "problem": "Podio's product direction under its owner may change",
+      "fix": "Confirm status before building."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth client, refresh logic and API wrappers, run test calls.",
+    "humanMust": "Register the API key in the UI and have the customer authorize."
+  },
+  "uncertain": [
+    "The Podio authentication page could not be fetched (hourly fetch limit hit).",
+    "All details are from prior knowledge: token lifetime, scope model, registration path, rate limits."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.podio.com/authentication",
+      "label": "developers.podio.com/authentication"
+    },
+    {
+      "url": "https://developers.podio.com/",
+      "label": "developers.podio.com"
+    }
+  ]
+}

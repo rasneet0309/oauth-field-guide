@@ -1,0 +1,160 @@
+{
+  "schema": 3,
+  "id": "xero",
+  "name": "Xero",
+  "category": "Finance & Fintech",
+  "website": "developer.xero.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 87,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve with no approval to start, but connection caps gate scale: 5 free, 50 on Core (AUD 35/month), 1,000 on Plus (needs App Certification), and higher tiers need a security assessment.",
+  "needGuide": "Short one to start, but check the connection-cap tiers and App Certification before you scale.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code flow (web), code with PKCE (native/SPA) and Custom Connections (client credentials, single organisation); the documented flow includes checking the tenants you are authorized for, then calling the API with the tenant. Needs the offline_access scope for refresh tokens. Token lifetimes (access about 30 minutes, single-use refresh token about 60 days) are background knowledge, not re-verified. Plans from 2 March 2026 cap connections: Starter 5 (free), Core 50, Plus 1,000, Advanced 10,000, Enterprise unlimited.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "same day for up to 50 organisations (Core); App Certification for Plus is unknown, likely weeks",
+    "firstShort": "30–60 min",
+    "prodShort": "Same day up to 50 orgs",
+    "difficulty": "Moderate",
+    "prodDays": 0.5
+  },
+  "approval": {
+    "gate": "No approval to start, but connection caps gate scale. Per the pricing page: Starter 5 connections (free), Core 50 (AUD 35/month, needs a registered credit card), Plus 1,000 (requires App Certification), Advanced 10,000 (App Certification plus initial and annual security assessment), Enterprise unlimited (App Store listing required). The Journals endpoint, XPM API and Bulk Connections need a security assessment and use-case approval. The old 25-connection uncertified cap is not mentioned on the page (likely replaced). Existing apps migrate with 30 days notice.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "atScale": "App Certification above 50 connected organisations",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Additive scopes across many products; journals, Practice Manager and bulk connections need a security assessment.",
+    "summary": "Scopes are additive. Categories: offline_access, openid/profile/email, Accounting (transactions, contacts, settings, reports, attachments, journals), Payroll AU/UK/NZ, Files, Assets, Projects, Bank feeds, Finance, Practice Manager, eInvoicing. Journals, XPM and Bulk Connections need a security assessment. Granular-scope requirements for newer apps were not confirmed.",
+    "table": []
+  },
+  "cost": "Starter free; Core AUD 35/month; Plus AUD 245; Advanced AUD 1,445; Enterprise on application; egress overage AUD 2.40 per GB (Core to Advanced)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Xero login owning the developer app (use a company-owned account); a billing owner with a registered credit card for Core and above; a business contact for certification and security assessment.",
+    "Where you register: developer.xero.com → My Apps → New app → pick integration type, company URL, redirect URIs → Configuration tab → generate client secret.",
+    "Cost: Starter free; Core AUD 35/month; Plus AUD 245; Advanced AUD 1,445; Enterprise on application; egress overage AUD 2.40 per GB (Core to Advanced)"
+  ],
+  "registerAt": {
+    "url": "https://developer.xero.com/app/manage",
+    "path": "developer.xero.com → My Apps → New app → pick integration type, company URL, redirect URIs → Configuration tab → generate client secret."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Log in to developer.xero.com with a company-owned Xero account",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "My Apps → New app; choose Web app (or PKCE type); add HTTPS redirect URI",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Request scopes (offline_access plus the specific accounting scopes) and implement code exchange, tenant lookup and refresh-token rotation",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a Demo Company and a second real organisation",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Watch connection counts in the developer dashboard; upgrade to Core (credit card) before reaching 5 connections",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "For more than 50 customers, apply for App Certification (and security assessment for Advanced)",
+          "who": "Security",
+          "agent": false
+        },
+        {
+          "do": "Optionally list on the Xero App Store",
+          "who": "Design",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Xero login owning the developer app (use a company-owned account); a billing owner with a registered credit card for Core and above; a business contact for certification and security assessment.",
+    "console": "none documented in the pages read",
+    "customer": "A Xero organisation user with sufficient role (likely Standard or Advisor; read-only users probably cannot connect) approves the consent screen and picks organisations. Admins can disconnect the app from the organisation's connected apps settings (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Apps start on Starter (5 connections); use Xero's Demo Company for sandbox-style testing (background knowledge).",
+    "Rate limits: 1,000 calls per day per organisation on Starter, 5,000 on other plans."
+  ],
+  "blockers": [
+    {
+      "problem": "Hard connection caps (5 on Starter, 50 on Core)",
+      "fix": "The sixth or fifty-first customer fails to connect; upgrade the plan or certify."
+    },
+    {
+      "problem": "Single-use refresh tokens (background knowledge)",
+      "fix": "Store the new token atomically or users must reconnect."
+    },
+    {
+      "problem": "Daily per-organisation limit of 1,000 calls on Starter",
+      "fix": "Batch and cache."
+    },
+    {
+      "problem": "Certification and security assessment lead times are undocumented",
+      "fix": "Start early."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and tenant-handling code, run Demo Company tests, draft certification and security assessment answers and App Store listing copy.",
+    "humanMust": "Xero login, adding a credit card and accepting developer terms, certification and security assessment submissions, and customers authorizing their organisations."
+  },
+  "uncertain": [
+    "Token lifetimes, PKCE and Custom Connection pricing, granular-scope changes, certification checklist and timeline (those pages rendered only headings or binary data).",
+    "Pricing is in AUD and effective 2 March 2026; check for later changes."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.xero.com/pricing",
+      "label": "developer.xero.com/pricing"
+    },
+    {
+      "url": "https://developer.xero.com/documentation/guides/oauth2/overview/",
+      "label": "developer.xero.com/documentation/guides/oauth2/overview"
+    },
+    {
+      "url": "https://developer.xero.com/documentation/guides/oauth2/auth-flow/",
+      "label": "developer.xero.com/documentation/guides/oauth2/auth-flow"
+    },
+    {
+      "url": "https://developer.xero.com/documentation/guides/oauth2/limits/",
+      "label": "developer.xero.com/documentation/guides/oauth2/limits"
+    },
+    {
+      "url": "https://developer.xero.com/documentation/guides/oauth2/scopes/",
+      "label": "developer.xero.com/documentation/guides/oauth2/scopes"
+    }
+  ]
+}

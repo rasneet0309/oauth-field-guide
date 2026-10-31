@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "zoho-cliq",
+  "name": "Zoho Cliq",
+  "category": "Communications & Messaging",
+  "website": "zoho.com/cliq",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 23,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: register a Server-based client in the Zoho API Console, with no review documented, in about 1-3 days. Use the accounts domain that matches each customer's data center.",
+  "needGuide": "Short one, plus a data-center check: register the client, add redirect URIs, route each customer to their own accounts domain.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization-code flow against accounts.zoho.{dc}/oauth/v2/auth with response_type=code and access_type=offline; token at /oauth/v2/token. Access token lasts about 1 hour; refresh via grant_type=refresh_token; revoke at /oauth/v2/token/revoke. Header is Authorization: Zoho-oauthtoken {token}. Each data center (.com, .eu, .in, .com.au and others) has its own accounts and API domain.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review); multi-data-center handling adds testing",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None documented for the OAuth client itself. Marketplace/extension listing for Cliq is optional (not verified). Must use the accounts domain matching each customer's data center.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (listing optional)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Per-endpoint scopes (ZohoCliq.<Resource>.<READ|CREATE|UPDATE|DELETE>); no scope-level review documented.",
+    "summary": "Scopes per endpoint, format ZohoCliq.<Resource>.<READ|CREATE|UPDATE|DELETE>. No scope-level review is documented. Request only what the agent needs (channel read, message post).",
+    "table": []
+  },
+  "cost": "Free API; Cliq plan limits may apply to the customer's org (unverified)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Zoho account owner on the developer side can register the client in the API Console; use a company-owned Zoho account, not a personal one.",
+    "Where you register: Zoho API Console → Add Client → Server-based Applications → enter client name, homepage/client domain, authorized redirect URIs → copy Client ID and Secret",
+    "Cost: Free API; Cliq plan limits may apply to the customer's org (unverified)"
+  ],
+  "registerAt": {
+    "url": "https://api-console.zoho.com/",
+    "path": "Zoho API Console → Add Client → Server-based Applications → enter client name, homepage/client domain, authorized redirect URIs → copy Client ID and Secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in to api-console.zoho.com (or the DC-specific console) with a company-owned Zoho account",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Add Client → Server-based Applications; set redirect URI(s) and copy Client ID/Secret",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "List needed scopes (e.g. ZohoCliq.Channels.READ, messages scopes) and build the auth URL with access_type=offline&prompt=consent",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement code exchange at {accounts-domain}/oauth/v2/token and store refresh tokens encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Detect each customer's DC from the redirect/authorize response and route API calls to the matching domain",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement refresh (1-hour access tokens) and revocation on disconnect",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Run test calls against a Cliq org in two data centers",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Zoho account owner on the developer side can register the client in the API Console; use a company-owned Zoho account, not a personal one.",
+    "console": "none documented in the Cliq docs for API Console collaborators.",
+    "customer": "The authorizing user consents to scopes (e.g. ZohoCliq.Channels.READ). Some endpoints need extra scopes such as Zoho People. A Zoho org admin can likely restrict third-party app access; not verified.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a free Zoho/Cliq org in the data center you target and run the full code flow.",
+    "Tokens are per DC, so test at least .com plus one other DC (.eu or .in)."
+  ],
+  "blockers": [
+    {
+      "problem": "Wrong data-center domain gives invalid_client or redirect errors",
+      "fix": "Store the customer's DC and use matching accounts and API domains."
+    },
+    {
+      "problem": "No refresh token returned",
+      "fix": "Include access_type=offline and prompt=consent."
+    },
+    {
+      "problem": "Doc says refresh tokens can be used a limited number of times (about 20 per the page)",
+      "fix": "Confirm limits and handle re-consent."
+    },
+    {
+      "problem": "Access token must be in the Authorization header, not the query string",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth flow, DC routing, refresh logic and Cliq API calls, draft scope justification and customer setup docs, run test calls once credentials exist.",
+    "humanMust": "Sign in to the Zoho API Console and create the client; customer user (or org admin) clicks consent."
+  },
+  "uncertain": [
+    "Whether a single client can serve multiple DCs (a Multi-DC option likely exists in the console) or needs one client per DC; marketplace listing requirements; org-admin controls for third-party apps; exact refresh-token limit wording."
+  ],
+  "sources": [
+    {
+      "url": "https://www.zoho.com/cliq/help/restapi/v2/",
+      "label": "zoho.com/cliq/help/restapi/v2"
+    }
+  ]
+}

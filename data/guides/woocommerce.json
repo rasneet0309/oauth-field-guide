@@ -1,0 +1,149 @@
+{
+  "schema": 3,
+  "id": "woocommerce",
+  "name": "WooCommerce",
+  "category": "Ecommerce",
+  "website": "woocommerce.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 42,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No central OAuth app: each merchant approves your connection on their own store through the wc-auth flow, which hands you REST API keys. No review, about 1-3 days, plus host or firewall quirks.",
+  "needGuide": "Short one — redirect the merchant to their store's wc-auth endpoint and store the keys it returns.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "No OAuth 2.0 and no developer registration. Each self-hosted store issues its own consumer key/secret (Read, Write or Read/Write, tied to a WordPress user). Apps can automate issuance via /wc-auth/v1/authorize: merchant approves, then the store POSTs the keys to your callback_url. Calls use HTTP Basic Auth over HTTPS, or OAuth 1.0a one-legged signing over HTTP. Keys do not expire.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min with a local WordPress + WooCommerce",
+    "timeToProduction": "1-3 days (no review); budget extra for host/WAF quirks",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None. Works with any store that has the REST API reachable over HTTPS. The customer's WordPress admin must approve each connection; nothing to submit to WooCommerce.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Only read, write or read_write per key; nothing triggers a review.",
+    "summary": "Only read, write or read_write per key; no per-resource scopes. Effective access also follows the capabilities of the WordPress user the key belongs to. Nothing triggers a review.",
+    "table": []
+  },
+  "cost": "Free (customer pays their own hosting)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any developer; no vendor account needed. Own a public HTTPS callback_url endpoint to receive keys.",
+    "Where you register: No developer console. Merchant side: WooCommerce → Settings → Advanced → REST API → Add key. App side: redirect merchant to {store}/wc-auth/v1/authorize.",
+    "Cost: Free (customer pays their own hosting)"
+  ],
+  "registerAt": {
+    "url": "https://woocommerce.github.io/woocommerce-rest-api-docs/#authentication",
+    "path": "No developer console. Merchant side: WooCommerce → Settings → Advanced → REST API → Add key. App side: redirect merchant to {store}/wc-auth/v1/authorize."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Ask the user for their store URL and normalize to https://{store}; confirm /wp-json/wc/v3 responds",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Redirect the merchant to {store}/wc-auth/v1/authorize with app_name, scope (read/write/read_write), user_id (your internal id), return_url and callback_url, all URL-encoded",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Merchant logs in as store admin and clicks Approve",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Receive the JSON POST at callback_url (key_id, consumer_key, consumer_secret, key_permissions) and store it encrypted, keyed by your user_id",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle return_url success=0/1, then validate with a test GET /wp-json/wc/v3/products using Basic Auth over HTTPS",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Offer manual fallback: merchant creates a key under WooCommerce → Settings → Advanced → REST API and pastes it",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Handle 401/revocation and prompt reconnect; register webhooks via /wc/v3/webhooks for events",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any developer; no vendor account needed. Own a public HTTPS callback_url endpoint to receive keys.",
+    "console": "none documented (no developer console).",
+    "customer": "A WordPress user with permission to manage WooCommerce (administrator or shop manager, likely) logs in on the store to approve. Keys inherit that user's capabilities and stop working if the user is deleted.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Spin up a local or hosted WordPress with WooCommerce and sample data; test the wc-auth flow against it.",
+    "Multiple test stores are free.",
+    "Legacy REST API plugin is only needed for old legacy-API integrations."
+  ],
+  "blockers": [
+    {
+      "problem": "HTTP-only or self-signed stores",
+      "fix": "Basic Auth needs HTTPS; otherwise use OAuth 1.0a signing. Push customers to enable SSL."
+    },
+    {
+      "problem": "Hosts/WAF/security plugins that strip the Authorization header",
+      "fix": "Fall back to consumer_key and consumer_secret as query parameters over HTTPS."
+    },
+    {
+      "problem": "Key tied to a WordPress user",
+      "fix": "If that user is removed the key dies, so ask for a dedicated service admin user."
+    },
+    {
+      "problem": "Pretty permalinks disabled can break /wp-json (likely)",
+      "fix": "Ask the customer to enable them."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the wc-auth redirect and callback handler, signing/Basic Auth client, webhook registration, and connection-validation calls; draft a customer-facing manual key-creation guide.",
+    "humanMust": "The customer's admin must log in and approve (or create the key). The developer must host a public HTTPS callback."
+  },
+  "uncertain": [
+    "WordPress Application Passwords as an alternative auth for wc/v3 (named in the brief) were not verified on fetched pages.",
+    "The woocommerce.com doc page did not mention /wc-auth; it is documented in the GitHub-hosted REST docs, which may be older than the current WooCommerce release.",
+    "Plugin and Marketplace requirements for distributing an extension were not checked."
+  ],
+  "sources": [
+    {
+      "url": "https://woocommerce.com/document/woocommerce-rest-api/",
+      "label": "woocommerce.com/document/woocommerce-rest-api"
+    },
+    {
+      "url": "https://woocommerce.github.io/woocommerce-rest-api-docs/#authentication",
+      "label": "woocommerce.github.io/woocommerce-rest-api-docs"
+    }
+  ]
+}

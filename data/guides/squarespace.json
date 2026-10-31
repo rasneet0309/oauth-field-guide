@@ -1,0 +1,148 @@
+{
+  "schema": 3,
+  "id": "squarespace",
+  "name": "Squarespace",
+  "category": "Ecommerce",
+  "website": "developers.squarespace.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 46,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "Squarespace reviews every OAuth client registration before issuing credentials, with no stated timeline. A per-site API key skips approval but serves one site and needs a Commerce Advanced plan.",
+  "needGuide": "Yes — register the OAuth client first and wait for review; nothing works for customers until credentials arrive.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Authorization code flow: GET /authorize with client_id, redirect_uri, scope, state (add access_type=offline for a refresh token); the code is valid for 2 minutes and single-use; exchange at POST /tokens. Access tokens last 30 minutes; refresh tokens last 7 days and are single-use (a new one is returned on each refresh). Separate per-site API keys exist for single-site custom apps.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours after credentials are issued; credentials wait is unknown",
+    "timeToProduction": "unknown (approval of the client registration has no stated SLA)",
+    "firstShort": "Unknown (approval)",
+    "prodShort": "Unknown (approval)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Squarespace reviews every OAuth client registration before issuing credentials (no timeline given beyond 'as soon as possible'). The docs say OAuth is for Squarespace Extensions. The Commerce APIs-only API-key path needs no approval but only serves one site and needs a Commerce Advanced plan.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "A short list of website.* scopes with .read variants; no scope-specific review documented.",
+    "summary": "Scopes: website.orders, website.transactions.read, website.inventory, website.products, website.contacts, website.discounts, each with a .read variant. No scope-specific review was documented.",
+    "table": []
+  },
+  "cost": "OAuth: no fee documented. API keys: site must be on Commerce Advanced plan.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A company-owned Squarespace account to hold the developer app registration.",
+    "Where you register: Log in at account.squarespace.com → Developer Apps → register an OAuth client: client name, 1:1 .png/.svg icon (max 200 KB), redirect URIs, terms and privacy links. Squarespace reviews it, then issues client ID and secret.",
+    "Cost: OAuth: no fee documented. API keys: site must be on Commerce Advanced plan."
+  ],
+  "registerAt": {
+    "url": "https://account.squarespace.com/developer-apps",
+    "path": "Log in at account.squarespace.com → Developer Apps → register an OAuth client: client name, 1:1 .png/.svg icon (max 200 KB), redirect URIs, terms and privacy links. Squarespace reviews it, then issues client ID and secret."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Prepare icon, privacy policy and terms pages, and HTTPS redirect URIs",
+          "who": "Design",
+          "agent": true
+        },
+        {
+          "do": "Register the OAuth client at account.squarespace.com/developer-apps and wait for review",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Meanwhile prototype with a per-site API key on your own Commerce Advanced site",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement authorize redirect with state, code exchange at POST /tokens, and offline access",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement refresh with single-use rotation, storing the latest refresh token, refreshing before 30-minute expiry and at least weekly",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle 401 by asking the user to reconnect; test deny and revoke paths",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Subscribe to webhooks through the Webhook Subscriptions API (OAuth only)",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A company-owned Squarespace account to hold the developer app registration.",
+    "console": "none documented.",
+    "customer": "The site owner or a user allowed to connect extensions approves the consent screen; they can revoke it in Squarespace later, which invalidates tokens.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "No dedicated sandbox was documented.",
+    "Use a Squarespace trial or test site with Commerce data once your client is approved, and a second site to test the multi-site case.",
+    "API keys (Settings → Advanced → Developer API Keys) can test endpoints on your own site before OAuth approval."
+  ],
+  "blockers": [
+    {
+      "problem": "Refresh tokens expire after 7 days",
+      "fix": "A connection idle for more than a week needs re-consent, so schedule refreshes."
+    },
+    {
+      "problem": "Refresh tokens are single-use",
+      "fix": "Persist atomically or concurrent refreshes lock you out."
+    },
+    {
+      "problem": "Registration review has no timeline",
+      "fix": "Submit early and have a per-site API key fallback for single customers."
+    },
+    {
+      "problem": "Authorization code lives only 2 minutes",
+      "fix": "Exchange immediately and URL-decode before sending."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth client and token-rotation code, draft registration copy and privacy/terms pages, and run API test calls.",
+    "humanMust": "Register the client while logged in, wait for approval, and have the site owner approve the consent screen."
+  },
+  "uncertain": [
+    "Whether unlisted extensions or only Extension Directory partners are approved, approval timeline, and whether Commerce plan is needed on customer sites for OAuth were not confirmed.",
+    "The authentication page said OAuth works on any plan."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.squarespace.com/oauth",
+      "label": "developers.squarespace.com/oauth"
+    },
+    {
+      "url": "https://developers.squarespace.com/commerce-apis/authentication-and-permissions",
+      "label": "developers.squarespace.com/commerce-apis/authentication-and-permissions"
+    }
+  ]
+}

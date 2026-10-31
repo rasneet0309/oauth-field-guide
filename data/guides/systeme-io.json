@@ -1,0 +1,137 @@
+{
+  "schema": 3,
+  "id": "systeme-io",
+  "name": "systeme.io",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "systeme.io",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 37,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "key",
+  "verdict": "No developer app registration or OAuth was found. Each customer creates a Public API key in Settings and pastes it in, likely 1-3 days; details are largely unverified (low confidence).",
+  "needGuide": "No — just collect each customer's Public API key (Settings → Public API keys).",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Public API authenticated with a per-account API key (generally sent in an X-API-Key header, from general knowledge, unverified here). No OAuth app model was found. The developer docs at developer.systeme.io could not be fetched (blocked by robots rules), so details are unconfirmed.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None known. There is no developer app registration, review, or partner approval documented; each customer creates a key and pastes it into your app. If you want OAuth or a native integration, ask systeme.io support or partnerships (no program found).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes known; a key presumably grants account-wide access.",
+    "summary": "No scopes known: an API key presumably grants account-wide access to contacts, tags and similar resources. Ask customers to use a dedicated key so it can be revoked independently.",
+    "table": []
+  },
+  "cost": "Free to build; API access may depend on the customer's plan (not confirmed)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any developer with a systeme.io account on which to create a test key; use a company-owned test account.",
+    "Where you register: Customer logs in -> Settings -> Public API keys (exact menu name unverified; the site footer links a 'Public API' help article)",
+    "Cost: Free to build; API access may depend on the customer's plan (not confirmed)"
+  ],
+  "registerAt": {
+    "url": "https://systeme.io",
+    "path": "Customer logs in -> Settings -> Public API keys (exact menu name unverified; the site footer links a 'Public API' help article)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Customer opens systeme.io -> Settings -> Public API keys, creates a key, and copies it",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Build a connect screen where the customer pastes the key; store it encrypted and never log it",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate immediately with a cheap read call (list contacts, limit 1) sending the key header; show a clear error on 401",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Document in-app how to create and revoke the key and which plan is required",
+          "who": "Design",
+          "agent": true
+        },
+        {
+          "do": "Check the Public API docs for webhooks or polling, then choose sync method; rate-limit client calls",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Email systeme.io support to ask whether an OAuth or partner integration is planned",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any developer with a systeme.io account on which to create a test key; use a company-owned test account.",
+    "console": "none documented.",
+    "customer": "The account owner (or a user permitted to see Settings) creates the API key and pastes it into your app; revoking the key cuts access.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create your own systeme.io account (free plan likely) and a test key; run read calls (for example list contacts) and write calls on dummy contacts."
+  ],
+  "blockers": [
+    {
+      "problem": "A shared key gives full account access",
+      "fix": "Store encrypted and offer easy key rotation."
+    },
+    {
+      "problem": "API availability by plan is unconfirmed",
+      "fix": "Tell customers which plan is required once verified."
+    },
+    {
+      "problem": "Without OAuth, you cannot offer one-click connect or per-scope consent",
+      "fix": ""
+    },
+    {
+      "problem": "Docs could not be fetched here",
+      "fix": "Read the live API reference before building."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the key-validation and API client code, draft the customer instructions, run test calls with a test key.",
+    "humanMust": "Customer creates and pastes the key; a human contacts systeme.io about OAuth or a partner path."
+  },
+  "uncertain": [
+    "Only the systeme.io homepage was fetched (it lists a Public API); developer.systeme.io was blocked by robots rules and not worked around; help center and pricing fetches hit the hourly limit.",
+    "Key location, header name, plan requirements, rate limits and webhooks are unverified."
+  ],
+  "sources": [
+    {
+      "url": "https://systeme.io/",
+      "label": "systeme.io"
+    }
+  ]
+}

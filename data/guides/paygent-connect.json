@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "paygent-connect",
+  "name": "Paygent Connect",
+  "category": "Finance & Fintech",
+  "website": "docs.nmi.com (NMI gateway; official Paygent site not confirmed)",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 84,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "key",
+  "verdict": "No OAuth app review exists: each merchant needs a live gateway account and a portal admin who creates a key and pastes it in. Whether Paygent uses NMI is unconfirmed, so get the real docs first (low confidence).",
+  "needGuide": "No — collect each merchant's private key, but first confirm what Paygent Connect's API actually is.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "No official 'Paygent Connect' developer site could be found; paygent.com redirected to a domain-for-sale page. Assuming it is built on the NMI gateway (per the task hint, unconfirmed), NMI uses security keys: public keys for client-side use and private keys for server-side, created in Settings → Security Keys of the Merchant Portal (or Partner Portal). v5 endpoints take the key in the Authorization header; Classic APIs take an api_key body field. Keys inherit the permissions of the associated user. OAuth appears only for NMI's partner Merchant Sign-Up API (access token expires after 60 minutes).",
+    "userOAuth": "no",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30–60 min with a sandbox or test-mode account",
+    "timeToProduction": "unknown (depends on merchant account approval; likely days to weeks)",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (merchant approval)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Each merchant needs a live gateway account (underwriting by the processor or reseller, likely) and must hand your app a key. Becoming an NMI partner (Partner Portal, Partner Code onboarding, Merchant Sign-Up API) is separate and optional. No user-facing OAuth app review exists.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Key permission types chosen when the key is created.",
+    "summary": "Key permission types chosen when creating the key (list not documented in the pages read); public keys for client-side tokenization, private keys for server-side. Grant the minimum needed (for example query-only for reporting).",
+    "table": []
+  },
+  "cost": "Gateway fees are charged to the merchant; developer fees unknown",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A company-owned gateway or partner account with permission to create security keys; separate keys per app and environment.",
+    "Where you register: Merchant Portal → Settings → Security Keys → Add a New Key → name, associated username, key permission → Create. Partners: same path in the Partner Portal.",
+    "Cost: Gateway fees are charged to the merchant; developer fees unknown"
+  ],
+  "registerAt": {
+    "url": "https://docs.nmi.com/docs/getting-your-api-keys.md",
+    "path": "Merchant Portal → Settings → Security Keys → Add a New Key → name, associated username, key permission → Create. Partners: same path in the Partner Portal."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Confirm with the vendor that Paygent Connect is NMI-based and obtain the real developer docs",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Merchant admin creates a key: Merchant Portal → Settings → Security Keys → Add a New Key",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Build a credentials form that accepts the private key, stored encrypted, one key per merchant and environment",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with a Query API call or a test-mode transaction",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with sandbox keys and test cards, including declines and webhooks",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Add key rotation and revocation instructions (create new, update, test, revoke old)",
+          "who": "Security",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A company-owned gateway or partner account with permission to create security keys; separate keys per app and environment.",
+    "console": "Keys are tied to portal users, so add a dedicated user with least-privilege permission; no collaborator roles documented beyond that.",
+    "customer": "The merchant's portal administrator creates a key, assigns minimal permissions and pastes it into your app. Under a partner account, a key can also be created through the Create Merchant API Keys endpoint.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "NMI documents a sandbox/test mode, Testing Methods and test cards, and a Gateway Emulator; the homepage links a full-featured sandbox.",
+    "Verify that your gateway reseller enables test mode."
+  ],
+  "blockers": [
+    {
+      "problem": "Product identity",
+      "fix": "No official Paygent Connect docs were found; confirm the vendor and gateway before building."
+    },
+    {
+      "problem": "Private keys give broad access",
+      "fix": "Use least-privilege user permissions and never expose them client-side."
+    },
+    {
+      "problem": "Keys inherit the creating user's rights",
+      "fix": "If that user is disabled the key may stop working (likely)."
+    },
+    {
+      "problem": "Sandbox may need enabling by the reseller",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the credentials form, validation call and transaction code against the NMI API; draft customer instructions for creating a key.",
+    "humanMust": "Merchant account application and underwriting, portal login to create keys, any partner agreement, and identifying the correct vendor contact."
+  },
+  "uncertain": [
+    "Whether Paygent Connect actually uses NMI or has its own API; the official Paygent site and docs; permission types; partner requirements; fees.",
+    "The NMI docs do not mention Paygent."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.nmi.com/",
+      "label": "docs.nmi.com"
+    },
+    {
+      "url": "https://docs.nmi.com/reference/authentication.md",
+      "label": "docs.nmi.com/reference/authentication.md"
+    },
+    {
+      "url": "https://docs.nmi.com/docs/getting-your-api-keys.md",
+      "label": "docs.nmi.com/docs/getting-your-api-keys.md"
+    },
+    {
+      "url": "https://docs.nmi.com/llms.txt",
+      "label": "docs.nmi.com/llms.txt"
+    }
+  ]
+}

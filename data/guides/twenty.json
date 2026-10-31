@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "twenty",
+  "name": "Twenty",
+  "category": "CRM & Sales",
+  "website": "twenty.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 5,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "key",
+  "verdict": "No OAuth app is known, so each customer's workspace admin likely creates an API key and pastes it in with their base URL (cloud or self-hosted). Low confidence and unverified; likely 1-3 days, no review.",
+  "needGuide": "No — just collect each customer's API key and base URL (Settings → APIs & Webhooks), after confirming Twenty still has no OAuth.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Likely: per-workspace API keys used as Bearer tokens against REST and GraphQL; cloud uses Twenty's hosted API, self-hosted uses the instance's own domain. Twenty also has an Apps framework (TypeScript packages) per its docs index; whether it exposes third-party OAuth was not verified.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15–30 min",
+    "timeToProduction": "1–3 days (no review)",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days (unverified)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for API keys: each customer generates a key in their own workspace and pastes it into your app along with the base URL (cloud vs self-hosted). Likely no marketplace review, but unverified.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Likely no scope model: permissions follow the role assigned to the API key (unverified).",
+    "summary": "Likely no per-scope model: permissions follow the role assigned to the API key; metadata API access may require an elevated role. Unverified.",
+    "table": []
+  },
+  "cost": "Free to self-host or try cloud; key creation likely free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any developer with access to a Twenty workspace (self-hosted via Docker or a cloud workspace).",
+    "Where you register: No developer-registered OAuth app confirmed. The customer's workspace admin creates the key in Settings → APIs & Webhooks → Create API key (path from memory, not verified).",
+    "Cost: Free to self-host or try cloud; key creation likely free"
+  ],
+  "registerAt": {
+    "url": "https://docs.twenty.com/llms.txt",
+    "path": "No developer-registered OAuth app confirmed. The customer's workspace admin creates the key in Settings → APIs & Webhooks → Create API key (path from memory, not verified)."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Spin up a test workspace (docker self-host or cloud signup)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Settings → APIs & Webhooks → Create API key with an expiry; copy once",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Build a connect screen that takes base URL plus API key; normalize cloud vs self-hosted URL",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with a test call (list people) before saving; store key encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Document for customers how admins create a least-privilege role-scoped key",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Check whether the Twenty Apps framework or OAuth for apps has shipped before launch",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any developer with access to a Twenty workspace (self-hosted via Docker or a cloud workspace).",
+    "console": "none documented",
+    "customer": "A workspace admin (or role with API and Webhooks permission, likely) creates and shares the key, and may assign it a role that limits data access (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Self-host with Docker or use a Twenty cloud trial workspace as the test tenant; both are free to start."
+  ],
+  "blockers": [
+    {
+      "problem": "Self-hosted instances sit behind private networks or odd domains",
+      "fix": "Let users enter a base URL and allow-list your egress IPs."
+    },
+    {
+      "problem": "API keys expire",
+      "fix": "Surface expiry and a re-enter flow."
+    },
+    {
+      "problem": "Key shown only once",
+      "fix": "Tell admins to copy immediately."
+    },
+    {
+      "problem": "Schema is workspace-specific (custom objects)",
+      "fix": "Discover fields via the metadata API."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the key-entry flow, URL normalization, validation call and schema discovery code, draft customer setup docs.",
+    "humanMust": "A customer admin must create the key and share it; no legal or review steps known."
+  },
+  "uncertain": [
+    "The Twenty docs for API keys and OAuth could not be fetched (rate limit hit); everything beyond the docs index is from prior knowledge.",
+    "Check whether OAuth for apps now exists."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.twenty.com/llms.txt",
+      "label": "docs.twenty.com/llms.txt"
+    },
+    {
+      "url": "https://docs.twenty.com/getting-started/core-concepts/apps.md",
+      "label": "docs.twenty.com/getting-started/core-concepts/apps.md"
+    },
+    {
+      "url": "https://docs.twenty.com/getting-started/quickstart.md",
+      "label": "docs.twenty.com/getting-started/quickstart.md"
+    }
+  ]
+}

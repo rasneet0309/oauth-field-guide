@@ -1,0 +1,166 @@
+{
+  "schema": 3,
+  "id": "vercel",
+  "name": "Vercel",
+  "category": "Developer, Infra & Data",
+  "website": "vercel.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 62,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "self",
+  "verdict": "Self-serve: create a connectable integration in the Integrations Console and customers install it from your link or deploy button with a Community badge. Marketplace listing is optional and needs 500+ active installs.",
+  "needGuide": "Short one, but use a company team with 2 or more owners and accept the integrations agreement.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Two OAuth paths. (1) Vercel Integration ('connectable account'): the install redirects to your Redirect URL with a single-use code (valid 30 min); exchange at POST https://api.vercel.com/v2/oauth/access_token (client_id, client_secret, code, redirect_uri) for a long-lived access token plus installation_id and team_id (append teamId to API calls). (2) Sign in with Vercel: OAuth 2.0/OIDC authorization code + PKCE S256, access token 1 h, rotating refresh token 30 days (needs offline_access), but API permissions for team resources were still 'private beta' on the scopes page (updated 2026-02-26), so for acting on customers' teams use an Integration.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days for a Community-badge connectable integration (likely; no stated review). Marketplace listing: unknown, gated on 500 installs. Native integration: likely several weeks.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (likely)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "Connectable-account integrations get a 'Community' badge on creation and can be installed by external users via your site or a deploy button (docs also say 'once approved'; no review SLA stated). Public Marketplace listing needs 500+ active installs, passing the approval checklist, and an email to integrations@vercel.com. Native (Marketplace Partner API) integrations need program sign-up, a shared Slack channel, checklist, review and a final walkthrough call. You must accept Vercel's integrations agreement terms.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "A dozen integration scopes, each Read or Read/Write; adding or upgrading scopes needs confirmation from users or team owners.",
+    "summary": "Integration scopes are set in the console: integration-configuration, deployment, deployment-check, edge-config, project, project-env-vars, global-project-env-vars, team, user, drains, domain, billing (Pro/Enterprise only), each Read or Read/Write. Adding or upgrading scopes triggers email confirmation by users/team owners; downgrades apply immediately. Sign in with Vercel scopes are only openid, email, profile, offline_access.",
+    "table": []
+  },
+  "cost": "Free to create a connectable integration; native Marketplace billing/revenue terms not verified.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Create under a company-owned Vercel team, not a personal account, and keep 2+ owners: if the integration's owners leave the team it is flagged disabled and deleted after 30 days if ownership is not transferred.",
+    "Where you register: Team switcher → Integrations → Integrations Console → Create (Create Integration form). For Sign in with Vercel instead: Team → Settings → Apps → Create.",
+    "Cost: Free to create a connectable integration; native Marketplace billing/revenue terms not verified."
+  ],
+  "registerAt": {
+    "url": "https://vercel.com/d?to=%2Fdashboard%2Fintegrations%2Fconsole",
+    "path": "Team switcher → Integrations → Integrations Console → Create (Create Integration form). For Sign in with Vercel instead: Team → Settings → Apps → Create."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Pick a company-owned Vercel team with 2+ owners; open Integrations → Integrations Console → Create",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Complete the Create Integration form: name, URL slug, legal developer name, contact and support emails, logo, category, docs/EULA/privacy URLs, overview, Redirect URL (your OAuth callback), API Scopes, webhook URL",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Accept the Vercel integrations agreement terms at the end of the form",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Implement the redirect handler: take code, POST to https://api.vercel.com/v2/oauth/access_token, store access_token, installation_id and team_id encrypted, send teamId on every API call",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Verify webhook signatures with the Integration Secret from the console Credentials section; add a way to rotate it",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Install on a test team and confirm scopes, project selection and uninstall handling; test a scope upgrade email",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Publish the install link (https://vercel.com/integrations/<slug>) or a deploy button; optionally email integrations@vercel.com for Marketplace review once you reach 500 installs",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Create under a company-owned Vercel team, not a personal account, and keep 2+ owners: if the integration's owners leave the team it is flagged disabled and deleted after 30 days if ownership is not transferred.",
+    "console": "No separate console roles documented; the integration belongs to the team shown in the Integrations Console, so team membership is the access control.",
+    "customer": "A member of the customer's Vercel account/team installs it and picks which projects it can access (the install wizard checks project selection). Scope additions or upgrades later require confirmation by every affected user and team owner via email.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Install your own integration on your own team straight after creation (https://vercel.com/integrations/<slug>); no sandbox needed.",
+    "Sign in with Vercel allows an http://localhost:3000 callback.",
+    "Native flows have a Preview Form in the console.",
+    "Use View Logs on the Edit Integration page to debug."
+  ],
+  "blockers": [
+    {
+      "problem": "Token calls fail with 403 for team installs",
+      "fix": "Always add the teamId query parameter returned in the code exchange."
+    },
+    {
+      "problem": "Integration disabled when owners leave the team",
+      "fix": "Add a second owner and keep the team company-owned."
+    },
+    {
+      "problem": "Sign in with Vercel tokens cannot manage customer projects yet (permissions in private beta)",
+      "fix": "Use an Integration for agent actions."
+    },
+    {
+      "problem": "Calling the Vercel API from the browser hits CORS and leaks the token",
+      "fix": "Call it only server-side."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the redirect/code-exchange handler, webhook verification and token storage, draft the listing copy, overview and scope justification, and run test API calls with the issued token.",
+    "humanMust": "Create the integration in the console (login/2FA), accept the legal terms, supply EULA and privacy URLs, install it from a real customer account, and email integrations@vercel.com for any Marketplace review or native-program walkthrough."
+  },
+  "uncertain": [
+    "Docs are inconsistent on whether an integration needs approval before external installs (the create page says 'approved' but also says the Community badge applies on creation).",
+    "Review SLA, native-integration revenue terms and which customer team roles may install were not confirmed.",
+    "Community sources were not consulted (search budget exhausted)."
+  ],
+  "sources": [
+    {
+      "url": "https://vercel.com/docs/integrations/create-integration",
+      "label": "vercel.com/docs/integrations/create-integration"
+    },
+    {
+      "url": "https://vercel.com/docs/integrations/create-integration/vercel-api-integrations",
+      "label": "vercel.com/docs/integrations/create-integration/vercel-api-integrations"
+    },
+    {
+      "url": "https://vercel.com/docs/integrations/create-integration/approval-checklist",
+      "label": "vercel.com/docs/integrations/create-integration/approval-checklist"
+    },
+    {
+      "url": "https://vercel.com/docs/sign-in-with-vercel/getting-started",
+      "label": "vercel.com/docs/sign-in-with-vercel/getting-started"
+    },
+    {
+      "url": "https://vercel.com/docs/sign-in-with-vercel/manage-from-dashboard",
+      "label": "vercel.com/docs/sign-in-with-vercel/manage-from-dashboard"
+    },
+    {
+      "url": "https://vercel.com/docs/sign-in-with-vercel/scopes-and-permissions",
+      "label": "vercel.com/docs/sign-in-with-vercel/scopes-and-permissions"
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "schema": 3,
+  "id": "smartsheet",
+  "name": "Smartsheet",
+  "category": "Productivity & PM",
+  "website": "smartsheet.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 79,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Self-serve after a one-time Developer Tools registration that Smartsheet can deny, in which case you contact your Customer Success Manager. No app review is documented after that; approval time is unknown, likely days.",
+  "needGuide": "Yes — register for Developer Tools with a service-account user first, then create the app.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code grant: authorize at app.smartsheet.com/b/authorize, exchange at api.smartsheet.com/2.0/token. Access token lasts about 7 days (604,799 s); each refresh returns a new access and refresh token. Authorization code valid about 10 minutes; HTTPS required. PKCE is not mentioned. Tokens for standard, Smartsheet Regions and Smartsheet Gov are not interchangeable; regional OAuth hosts were not confirmed.",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours after registration is approved",
+    "timeToProduction": "unknown (registration approval time not documented); likely days",
+    "firstShort": "1–2 hrs after reg.",
+    "prodShort": "Unknown (likely days)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "A one-time Developer Tools registration (service-account email + Developer Agreement); Smartsheet can deny it, in which case contact your Customer Success Manager. After that no app review is documented: the 'Publish App?' option only makes the app's profile page public.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "17 scopes (ADMIN_, CREATE_, READ_, WRITE_ and more) that don't override sharing permissions.",
+    "summary": "17 scopes: ADMIN_SHEETS/SIGHTS/USERS/WEBHOOKS/WORKSPACES, CREATE_SHEETS/SIGHTS, DELETE_SHEETS/SIGHTS, READ_CONTACTS/EVENTS/SHEETS/SIGHTS/USERS, SHARE_SHEETS/SIGHTS, WRITE_SHEETS. Scopes do not override user sharing permissions. No scope is documented as triggering review.",
+    "table": []
+  },
+  "cost": "Free to register as far as documented; API token generation needs a Business, Enterprise or Advanced Work Management plan; whether Developer Tools needs a paid plan is unconfirmed",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Use a dedicated company-owned Smartsheet 'service account' (not a personal account) to register and own the app.",
+    "Where you register: Submit the service-account email on the Developer Tools Registration page and accept the Developer Agreement → in Smartsheet open Developer Tools → create developer profile → Create New App (name, description, URL, support contact, redirect URL)",
+    "Cost: Free to register as far as documented; API token generation needs a Business, Enterprise or Advanced Work Management plan; whether Developer Tools needs a paid plan is unconfirmed"
+  ],
+  "registerAt": {
+    "url": "https://developers.smartsheet.com/api/smartsheet/guides/advanced-topics/oauth",
+    "path": "Submit the service-account email on the Developer Tools Registration page and accept the Developer Agreement → in Smartsheet open Developer Tools → create developer profile → Create New App (name, description, URL, support contact, redirect URL)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Choose or create a company service-account Smartsheet user and register it on the Developer Tools Registration page, accepting the Developer Agreement",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "After approval, open Developer Tools, create the developer profile, and register the app with redirect URL and support contact",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Pick the minimum scopes (e.g. READ_SHEETS, WRITE_SHEETS, READ_USERS) and implement the authorize redirect with a verified state parameter",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange the code, store both tokens encrypted, and refresh before the 7-day expiry, saving the new refresh token each time",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a second user and, if serving them, EU/AU and Gov accounts separately",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Decide whether to flip Publish App? to list the profile publicly",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Use a dedicated company-owned Smartsheet 'service account' (not a personal account) to register and own the app.",
+    "console": "none documented",
+    "customer": "The end user authorizes; scopes never exceed their sharing permissions. ADMIN_* scopes (users, sheets, workspaces, webhooks) likely need an admin user. Customers on EU/AU Regions or Gov need region-specific setup (unconfirmed).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Register and authorize with your own Smartsheet account against your own sheets.",
+    "No sandbox or developer-account program was found in the docs fetched.",
+    "Test each region separately because tokens are not interchangeable."
+  ],
+  "blockers": [
+    {
+      "problem": "Registration can be denied",
+      "fix": "Use a business service-account email and escalate via your Customer Success Manager."
+    },
+    {
+      "problem": "Regional and Gov tenants use separate environments and tokens",
+      "fix": "Confirm host URLs and register per region."
+    },
+    {
+      "problem": "Rotating refresh tokens",
+      "fix": "Write the new pair on every refresh, or the user must re-authorize."
+    },
+    {
+      "problem": "No PKCE documented, so a confidential server-side client is required",
+      "fix": "Never ship the secret to a browser."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the registration text, write the OAuth and refresh code, handle regional base URLs, and run test calls.",
+    "humanMust": "Developer Agreement acceptance, service-account sign-in and registration, any CSM escalation, and customer-side consent."
+  },
+  "uncertain": [
+    "Regional (EU/AU/Gov) OAuth hosts, any developer sandbox, the developer-program page (blocked by robots.txt), registration turnaround, and whether a paid plan is needed were not confirmed.",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.smartsheet.com/api/smartsheet/guides/advanced-topics/oauth",
+      "label": "developers.smartsheet.com/api/smartsheet/guides/advanced-topics/oauth"
+    },
+    {
+      "url": "https://developers.smartsheet.com/api/smartsheet/guides/getting-started",
+      "label": "developers.smartsheet.com/api/smartsheet/guides/getting-started"
+    }
+  ]
+}

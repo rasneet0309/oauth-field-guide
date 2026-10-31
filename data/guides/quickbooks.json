@@ -1,0 +1,155 @@
+{
+  "schema": 3,
+  "id": "quickbooks",
+  "name": "QuickBooks",
+  "category": "Finance & Fintech",
+  "website": "developer.intuit.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 86,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "review",
+  "verdict": "Development keys work at once on sandbox companies. Production keys likely need an app assessment and app details such as EULA and privacy URLs, likely 1-2 weeks, but Intuit's docs did not render so this is unverified.",
+  "needGuide": "Yes — expect to fill in app details and an Intuit assessment before production keys, and confirm the current steps.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code flow through Intuit. Access token lasts 3600 seconds; refresh tokens rotate, so always store the newest (Intuit's JS client notes older refresh tokens stop working 24 hours after a new one is issued, and responses carry x_refresh_token_expires_in). Every API call needs the company realmId returned on the callback. Sandbox base URL is sandbox-quickbooks.api.intuit.com. Reported 2025 changes to refresh token lifetime (a rolling window plus a hard cap) and the 2025 App Partner Program fee tiers were not verified.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "unknown; likely 1–2 weeks for production keys, longer for an App Store listing",
+    "firstShort": "30–60 min",
+    "prodShort": "Likely 1–2 weeks (unconfirmed)",
+    "difficulty": "Moderate",
+    "prodDays": 14
+  },
+  "approval": {
+    "gate": "Development keys work at once against sandbox companies. Production keys for real customer companies likely require completing app details (EULA and privacy policy URLs, host domain, launch and disconnect URLs) and Intuit's app assessment questionnaire; not verified this session. An Intuit App Store listing is optional and separately reviewed (Nango notes review applies only to App Store apps). At scale, App Partner Program tiers and metered API fees may apply (unverified).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "A few broad scopes (accounting, payment, OpenID); no read-only accounting scope is documented.",
+    "summary": "com.intuit.quickbooks.accounting (all accounting data, no read-only variant documented), com.intuit.quickbooks.payment, and OpenID scopes (openid, profile, email, phone, address). Which scopes trigger extra review was not confirmed.",
+    "table": []
+  },
+  "cost": "Free developer account and sandbox; possible partner-tier or metered API fees at scale (unverified)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: An Intuit developer account owned by a company identity (not a personal login); the owner completes the production key form and legal URLs.",
+    "Where you register: developer.intuit.com → My Hub → App Dashboard → Add → QuickBooks Online and Payments → choose scopes → app Settings → Redirect URIs; credentials under Keys and credentials (development and production keys).",
+    "Cost: Free developer account and sandbox; possible partner-tier or metered API fees at scale (unverified)"
+  ],
+  "registerAt": {
+    "url": "https://developer.intuit.com/app/developer/dashboard",
+    "path": "developer.intuit.com → My Hub → App Dashboard → Add → QuickBooks Online and Payments → choose scopes → app Settings → Redirect URIs; credentials under Keys and credentials (development and production keys)."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign up at developer.intuit.com with a company identity",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "My Hub → App Dashboard → Add → QuickBooks Online and Payments; select com.intuit.quickbooks.accounting",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Add redirect URIs under Settings; copy development Client ID and Secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement auth code flow, realmId capture and rotating refresh token storage",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Create a sandbox company and run read/write test calls",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Publish EULA, privacy policy, launch and disconnect URLs",
+          "who": "Legal",
+          "agent": true
+        },
+        {
+          "do": "Complete the production keys form and app assessment questionnaire",
+          "who": "Security",
+          "agent": false
+        },
+        {
+          "do": "Switch to production keys and test with a real company",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "An Intuit developer account owned by a company identity (not a personal login); the owner completes the production key form and legal URLs.",
+    "console": "none documented in the pages read",
+    "customer": "A QuickBooks Online company admin (likely Master or Company Admin) approves the connection on Intuit's consent screen and picks the company; accountant firm users connect through their firm access (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a sandbox company under My Hub → Sandbox and note its realmId; use development keys against sandbox-quickbooks.api.intuit.com.",
+    "Production redirect URIs likely must be HTTPS (localhost allowed for development)."
+  ],
+  "blockers": [
+    {
+      "problem": "Refresh token rotation",
+      "fix": "Persist the newest token atomically and handle concurrent refreshes, or users must reconnect."
+    },
+    {
+      "problem": "realmId is required on every request",
+      "fix": "Store it per connection."
+    },
+    {
+      "problem": "Production keys need HTTPS URLs and legal pages first",
+      "fix": "Prepare them before requesting."
+    },
+    {
+      "problem": "Fees and partner tiers for high-volume or read-heavy apps",
+      "fix": "Check the current Intuit pricing page."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and refresh code, sandbox tests, and drafts of the EULA, privacy policy and questionnaire answers.",
+    "humanMust": "Intuit account login, accepting developer terms, submitting the production questionnaire, any partner agreement or payment, and a customer admin authorizing the connection."
+  },
+  "uncertain": [
+    "Intuit docs are a JavaScript app that did not render, so production-key requirements, app assessment contents, refresh token lifetime changes, App Partner Program tiers and API fees were not confirmed; they come from third-party docs and background knowledge."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0",
+      "label": "developer.intuit.com/app/developer/qbo/docs/develop/authentication-and…"
+    },
+    {
+      "url": "https://github.com/intuit/oauth-jsclient",
+      "label": "github.com/intuit/oauth-jsclient"
+    },
+    {
+      "url": "https://docs.nango.dev/integrations/all/quickbooks",
+      "label": "docs.nango.dev/integrations/all/quickbooks"
+    }
+  ]
+}

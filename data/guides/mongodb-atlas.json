@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "mongodb-atlas",
+  "name": "MongoDB Atlas",
+  "category": "Developer, Infra & Data",
+  "website": "mongodb.com/atlas",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 68,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No third-party app: each customer's Organization Owner creates a service account and shares its client ID and secret. They must also allow-list your egress IPs or calls return 403; about 1-3 days.",
+  "needGuide": "Yes — give customers setup steps for the service account and the IP access list.",
+  "auth": {
+    "model": "Client credentials only",
+    "detail": "Atlas Administration API: service accounts (OAuth 2.0 client credentials, recommended) with a client ID and rotatable secret; access tokens last 1 hour and cannot be refreshed. API keys (HTTP Digest) are legacy. A service account belongs to one organization and can be granted access to any projects in it. Atlas docs also mention delegated 'Atlas App Connections' for third-party partner apps and MCP clients (off by default in existing orgs), but registration details were not found.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (credential intake and IP allowlisting)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for service accounts: the customer creates one and shares client ID/secret. Third-party OAuth via App Connections appears limited to partner apps (likely partner-gated, unconfirmed). Organizations that require the Administration API IP access list will return 403 until your egress IPs are allowlisted.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Organization and project roles limit operations, and database data needs separate database users.",
+    "summary": "Roles, not OAuth scopes: the service account's organization/project roles limit operations. Service accounts cannot sign in to the Atlas UI or access cluster data; database data access needs separate database users or connection strings (likely).",
+    "table": []
+  },
+  "cost": "Free to create service accounts; Atlas test clusters can be free tier.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: No developer app registration. Your team needs an Atlas test organization where someone is Organization Owner.",
+    "Where you register: Customer Atlas organization → Organization Settings / Access Manager → Applications → Service Accounts → create (exact UI path not confirmed; Organization Owner required)",
+    "Cost: Free to create service accounts; Atlas test clusters can be free tier."
+  ],
+  "registerAt": {
+    "url": "https://www.mongodb.com/docs/atlas/configure-api-access-org/",
+    "path": "Customer Atlas organization → Organization Settings / Access Manager → Applications → Service Accounts → create (exact UI path not confirmed; Organization Owner required)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Ask the customer's Organization Owner to create a service account with the minimum project roles needed",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customer adds your egress IP addresses to the organization's API access list",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customer shares client ID and secret via your intake form; store encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Request tokens at https://cloud.mongodb.com/api/oauth/token with Basic auth and grant_type=client_credentials; cache for under 1 hour",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call the Administration API with the versioned Accept header; surface 401/403 as 'check roles or IP list'",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Provide a secret-rotation flow; ask Atlas support or your MongoDB contact whether delegated App Connections apply to you",
+          "who": "Developer",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "No developer app registration. Your team needs an Atlas test organization where someone is Organization Owner.",
+    "console": "none documented",
+    "customer": "An Organization Owner creates the service account and assigns it roles and projects, and adds your static egress IPs to the org's Administration API access list (new orgs require it by default). Project-level service accounts with wider reach need Organization Owner to rotate or revoke.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create an Atlas org and project, make a service account, fetch a token and call /api/atlas/v2/groups/<GROUP-ID>/clusters."
+  ],
+  "blockers": [
+    {
+      "problem": "403 on every call",
+      "fix": "The customer's IP access list does not include your servers."
+    },
+    {
+      "problem": "401 on project endpoints",
+      "fix": "The service account is not in the org or project hosting the resource."
+    },
+    {
+      "problem": "Tokens cannot be refreshed",
+      "fix": "Request a new one before the hour ends."
+    },
+    {
+      "problem": "No end-user OAuth",
+      "fix": "You must collect secrets from the customer and handle rotation."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the token client, caching, API calls and rotation reminders, draft customer setup instructions, and run test calls.",
+    "humanMust": "A customer Organization Owner must create the service account and update the IP access list; your team handles secret custody."
+  },
+  "uncertain": [
+    "Could not confirm the exact UI path for creating service accounts, secret expiry options, or what Atlas App Connections (delegated OAuth for partner apps and MCP clients) require; the token URL came from a tool-generated sketch flagged as unverified.",
+    "The fetch limit stopped further checks."
+  ],
+  "sources": [
+    {
+      "url": "https://www.mongodb.com/docs/atlas/api/service-accounts-overview/",
+      "label": "mongodb.com/docs/atlas/api/service-accounts-overview"
+    },
+    {
+      "url": "https://www.mongodb.com/docs/atlas/configure-api-access/",
+      "label": "mongodb.com/docs/atlas/configure-api-access"
+    },
+    {
+      "url": "https://www.mongodb.com/docs/atlas/configure-api-access-org/",
+      "label": "mongodb.com/docs/atlas/configure-api-access-org"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "telegram",
+  "name": "Telegram",
+  "category": "Communications & Messaging",
+  "website": "core.telegram.org",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 27,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No OAuth: you create one bot with @BotFather and use its token, with no review. Customers press Start in a DM or a group admin adds the bot, about 1-3 days.",
+  "needGuide": "No — create a bot with @BotFather, store the token, and link users with a /start deep link.",
+  "auth": {
+    "model": "Bot token",
+    "detail": "Bot API: one token per bot from @BotFather /newbot (/token to regenerate), sent as api.telegram.org/bot<token>/. Users do not authorize the bot via OAuth; they start a chat or add it to a group. Separately, Telegram Login is now OIDC (auth code + PKCE S256, scopes openid/profile/phone/telegram:bot_access) but yields identity only. MTProto user API uses api_id/api_hash and acts as a user client.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (no review)",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for Bot API or Login. api_id/api_hash is self-serve at my.telegram.org but unofficial clients are watched and risk bans; not suitable for connecting customers' accounts.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scope model for bots; capabilities come from bot settings and admin rights.",
+    "summary": "No scope model for bots: capabilities depend on bot settings (privacy mode, admin rights). Login scopes: openid, profile, phone (user consent), telegram:bot_access (lets the bot DM the user). Login grants no access to a user's chats.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Telegram account (phone number) owns the bot in BotFather; use a company-managed account since only the owner manages tokens.",
+    "Where you register: Telegram → @BotFather → /newbot (name, username ending in bot); for login: BotFather → bot → Login Widget → add Allowed URLs → copy Client ID/Secret",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://t.me/botfather",
+    "path": "Telegram → @BotFather → /newbot (name, username ending in bot); for login: BotFather → bot → Login Widget → add Allowed URLs → copy Client ID/Secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Open @BotFather, run /newbot, choose name and username ending in bot",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store the token as a secret; rotate with /token if leaked",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Set the webhook (setWebhook) or use getUpdates; handle /start with a deep-link payload to link the Telegram user to the customer account",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Optional identity: BotFather → Login Widget → add Allowed URLs; implement OIDC code + PKCE and verify id_token via JWKS",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Tell customer admins to add the bot to groups and set privacy mode and admin rights",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Send test messages and verify webhook secret token",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Telegram account (phone number) owns the bot in BotFather; use a company-managed account since only the owner manages tokens.",
+    "console": "none documented (BotFather is single-owner; managed bots can have a manager bot).",
+    "customer": "For group/channel use, a group admin (or channel admin) must add the bot and grant rights; end users in DMs just press Start. No workspace-admin approval exists.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a bot in BotFather and message it from your own account; add it to a test group.",
+    "Login: add localhost or staging URLs to Allowed URLs."
+  ],
+  "blockers": [
+    {
+      "problem": "Users cannot connect their own account through OAuth",
+      "fix": "Reading a user's own chats needs MTProto, which risks bans."
+    },
+    {
+      "problem": "Bots cannot message a user first",
+      "fix": "The user must press Start (use deep links)."
+    },
+    {
+      "problem": "Privacy mode hides group messages from the bot",
+      "fix": "Disable it or make the bot admin."
+    },
+    {
+      "problem": "Old hash-verified Login Widget is archived",
+      "fix": "Build against the OIDC flow."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write bot and webhook code, OIDC login code, deep-link linking, and customer setup instructions.",
+    "humanMust": "Telegram account and phone verification; customer group admin adds the bot."
+  },
+  "uncertain": [
+    "Bot token lifetime and limits for bots in large groups; whether Telegram plans delegated user-data OAuth (none documented)."
+  ],
+  "sources": [
+    {
+      "url": "https://core.telegram.org/bots/features",
+      "label": "core.telegram.org/bots/features"
+    },
+    {
+      "url": "https://core.telegram.org/widgets/login",
+      "label": "core.telegram.org/widgets/login"
+    },
+    {
+      "url": "https://core.telegram.org/api/obtaining_api_id",
+      "label": "core.telegram.org/api/obtaining_api_id"
+    }
+  ]
+}

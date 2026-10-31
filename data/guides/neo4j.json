@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "neo4j",
+  "name": "Neo4j",
+  "category": "Developer, Infra & Data",
+  "website": "neo4j.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 66,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No third-party OAuth: each customer creates Aura API client credentials (client ID and secret) in their Aura Account Settings and pastes them in. You exchange them for short-lived tokens; about 1-3 days.",
+  "needGuide": "No — just collect each customer's Aura client ID and secret, ideally from a least-privileged user.",
+  "auth": {
+    "model": "Client credentials only",
+    "detail": "No user-facing OAuth for third parties. The Aura API uses OAuth 2.0 client credentials: POST https://api.neo4j.io/oauth/token with Basic auth (client ID/secret) and grant_type=client_credentials returns a 1-hour bearer token (403 once expired). Credentials are tied to the creating user, inherit that user's roles, and never expire until deleted. Database access itself is a separate Bolt URI with database credentials (per Aura convention, not re-verified here).",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "N/A",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (build credential intake and token caching)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "N/A",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None: each customer creates their own Aura API credentials; there is no developer-registered app, review or partner program for Aura OAuth.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes: the token inherits its creator's roles.",
+    "summary": "No scopes: the token inherits the creating user's capabilities and roles. Billing endpoints are limited to 10 requests/day per organization.",
+    "table": []
+  },
+  "cost": "Free to create credentials on all tiers; API rate limits: 25 req/min on Free/Pro trial, 125 req/min on paid tiers, billing endpoints 10 req/day per organization.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: No developer app needed. Your team only needs a test Aura account to build against.",
+    "Where you register: Aura console → profile menu (top right) → Account Settings → Client credentials → Aura API → Create client credential",
+    "Cost: Free to create credentials on all tiers; API rate limits: 25 req/min on Free/Pro trial, 125 req/min on paid tiers, billing endpoints 10 req/day per organization."
+  ],
+  "registerAt": {
+    "url": "https://console.neo4j.io/account/api-keys",
+    "path": "Aura console → profile menu (top right) → Account Settings → Client credentials → Aura API → Create client credential"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Tell the customer to open Aura console → Account Settings → Client credentials → Aura API → Create client credential",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customer copies the Client ID and Client Secret (shown once) into your app's connection form",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store the secret encrypted; request a token with POST api.neo4j.io/oauth/token and cache it for under one hour",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with GET /v1/instances and show a clear error on 403 (expired) or revoked credentials",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "For data access, separately collect the Bolt URI, database user and password and keep them in the vault",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Throttle to the documented rate limits and test with a free-tier account",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "No developer app needed. Your team only needs a test Aura account to build against.",
+    "console": "none documented",
+    "customer": "A customer user creates client credentials in their Aura Account Settings; the credentials carry that user's roles, so ask for a dedicated least-privileged user (likely) rather than an org admin. Exact org/project roles required are not documented.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a free Aura account and a free instance: create client credentials, fetch a token, call GET https://api.neo4j.io/v1/instances.",
+    "Respect the 25 req/min trial limit."
+  ],
+  "blockers": [
+    {
+      "problem": "Credentials mirror the creator's roles",
+      "fix": "Ask customers to create them from a least-privileged user."
+    },
+    {
+      "problem": "Token expires after 1 hour with no refresh",
+      "fix": "Cache and re-request."
+    },
+    {
+      "problem": "Low trial rate limit (25 req/min)",
+      "fix": "Back off on 429s."
+    },
+    {
+      "problem": "Aura API credentials do not give database query access",
+      "fix": "You also need Bolt credentials."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the credential intake form, token exchange and caching code, validate with test calls, and draft the customer instructions.",
+    "humanMust": "The customer must log in and create the credentials; your team must handle secure secret storage sign-off."
+  },
+  "uncertain": [
+    "Which Aura roles can create credentials, whether the Aura API is available on every tier, and DB-level SSO/OIDC options were not confirmed (fetch limit reached).",
+    "Neo4j has no announced third-party OAuth."
+  ],
+  "sources": [
+    {
+      "url": "https://neo4j.com/docs/aura/api/authentication/",
+      "label": "neo4j.com/docs/aura/api/authentication"
+    },
+    {
+      "url": "https://neo4j.com/docs/aura/api/overview/",
+      "label": "neo4j.com/docs/aura/api/overview"
+    }
+  ]
+}

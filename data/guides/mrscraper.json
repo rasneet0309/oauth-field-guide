@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "mrscraper",
+  "name": "MrScraper",
+  "category": "Data, SEO & Scraping",
+  "website": "mrscraper.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 54,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth and no customer connection: you call the scraping API with your own token on a paid plan. A customer who wants their own account pastes their token; same day.",
+  "needGuide": "No — just keep your own API token server-side, and collect a customer's only if they bring their own.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "API token sent in the x-api-token header; marketplace endpoints use Authorization: Bearer <token> (RFC 6750). Base URL in the docs examples is https://api.app.mrscraper.com/api/v1/. No OAuth documented. An official MCP server exists (source: github.com/mrscraper-com/mrscraper-mcp).",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "Same day",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day",
+    "difficulty": "Easy",
+    "prodDays": 0.5
+  },
+  "approval": {
+    "gate": "No approval gate documented. You need a subscription or token plan with enough usage. Customers do not connect accounts; your app calls the scraping API with your own token, or customers paste their own token.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes documented; a token has the account's full API access.",
+    "summary": "No scopes documented; a token has the account's full API access.",
+    "table": []
+  },
+  "cost": "Subscription with token-based usage (see Token Plan and Billing pages); free trial terms not confirmed",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Whoever owns the MrScraper account creates the token; use a company-owned account.",
+    "Where you register: Sign in at app.mrscraper.com and create an API token (the exact dashboard menu was not shown in the docs)",
+    "Cost: Subscription with token-based usage (see Token Plan and Billing pages); free trial terms not confirmed"
+  ],
+  "registerAt": {
+    "url": "https://docs.mrscraper.com/docs/getting-started/api-token",
+    "path": "Sign in at app.mrscraper.com and create an API token (the exact dashboard menu was not shown in the docs)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a company MrScraper account at app.mrscraper.com",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Generate an API token in the dashboard and store it as a server secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Call the Verify Token endpoint with x-api-token to confirm plan and usage",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Rerun an existing scraper via the API as a smoke test and watch token usage",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "For customer-supplied tokens, add a paste field, validate via Verify Token, and store the token encrypted",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Whoever owns the MrScraper account creates the token; use a company-owned account.",
+    "console": "none documented",
+    "customer": "None. If customers bring their own token, they create it in their own dashboard and paste it.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "No sandbox documented.",
+    "Use a Verify API Token endpoint (returns subscription account details, usage, limits and billing) to validate keys, then run a small scraper and check usage in the dashboard."
+  ],
+  "blockers": [
+    {
+      "problem": "Token usage varies between runs (see the Token Plan page)",
+      "fix": "Cost forecasting needs a pilot."
+    },
+    {
+      "problem": "Two header styles (x-api-token versus Bearer for marketplace endpoints)",
+      "fix": "Use the right one per endpoint."
+    },
+    {
+      "problem": "No OAuth, so you cannot offer one-click connect",
+      "fix": "Build a paste-token flow."
+    },
+    {
+      "problem": "Scraping targets may have their own ToS",
+      "fix": "Review before scraping at scale."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the client, token validation, retry logic and the MCP configuration, and run test calls.",
+    "humanMust": "Create the account, choose and pay for a plan, and generate the token in the dashboard."
+  },
+  "uncertain": [
+    "Exact dashboard path for creating tokens, free trial terms, rate limits, plan requirements, and whether the MCP server has a hosted OAuth endpoint.",
+    "The docs pages were thin."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.mrscraper.com",
+      "label": "docs.mrscraper.com"
+    },
+    {
+      "url": "https://docs.mrscraper.com/docs/api/authentication",
+      "label": "docs.mrscraper.com/docs/api/authentication"
+    },
+    {
+      "url": "https://docs.mrscraper.com/docs/getting-started/api-token",
+      "label": "docs.mrscraper.com/docs/getting-started/api-token"
+    },
+    {
+      "url": "https://docs.mrscraper.com/llms.txt",
+      "label": "docs.mrscraper.com/llms.txt"
+    }
+  ]
+}

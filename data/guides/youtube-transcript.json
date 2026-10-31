@@ -1,0 +1,139 @@
+{
+  "schema": 3,
+  "id": "youtube-transcript",
+  "name": "YouTube Transcript",
+  "category": "AI, Research & Media",
+  "website": "transcriptapi.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 99,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No customer connection: call the transcript API with your own key (100 free credits, then $5/month); it reads public videos. Official YouTube captions access needs the video owner's Google OAuth consent; under a day.",
+  "needGuide": "No — sign up, create an API key and call it server-side; customers connect nothing.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "TranscriptAPI is a third-party hosted REST API (not a YouTube or Google product). Keys start with `sk_` and are sent as `Authorization: Bearer API_KEY`, created in the dashboard's API Keys page. No Google or YouTube Data API key is needed. OAuth applies only to its MCP server (https://transcriptapi.com/mcp) for Claude and ChatGPT, and only for that connector. The official YouTube Data API captions endpoint needs Google OAuth (scope youtube.force-ssl) and is limited to videos the user owns or can edit; this comes from the brief and prior knowledge, not a doc fetched this session.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "under 30 min",
+    "timeToProduction": "under 1 day",
+    "firstShort": "Under 30 min",
+    "prodShort": "Under 1 day",
+    "difficulty": "Easy",
+    "prodDays": 1
+  },
+  "approval": {
+    "gate": "None. Credits and rate limits apply: 100 free credits on signup, then $5/month for 1,000 credits (200 RPM) or $54/year (300 RPM). HTTP 402 means no credits or no active plan.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "The transcript API has no scopes (the official YouTube Data API's force-ssl scope is sensitive).",
+    "summary": "TranscriptAPI has no scopes. For the official YouTube Data API, youtube.force-ssl is a sensitive scope that likely triggers Google OAuth verification (not confirmed in this session).",
+    "table": []
+  },
+  "cost": "100 free credits; paid from $5/month (1,000 credits), top-ups $2.50 per 1K; 1 credit per transcript request",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Anyone with a company email who owns the billing; keys are account-wide.",
+    "Where you register: Sign up on transcriptapi.com (no card) → dashboard API Keys page → copy the sk_ key.",
+    "Cost: 100 free credits; paid from $5/month (1,000 credits), top-ups $2.50 per 1K; 1 credit per transcript request"
+  ],
+  "registerAt": {
+    "url": "https://transcriptapi.com",
+    "path": "Sign up on transcriptapi.com (no card) → dashboard API Keys page → copy the sk_ key."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign up at transcriptapi.com and create an API key on the API Keys page.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store the key server-side and call GET /api/v2/youtube/transcript with the video URL or ID and `Authorization: Bearer sk_...`.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle 401 (bad key), 402 (no credits or plan) and 429 (honor Retry-After).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Optionally connect the MCP server at https://transcriptapi.com/mcp (OAuth for Claude and ChatGPT, API key for others).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If you must read captions for videos your user owns, add Google OAuth with youtube.force-ssl and the YouTube Data API captions endpoints (needs Google verification).",
+          "who": "Security",
+          "agent": false
+        },
+        {
+          "do": "Review terms of use for third-party transcript scraping and caching.",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Anyone with a company email who owns the billing; keys are account-wide.",
+    "console": "none documented",
+    "customer": "None. Customers do not connect an account because the API reads public video transcripts. For the official YouTube Data API route, the video owner or editor must grant Google OAuth consent.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use the 100 free signup credits.",
+    "Free routes exist for latest-uploads RSS and handle resolution.",
+    "Rate limit is per account across all keys."
+  ],
+  "blockers": [
+    {
+      "problem": "Third-party service, not official YouTube",
+      "fix": "Evaluate terms and vendor risk."
+    },
+    {
+      "problem": "Credits run out and return 402",
+      "fix": "Monitor balance and set alerts."
+    },
+    {
+      "problem": "Official YouTube captions API only works for videos the user owns or edits",
+      "fix": "Use TranscriptAPI for public videos."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the transcript client, add retry and credit handling, configure the MCP server, and draft the Google OAuth consent copy if you take the official route.",
+    "humanMust": "Sign up, add payment, accept terms, and complete Google OAuth verification if using the YouTube Data API."
+  },
+  "uncertain": [
+    "The YouTube Data API captions details (youtube.force-ssl, owner/edit-only) were not re-verified against Google docs because the fetch limit was hit.",
+    "Key-creation menu path and legal status of the scraping approach are unconfirmed."
+  ],
+  "sources": [
+    {
+      "url": "https://transcriptapi.com",
+      "label": "transcriptapi.com"
+    },
+    {
+      "url": "https://transcriptapi.com/docs/api/",
+      "label": "transcriptapi.com/docs/api"
+    }
+  ]
+}

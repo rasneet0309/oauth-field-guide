@@ -1,0 +1,143 @@
+{
+  "schema": 3,
+  "id": "zoho-crm",
+  "name": "Zoho CRM",
+  "category": "CRM & Sales",
+  "website": "zoho.com/crm",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 7,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "self",
+  "verdict": "Likely self-serve: register a Server-based client in the Zoho API Console, with no approval to connect. The catch is data centers, so send each customer to their own region's accounts server and api_domain; low confidence.",
+  "needGuide": "Yes — data centers and per-user refresh-token limits trip people up, so follow a region-aware flow.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Likely: authorization-code flow at accounts.zoho.<dc>/oauth/v2/auth with access_type=offline for a refresh token. Access tokens last 1 hour; refresh tokens do not expire but a per-user cap applies (about 20 per client, oldest dropped) and access-token minting is rate-limited. Responses return location, accounts-server and api_domain for the customer's data center. Unverified this session.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days (no review); Marketplace listing takes weeks (unverified)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No approval to connect: a Server-based client works for any Zoho CRM org. Enable the multi-data-center option so one client works across regions, then route each user to their own accounts and api_domain host. Zoho Marketplace publishing is separate, optional and reviewed.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (listing optional)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Fine-grained module and operation scopes (for example ZohoCRM.modules.contacts.READ); no scope review for direct OAuth use.",
+    "summary": "Granular scopes such as ZohoCRM.modules.ALL, ZohoCRM.modules.contacts.READ, ZohoCRM.settings.READ, ZohoCRM.users.READ, ZohoCRM.org.READ. No scope review applies to direct OAuth use; Marketplace review is separate.",
+    "table": []
+  },
+  "cost": "Free API console; Zoho CRM edition limits apply to customers' API credits",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Zoho account holder can create clients; use a company-owned Zoho account, since clients are tied to the creating user.",
+    "Where you register: api-console.zoho.com (use the regional console for EU, IN, AU, JP, CA, SA, CN) → Add Client → Server-based Applications → set homepage and redirect URI, copy client ID and secret",
+    "Cost: Free API console; Zoho CRM edition limits apply to customers' API credits"
+  ],
+  "registerAt": {
+    "url": "https://api-console.zoho.com",
+    "path": "api-console.zoho.com (use the regional console for EU, IN, AU, JP, CA, SA, CN) → Add Client → Server-based Applications → set homepage and redirect URI, copy client ID and secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a company Zoho account and a test CRM org",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Open api-console.zoho.com → Add Client → Server-based Applications; add redirect URI; tick use-same-credentials for all data centers",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Build authorization URL per DC with scope ZohoCRM.modules.ALL (add others as needed), access_type=offline, prompt=consent",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange the code at the accounts-server value returned; save refresh token, api_domain and location",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call the CRM API at api_domain; refresh the access token hourly",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with users in two data centers (for example com and eu)",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Zoho account holder can create clients; use a company-owned Zoho account, since clients are tied to the creating user.",
+    "console": "none documented",
+    "customer": "A Zoho CRM user authorizes within their profile permissions; admins can limit API access and manage Connected Apps (likely). An admin is typically needed for org-wide scopes such as settings or users.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Self Client in the API Console generates a short-lived grant token (about 10 minutes) for server-side testing.",
+    "Test data centers matter: create the test org in the same region you will call.",
+    "Zoho CRM trial or free edition for tests; sandbox needs higher editions (likely)."
+  ],
+  "blockers": [
+    {
+      "problem": "Data centers",
+      "fix": "A user's account lives in one region; use the accounts-server and api_domain returned, never hardcode zoho.com."
+    },
+    {
+      "problem": "Refresh-token cap per user per client",
+      "fix": "Persist and reuse tokens instead of reauthorizing."
+    },
+    {
+      "problem": "Wrong client type (Self Client in production) fails",
+      "fix": "Use Server-based."
+    },
+    {
+      "problem": "Excess access-token requests are throttled",
+      "fix": "Cache tokens for an hour."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write multi-DC OAuth code, token store and refresh logic, scope selection and test calls.",
+    "humanMust": "Create the client in API Console, and have the customer user or admin authorize."
+  },
+  "uncertain": [
+    "Not fetched this session (hourly fetch limit hit), so all Zoho details come from prior knowledge.",
+    "Confirm the refresh-token and access-token limits, the region list and sandbox edition requirements in the Zoho OAuth docs."
+  ],
+  "sources": [
+    {
+      "url": "https://www.zoho.com/crm/developer/docs/api/v8/oauth-overview.html",
+      "label": "zoho.com/crm/developer/docs/api/v8/oauth-overview.html"
+    },
+    {
+      "url": "https://api-console.zoho.com",
+      "label": "api-console.zoho.com"
+    }
+  ]
+}

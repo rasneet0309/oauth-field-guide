@@ -1,0 +1,136 @@
+{
+  "schema": 3,
+  "id": "sherlock",
+  "name": "Sherlock",
+  "category": "Data, SEO & Scraping",
+  "website": "github.com/sherlock-project/sherlock",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 58,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "none",
+  "verdict": "No connector path: it is a local, no-auth CLI that checks usernames across sites, with no customer account to connect. The real gate is likely your own privacy and site-terms review.",
+  "needGuide": "No — nothing to connect; run it in a worker and do your own privacy and site-terms review.",
+  "auth": {
+    "model": "No auth (local tool)",
+    "detail": "Open-source (MIT) Python CLI that checks a username against 400+ social sites by requesting public profile URLs. No accounts, API keys, OAuth or hosted API. Install with pipx install sherlock-project (or pip, uv, Docker: docker run -it --rm sherlock/sherlock). Options include --json, --csv, --xlsx, --site, --proxy and --timeout (default 60 s).",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "N/A",
+    "timeToFirstTest": "5-10 min",
+    "timeToProduction": "Same day if self-hosted; legal review time varies",
+    "firstShort": "5–10 min",
+    "prodShort": "Same day (self-hosted)",
+    "difficulty": "N/A",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "No approval. The gate is your own compliance review: the tool probes many third-party sites for a person's presence, which raises privacy and site-ToS questions (inference; the README shows no disclaimer).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": null,
+    "kind": "No connector path"
+  },
+  "scopes": {
+    "complexity": "N/A",
+    "why": "Local tool; no permissions apply.",
+    "summary": "None. The tool queries public profile URLs only. NSFW sites are off by default and enabled with --nsfw.",
+    "table": []
+  },
+  "cost": "Free (MIT)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A developer with shell or Docker access runs it; no accounts needed. Run it in your own sandbox or worker, not on customer machines.",
+    "Where you register: None needed; install the CLI locally or run the Docker image",
+    "Cost: Free (MIT)"
+  ],
+  "registerAt": {
+    "url": "https://github.com/sherlock-project/sherlock",
+    "path": "None needed; install the CLI locally or run the Docker image"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Install with pipx install sherlock-project, or pull the sherlock/sherlock Docker image",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Run sherlock <username> --json against a known test username",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Wrap the CLI in a worker that restricts inputs, applies timeouts and optional proxies, and parses JSON results",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Record the permitted use cases (your own accounts, authorized investigations) in an acceptable-use policy",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Add false-positive handling: treat hits as leads that need verification, not identity proof",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A developer with shell or Docker access runs it; no accounts needed. Run it in your own sandbox or worker, not on customer machines.",
+    "console": "none documented",
+    "customer": "None. There is no customer connect flow; end users supply a username as input.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Run sherlock on your own known username and on a throwaway one, using --site to limit scope, --json for parsing and --print-found to reduce noise."
+  ],
+  "blockers": [
+    {
+      "problem": "False positives and username reuse",
+      "fix": "A hit does not prove the same person. Require human verification before acting."
+    },
+    {
+      "problem": "Rate-limiting or blocking by target sites",
+      "fix": "Use --timeout, --proxy and conservative concurrency."
+    },
+    {
+      "problem": "Privacy law (such as GDPR) and site ToS may restrict profiling individuals",
+      "fix": "Get legal sign-off and avoid use on private persons without authorization."
+    },
+    {
+      "problem": "Third-party distro packages (Ubuntu, ParrotOS) may be broken",
+      "fix": "Use pipx, uv, pip or Docker."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Install and run the CLI, parse JSON/CSV output, build the worker wrapper, and draft acceptable-use and consent wording.",
+    "humanMust": "Decide legitimate use cases, approve privacy and legal posture, and review results before acting on them."
+  },
+  "uncertain": [
+    "The README fetched had no ethics disclaimer and the project docs site did not load for details; the privacy and ToS notes here are general inferences, not Sherlock project statements.",
+    "Current site list accuracy was not checked."
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/sherlock-project/sherlock",
+      "label": "github.com/sherlock-project/sherlock"
+    },
+    {
+      "url": "https://sherlockproject.xyz",
+      "label": "sherlockproject.xyz"
+    }
+  ]
+}

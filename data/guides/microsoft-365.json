@@ -1,0 +1,392 @@
+{
+  "schema": 3,
+  "id": "microsoft-365",
+  "name": "Microsoft 365",
+  "category": "Productivity & PM",
+  "website": "learn.microsoft.com/entra",
+  "tagline": "Entra ID · Microsoft Graph · Outlook · OneDrive · Teams",
+  "kind": "in-depth",
+  "featured": true,
+  "listNumber": null,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "review",
+  "verdict": "Registering the app takes an hour. The slow parts are the Partner Center identity check and each customer's admin consent.",
+  "needGuide": "Yes. Since 2025, Microsoft's default consent policy stops users approving mail, calendar, file and chat scopes themselves, so you need an admin-consent flow.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code with PKCE, through MSAL. Refresh tokens rotate on each use and expire after 90 days of inactivity. Access tokens last 60–90 minutes. Use the /organizations or /common authority.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "30–90 min (with a work tenant)",
+    "timeToProduction": "1–4 weeks, plus admin approval at each customer",
+    "firstShort": "30–90 min",
+    "prodShort": "1–4 wks + admin consent",
+    "difficulty": "Complex",
+    "prodDays": 28
+  },
+  "approval": {
+    "gate": "",
+    "when": "Microsoft doesn't review Graph apps. Publisher verification is an identity check that requires a fully verified Partner Center account, an associated tenant, a matching publisher domain, the right role and MFA. Microsoft 365 Certification is optional.",
+    "timeline": [
+      {
+        "label": "Partner Center verification",
+        "official": "3–5 business days",
+        "reported": "1 day to several weeks; some accounts stall"
+      },
+      {
+        "label": "Publisher verification",
+        "official": "Minutes",
+        "reported": "Minutes, once Partner Center shows Authorized"
+      },
+      {
+        "label": "Microsoft 365 Certification (optional)",
+        "official": "Stage 1: 14 days; Stage 2: 60 days (+60)",
+        "reported": "Needs a penetration test from the last 12 months"
+      }
+    ],
+    "recurring": "Verification itself doesn't need renewing. Publisher Attestation and Microsoft 365 Certification renew every year, with reminders at 90, 60 and 30 days. Rotate secrets and certificates before they expire.",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Mail.Read, calendars, shared files and Teams chats need customer admin consent in practice; channel messages and transcripts always do.",
+    "summary": "",
+    "table": [
+      {
+        "use": "Sign-in and refresh",
+        "scope": "openid, profile, email, offline_access, User.Read",
+        "tier": "User consent",
+        "note": "Allowed under the default policy"
+      },
+      {
+        "use": "Read mail",
+        "scope": "Mail.Read",
+        "tier": "Admin in practice",
+        "note": "Blocked by the Microsoft-managed default policy"
+      },
+      {
+        "use": "Send mail",
+        "scope": "Mail.Send",
+        "tier": "User consent",
+        "note": "Not on the block list"
+      },
+      {
+        "use": "Calendar",
+        "scope": "Calendars.ReadWrite",
+        "tier": "Admin in practice",
+        "note": "Blocked by default"
+      },
+      {
+        "use": "Own OneDrive",
+        "scope": "Files.ReadWrite",
+        "tier": "User consent",
+        "note": "Not on the block list"
+      },
+      {
+        "use": "Shared files / SharePoint",
+        "scope": "Files.Read.All, Sites.Read.All",
+        "tier": "Admin in practice",
+        "note": "Or use Sites.Selected plus a grant per site"
+      },
+      {
+        "use": "Teams chats",
+        "scope": "Chat.Read / Chat.ReadWrite",
+        "tier": "Admin in practice",
+        "note": "Not available for personal accounts"
+      },
+      {
+        "use": "Channel messages",
+        "scope": "ChannelMessage.Read.All",
+        "tier": "Admin consent required",
+        "note": "Always needs an admin"
+      },
+      {
+        "use": "Meeting transcripts",
+        "scope": "OnlineMeetingTranscript.Read.All",
+        "tier": "Admin consent required",
+        "note": "Always needs an admin"
+      }
+    ]
+  },
+  "cost": "Registration and publisher verification are free. You need a work tenant. Optional Microsoft 365 Certification costs an auditor fee plus a penetration test (one quote was about US$6,800).",
+  "tiers": [
+    {
+      "label": "User-consentable scopes",
+      "eg": "User.Read, offline_access, Mail.Send, Files.ReadWrite (own OneDrive)",
+      "difficulty": "Moderate",
+      "time": "1–2 weeks",
+      "note": "Needs a verified publisher. Works for personal accounts and for tenants with relaxed consent settings."
+    },
+    {
+      "label": "Admin-consent path (typical)",
+      "eg": "Mail.Read, Calendars.ReadWrite, Files.Read.All, Chat.Read",
+      "difficulty": "Hard",
+      "time": "Days to weeks for each customer",
+      "note": "Blocked by the Microsoft-managed default consent policy, so each customer's admin has to approve."
+    },
+    {
+      "label": "Application (app-only) permissions",
+      "eg": "Mail.Read (app), Sites.Read.All (app)",
+      "difficulty": "Very hard",
+      "time": "Weeks; customer security reviews",
+      "note": "Always needs admin consent and gives tenant-wide access. Customers rarely accept it for agents."
+    }
+  ],
+  "prerequisites": [
+    "A company work tenant with a verified custom domain. That same domain becomes your publisher domain.",
+    "MFA for everyone who uses admin portals, CLI or infrastructure-as-code. It is mandatory.",
+    "A Partner Center account in the Microsoft AI Cloud Partner Program. The primary contact's email must be on your domain, and the legal name and address must match your registration exactly.",
+    "An HTTPS callback host, plus privacy statement and terms of service URLs.",
+    "A second tenant to act as a customer during testing."
+  ],
+  "registerAt": {
+    "url": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app",
+    "path": "entra.microsoft.com → Entra ID → App registrations → New registration, with supported account types set to “Multiple Entra ID tenants”."
+  },
+  "phases": [
+    {
+      "name": "Start identity checks (day 1, in parallel)",
+      "duration": "3–5 business days, sometimes weeks",
+      "gate": "required",
+      "steps": [
+        {
+          "do": "In Partner Center, enroll in the Microsoft AI Cloud Partner Program with a work account from your tenant. Upload incorporation and domain documents and complete ID verification; your name must match your government ID exactly. Then associate your tenant.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Assign directory roles: Application Developer for developers, and Cloud Application Administrator for whoever will verify the publisher. Check that MFA works for all of them.",
+          "who": "Owner",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Register the app",
+      "duration": "1 hour",
+      "steps": [
+        {
+          "do": "Go to entra.microsoft.com → Entra ID → App registrations → New registration. For supported account types, choose “Multiple Entra ID tenants” (add personal accounts only if you need consumers). Set the redirect URI to Web: https://app.yourco.com/auth/microsoft/callback, then click Register.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Under Owners → Add owners, add at least 2 work accounts. Don't use personal accounts: an app registered with one can never be publisher-verified.",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Under Authentication, add the prod, staging and http://localhost redirect URIs. HTTPS is required except for localhost. Multitenant apps can't use wildcards, and the localhost port is ignored.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Under Certificates & secrets, use a certificate or federated credential for production. Client secrets last at most 24 months (12 is recommended), and the value is shown once. Store it in Key Vault.",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Under API permissions → Microsoft Graph → Delegated, add openid, profile, email, offline_access, User.Read and your feature scopes. Don't click “Grant admin consent” in your home tenant unless you're testing there.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Fill in Branding & properties: name, logo, home page, terms and privacy URLs. Set the publisher domain to your verified domain, or host /.well-known/microsoft-identity-association.json.",
+          "who": "Design",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Build and test",
+      "duration": "2–5 days",
+      "steps": [
+        {
+          "do": "Implement an MSAL confidential client with authorization code and PKCE. Validate the issuer for each tenant, persist rotated refresh tokens encrypted, and handle invalid_grant and claims challenges (declare cp1).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Build a “Connect your organization” button that opens https://login.microsoftonline.com/organizations/v2.0/adminconsent?client_id=…&scope=https://graph.microsoft.com/.default&redirect_uri=…&state=… and a page that tells non-admins how to request approval.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "In a second tenant, sign in as a non-admin (expect “Approval required”), as an admin using /adminconsent, and with a personal Microsoft account. Then check Enterprise apps → your app → Permissions.",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Verify the publisher",
+      "duration": "Minutes, after Partner Center shows Authorized",
+      "gate": "required",
+      "steps": [
+        {
+          "do": "In your app, open Branding & properties → Add Partner ID to verify publisher. Enter the PartnerGlobal ID (Partner Center → Account settings → Identifiers), then click Verify and save. Do this in the same session as your MFA sign-in.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Optional: complete Publisher Attestation and Microsoft 365 Certification if enterprise buyers or the Teams store ask for them.",
+          "who": "Security",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Operate",
+      "duration": "Ongoing",
+      "steps": [
+        {
+          "do": "Keep a calendar for rotating secrets and certificates. Leave app instance property lock on (the default for new apps since June 2026). Watch for sign-in failures caused by customers' Conditional Access policies.",
+          "who": "Ops",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "The Owner and Legal handle Partner Center identity. A Cloud Application Administrator verifies the publisher. Developers hold Application Developer and own the app. Security handles certificates and Key Vault. Design provides branding. Support writes the admin-consent guide that customers' IT teams will read.",
+    "console": "Entra roles: App registration Owners, Application Developer, Cloud Application Administrator, Privileged Role Administrator, plus Partner Center admin roles. Add owners under App registrations → your app → Owners, or with the Graph call POST /applications/{id}/owners/$ref.",
+    "customer": "Customers' tenant admins control user consent (Enterprise apps → Consent and permissions). They approve requests through the admin consent workflow, or grant tenant-wide consent through /adminconsent. Global Administrator or Privileged Role Administrator is needed for application permissions.",
+    "consoleRoles": [
+      {
+        "role": "App registration Owner",
+        "can": "Fully manage one app (up to 100 owners)",
+        "who": "2 or more engineers, on work accounts"
+      },
+      {
+        "role": "Application Developer",
+        "can": "Create app registrations even when users are blocked from doing so, and manage apps they own",
+        "who": "Developers"
+      },
+      {
+        "role": "Cloud Application Administrator",
+        "can": "Manage all app registrations and verify the publisher",
+        "who": "Platform lead / verifier"
+      },
+      {
+        "role": "Application Administrator",
+        "can": "Same as Cloud Application Administrator, plus application proxy",
+        "who": "Optional"
+      },
+      {
+        "role": "Privileged Role Administrator",
+        "can": "Grant consent for any permission, including Graph app roles, and change consent settings",
+        "who": "Security admin (1–2 people)"
+      },
+      {
+        "role": "Global Administrator",
+        "can": "Everything",
+        "who": "2 break-glass accounts only"
+      },
+      {
+        "role": "Partner Center: AI Cloud Partner Program Admin / Accounts Admin",
+        "can": "Manage the partner account used for verification",
+        "who": "Owner"
+      }
+    ]
+  },
+  "customerExperience": [
+    "The default for new tenants is “Let Microsoft manage your consent settings”. It blocks user consent for Mail.*, Calendars.*, Files.Read.All, Sites.*.All, Chat.*, OnlineMeetings.*, Contacts, People and Tasks. Microsoft rolled this out between July 2025 and July 2026.",
+    "Multitenant apps whose publisher isn't verified are pushed to admin consent. Users see AADSTS90094 or “Need admin approval”.",
+    "If the tenant has the admin consent workflow turned on, users see “Approval required” and can send a request with a justification.",
+    "The tenant-wide admin consent URL returns admin_consent=True&tenant=… Never use /common for this URL.",
+    "Conditional Access policies (compliant device, location, sign-in frequency) can block or re-prompt your users. You can't control these."
+  ],
+  "testing": [
+    "Microsoft 365 E5 developer sandbox: available to Visual Studio Professional and Enterprise subscribers and eligible partners. It includes 25 licenses and lasts 90 days, renewable.",
+    "A second trial tenant can stand in for a customer. Test as a non-admin and as an admin.",
+    "A personal Microsoft (outlook.com) account works for mail, calendar and OneDrive. Teams chats are not supported for personal accounts.",
+    "Use Graph Explorer to prototype calls. Use prompt=consent to force the consent screen, but only while testing.",
+    "To pilot with specific customers, restrict access using “Allow only certain tenants (Preview)”."
+  ],
+  "blockers": [
+    {
+      "problem": "PublisherDomainMismatch",
+      "fix": "The Partner Center primary contact's email domain must be a verified domain in your tenant."
+    },
+    {
+      "problem": "MPNAccountNotVetted / MPNGlobalAccountNotFound",
+      "fix": "Wait until Legal info shows Authorized, and use the PartnerGlobal ID, not a location ID."
+    },
+    {
+      "problem": "The “Add Partner ID” button is missing",
+      "fix": "The app was registered with a personal account. Register it again in your work tenant."
+    },
+    {
+      "problem": "Can't create a multitenant app",
+      "fix": "Your own admin has blocked multitenant apps. Ask for an exclusion under Application policies."
+    },
+    {
+      "problem": "Identity or business verification rejected",
+      "fix": "Make your name, including any middle name, match your government ID, and use the legal entity name, not the brand name."
+    },
+    {
+      "problem": "Users hit AADSTS90094 or “Need admin approval”",
+      "fix": "This is expected under the default policy. Send them to your admin-consent flow."
+    }
+  ],
+  "gotchas": [
+    "Refresh tokens expire after 90 days without use, and resetting a user's password revokes them. For single-page apps they last a fixed 24 hours.",
+    "Outlook throttling is 10,000 requests per 10 minutes per app per mailbox, with a maximum of 4 concurrent requests.",
+    "Apps that allow personal accounts are limited to 2 secrets, 30 permissions per API, and redirect URIs without query strings.",
+    "Tenant-wide admin consent can replace permissions that were granted earlier.",
+    "An app object can't be moved to another tenant later, so register it in the right tenant first."
+  ],
+  "automation": {
+    "agentCan": "Register the app with az ad app create or Terraform, add owners, redirect URIs and permissions through Graph, write the MSAL and admin-consent code, draft the admin-consent guide for customers' IT teams, and track secret rotation.",
+    "humanMust": "Complete Partner Center enrollment and ID verification, set the publisher domain in the portal, verify the publisher with MFA, test with real sign-ins, and sign attestations."
+  },
+  "uncertain": [
+    "Microsoft can change which permissions the default consent policy blocks at any time.",
+    "The docs disagree on whether a Global Administrator or a Privileged Role Administrator must approve Graph application permissions through the workflow.",
+    "The cheapest way to get a work tenant without paying isn't confirmed.",
+    "It's unclear whether Microsoft will push third-party agents toward Entra Agent ID blueprints."
+  ],
+  "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app",
+      "label": "Register an app"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-app-consent-policies",
+      "label": "Microsoft-managed consent policy and block list"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/publisher-verification-overview",
+      "label": "Publisher verification requirements"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/mark-app-as-publisher-verified",
+      "label": "Verify the publisher"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-admin-consent",
+      "label": "Admin consent endpoint"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-admin-consent-workflow",
+      "label": "Admin consent workflow"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/reply-url",
+      "label": "Redirect URI rules"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/office/developer-program/office-365-developer-program-faq",
+      "label": "Developer sandbox eligibility"
+    },
+    {
+      "url": "https://techcommunity.microsoft.com/",
+      "label": "Community: Partner Center verification delays"
+    }
+  ]
+}

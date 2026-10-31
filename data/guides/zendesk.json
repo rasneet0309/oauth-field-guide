@@ -1,0 +1,161 @@
+{
+  "schema": 3,
+  "id": "zendesk",
+  "name": "Zendesk",
+  "category": "Support & Helpdesk",
+  "website": "zendesk.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 11,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "partner",
+  "verdict": "Zendesk does not let you create the global OAuth client that multi-customer apps need; you build on a local client, then Zendesk reviews and converts it. No review SLA is documented, likely several weeks.",
+  "needGuide": "Yes — request a sponsored d3v- test account, build on a local client, and ask for global-client conversion only when the app is finished.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Authorization code (+ optional PKCE), refresh_token and client_credentials grants; password grant deprecated. Endpoints are per subdomain (https://{subdomain}.zendesk.com/oauth/authorizations/new and /oauth/tokens). Code valid 120 s; refresh tokens rotate (old pair invalidated), default 30 days (7-90). Clients created on or after 2026-04-30 default to 30-minute access tokens.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown; likely several weeks (global client review plus Marketplace review, no SLA documented)",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely weeks)",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Apps serving multiple Zendesk customers with server-side API calls must use a global OAuth client. Zendesk does not let developers create these; you build against a local client, then Zendesk reviews and converts it. Marketplace listing is separate. Per-customer local clients work technically but are not allowed for Marketplace apps (credential-sharing is prohibited).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Broad read/write or resource scopes such as tickets:read, and Zendesk may cap your client's allowed scopes when it approves you.",
+    "summary": "Broad scopes (read, write) or resource scopes like tickets:read. Client allowed_scopes caps requests (400 invalid_scope otherwise). Zendesk may set allowed scopes on approval; request only what is needed.",
+    "table": []
+  },
+  "cost": "Free to build and list; sponsored test account is free; payment setup only if the app is paid",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Admin (or agent with Manage APIs permission) on the test subdomain to create the client; a company-owned Marketplace portal login with a registered organization and profile.",
+    "Where you register: Local client: Admin Center → Apps and integrations → APIs → OAuth clients → Add OAuth client (identifier must start with zdg-). Global client: Marketplace portal (apps.zendesk.com) → Global OAuth → Request new OAuth.",
+    "Cost: Free to build and list; sponsored test account is free; payment setup only if the app is paid"
+  ],
+  "registerAt": {
+    "url": "https://apps.zendesk.com",
+    "path": "Local client: Admin Center → Apps and integrations → APIs → OAuth clients → Add OAuth client (identifier must start with zdg-). Global client: Marketplace portal (apps.zendesk.com) → Global OAuth → Request new OAuth."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Request a sponsored Zendesk test account (subdomain prefix d3v-) via the Marketplace developer docs",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create local OAuth client: Admin Center → Apps and integrations → APIs → OAuth clients; identifier zdg-yourapp, fill every field, confidential kind, redirect URIs, scopes",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code flow with PKCE per customer subdomain; store rotating refresh tokens and handle 401 by refresh",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test end-to-end against the sponsored account with narrow scopes (e.g. tickets:read, tickets:write)",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Save the client secret and identifier, then apps.zendesk.com → Global OAuth → Request new OAuth with d3v- subdomain and the matching zdg- id",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Wait for approval email/ticket; update production config; contact Zendesk Support (Option 2, mention global oauth) for later scope changes",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Register organization, create Marketplace profile, and submit listing with data-access disclosure",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Admin (or agent with Manage APIs permission) on the test subdomain to create the client; a company-owned Marketplace portal login with a registered organization and profile.",
+    "console": "Marketplace org/profile: none documented for collaborators. Local clients: admins and agents with Manage APIs can create, update, delete and regenerate the secret. Only Zendesk's Marketplace Operations Team can edit a global client afterwards.",
+    "customer": "Zendesk user who authorizes at /oauth/authorizations/new; the token inherits that user's role and the client's allowed scopes. Plan must be Suite or Support Team/Professional/Enterprise (OAuth clients per help article). Install of Marketplace apps likely needs an admin.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Request a sponsored test account (Marketplace docs).",
+    "The global-client request requires a subdomain with the d3v- prefix.",
+    "Build with a local client first.",
+    "Sell uses a different mechanism (Multi-User Application)."
+  ],
+  "blockers": [
+    {
+      "problem": "Global client cannot be self-created",
+      "fix": "Request it only when the app is finished, with the production zdg- identifier already in use."
+    },
+    {
+      "problem": "You lose access to the local client admin page after conversion",
+      "fix": "Copy secret and identifier first."
+    },
+    {
+      "problem": "Authorization URL is per subdomain",
+      "fix": "Collect the customer subdomain before redirecting."
+    },
+    {
+      "problem": "Refresh tokens rotate",
+      "fix": "Persist the new pair atomically or the connection breaks."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth/PKCE code and refresh handling, run test API calls, draft the global-OAuth request justification, scope rationale and Marketplace listing copy, and call the OAuth clients API.",
+    "humanMust": "Sign in to the Marketplace portal, submit the global OAuth form, register the organization, accept partner/legal terms, and handle any payment setup."
+  },
+  "uncertain": [
+    "Review duration for global clients and Marketplace listings; exact admin role for global-client submission; whether a global client strictly requires a Marketplace listing (docs say only to request it when the app is ready).",
+    "Zendesk OAuth clients reference pages for global clients returned fetch errors."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.zendesk.com/documentation/marketplace/building-a-marketplace-app/set-up-a-global-oauth-client/",
+      "label": "developer.zendesk.com/documentation/marketplace/building-a-marketplace…"
+    },
+    {
+      "url": "https://developer.zendesk.com/documentation/marketplace/",
+      "label": "developer.zendesk.com/documentation/marketplace"
+    },
+    {
+      "url": "https://developer.zendesk.com/api-reference/ticketing/oauth/grant_type_tokens/",
+      "label": "developer.zendesk.com/api-reference/ticketing/oauth/grant_type_tokens"
+    },
+    {
+      "url": "https://developer.zendesk.com/api-reference/ticketing/oauth/oauth_clients/",
+      "label": "developer.zendesk.com/api-reference/ticketing/oauth/oauth_clients"
+    },
+    {
+      "url": "https://support.zendesk.com/hc/en-us/articles/4408845965210-Using-OAuth-authentication-with-your-application",
+      "label": "support.zendesk.com/hc/en-us/articles/4408845965210-Using-OAuth-authen…"
+    }
+  ]
+}

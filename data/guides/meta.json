@@ -1,0 +1,379 @@
+{
+  "schema": 3,
+  "id": "meta",
+  "name": "Meta: Facebook Pages & Instagram",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "developers.facebook.com",
+  "tagline": "Facebook Login for Business · Instagram API · App Review",
+  "kind": "in-depth",
+  "featured": true,
+  "listNumber": null,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Hard. You face three human queues: Business Verification, App Review for each permission, and a yearly Data Access Renewal. Start verification on day one and plan for 3–10 weeks.",
+  "needGuide": "Yes. Most rejections come from steps done in the wrong order or a screencast that's missing something.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Facebook Login for Business uses a config_id. System-user tokens tied to the client's business portfolio don't expire. Instagram Login tokens last 1 hour (short-lived) or 60 days (long-lived, refreshable). Graph API v26.0.",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "2–6 hours",
+    "timeToProduction": "3–10 weeks (worst case 3+ months)",
+    "firstShort": "2–6 hours",
+    "prodShort": "3–10 weeks incl. review",
+    "difficulty": "Complex",
+    "prodDays": 70
+  },
+  "approval": {
+    "gate": "",
+    "when": "Any permission used on assets of businesses that don't hold a role on your app. Business Verification has been required for Advanced Access since Feb 2023. Access Verification for Tech Providers was retired in Oct 2026.",
+    "timeline": [
+      {
+        "label": "Business Verification",
+        "official": "About 2 business days",
+        "reported": "10 to more than 32 business days in 2026"
+      },
+      {
+        "label": "App Review (per round)",
+        "official": "No published SLA",
+        "reported": "4–6 days in early 2026, 17–19 days by May 2026; the dashboard warns “up to 20 days”"
+      },
+      {
+        "label": "Data Access Renewal",
+        "official": "Yearly; 60 days to submit",
+        "reported": "Reviewer replies take 10–15 business days"
+      }
+    ],
+    "recurring": "Data Access Renewal every year (missing it freezes the app), ongoing reviews in the Alert Inbox, and Graph API version upgrades.",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Every permission used on assets of businesses without a role on your app needs Advanced Access through App Review.",
+    "summary": "",
+    "table": [
+      {
+        "use": "List assets",
+        "scope": "pages_show_list, business_management",
+        "tier": "Advanced + review",
+        "note": "Required by the Pages and Messenger use cases"
+      },
+      {
+        "use": "Read posts and insights",
+        "scope": "pages_read_engagement",
+        "tier": "Advanced + review",
+        "note": "Show Page content in your UI or it gets denied"
+      },
+      {
+        "use": "Moderate comments",
+        "scope": "pages_read_user_content, pages_manage_engagement",
+        "tier": "Advanced + review",
+        "note": ""
+      },
+      {
+        "use": "Publish to Pages",
+        "scope": "pages_manage_posts (+ publish_video)",
+        "tier": "Advanced + review",
+        "note": ""
+      },
+      {
+        "use": "Messenger DMs",
+        "scope": "pages_messaging, pages_manage_metadata",
+        "tier": "Advanced + review",
+        "note": "24-hour reply window"
+      },
+      {
+        "use": "Instagram content",
+        "scope": "instagram_basic / instagram_business_basic, …_content_publish",
+        "tier": "Advanced + review",
+        "note": "100 API posts per 24 hours"
+      },
+      {
+        "use": "Instagram comments and DMs",
+        "scope": "instagram_manage_comments, instagram_manage_messages",
+        "tier": "Advanced + review",
+        "note": "Don't use the Human Agent tag for AI auto-replies"
+      }
+    ]
+  },
+  "cost": "Meta charges nothing. You pay for legal pages, hosting and staff time.",
+  "tiers": [
+    {
+      "label": "Standard Access",
+      "eg": "Your own Pages and accounts, people with app roles",
+      "difficulty": "Easy",
+      "time": "Same day",
+      "note": "Granted automatically, for testing only."
+    },
+    {
+      "label": "Advanced Access",
+      "eg": "Other businesses' Pages and Instagram",
+      "difficulty": "Hard",
+      "time": "3–10 weeks",
+      "note": "Needs Business Verification plus App Review for each permission."
+    }
+  ],
+  "prerequisites": [
+    "A Facebook account for each person, registered as a Meta developer with phone and email codes.",
+    "A business portfolio for your legal entity with 2 or more admins on Full control.",
+    "Business Verification documents. You get at most 3 attempts per portfolio.",
+    "Public HTTPS pages: privacy policy, terms of service, data deletion instructions or callback, and a deauthorize callback.",
+    "A 1024×1024 app icon with no Meta trademarks, and a DPO contact if you operate in the EU.",
+    "A real Facebook Page and an Instagram professional account linked to it, both owned by your company.",
+    "A public staging or production app that reviewers can log into."
+  ],
+  "registerAt": {
+    "url": "https://developers.facebook.com/documentation/development/create-an-app.md",
+    "path": "developers.facebook.com → My Apps → Create App, with the Pages, Messenger and Instagram use cases, connected to your verified business portfolio."
+  },
+  "phases": [
+    {
+      "name": "Day 1: identity",
+      "duration": "2 days–2 months",
+      "gate": "required",
+      "steps": [
+        {
+          "do": "At business.facebook.com, create a business portfolio for your legal entity and add 2 or more admins with Full control.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Go to Business Settings → Security Center → Start verification. Enter the legal name, address, tax ID and phone exactly as they appear in your documents, and upload 1–3 official documents. Don't edit anything while it's pending.",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Every engineer registers at developers.facebook.com/async/registration.",
+          "who": "Developer",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Create and configure the app",
+      "duration": "1–2 hours",
+      "steps": [
+        {
+          "do": "Go to My Apps → Create App. Don't use “Facebook” or “Meta” in the name. Add the use cases “Manage everything on your Page”, “Engage with customers on Messenger from Meta” and the Instagram use case, then connect your business portfolio. You can't remove use cases later.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Under App settings → Basic, set the domains, privacy and terms URLs, user data deletion URL, icon, category, App purpose = Clients, and DPO. Then Add platform → Website.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Under Basic → Verification, connect the verified portfolio. Then click Become a Tech Provider → Yes.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customize each use case and add only the permissions you will ship.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Under Facebook Login for Business → Settings, turn on Client OAuth login, Web OAuth login, Enforce HTTPS and Strict Mode. Add exact Valid OAuth Redirect URIs plus the deauthorize and data-deletion URLs, then click Save.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Under Configurations → Create configuration, choose System-user access token with expiry Never, select Pages and Instagram as assets, and pick the permissions. Copy the config_id.",
+          "who": "Developer",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Build and test",
+      "duration": "3–7 days",
+      "steps": [
+        {
+          "do": "Implement login with config_id and response_type=code. Exchange the code on your server at graph.facebook.com/v26.0/oauth/access_token and store tokens encrypted. Build the data-deletion callback (verify signed_request with HMAC-SHA256).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Add app roles: Administrators, Developers and Testers. For Instagram Login, also add Instagram Testers, who accept the invite in Instagram → Settings → Apps and websites → Tester invites.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Click Ready to test on each use case. Make at least one successful API call per permission in the 30 days before you submit.",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "App Review",
+      "duration": "1–4+ weeks per round",
+      "gate": "required",
+      "steps": [
+        {
+          "do": "Record one screencast per permission: 1080p, at most 1440 px wide, English UI or captions, no audio. Show the public login page → consent → the result appearing on Facebook or Instagram.",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Go to Review → App Review. Write reviewer instructions with working credentials (no 2FA or email walls, data preloaded). Add a usage description and video for each permission, answer the data handling questions, then click Submit.",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Expect at least one rejection. Fix exactly what the reviewer cited and resubmit.",
+          "who": "Owner",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Go live and operate",
+      "duration": "Ongoing",
+      "steps": [
+        {
+          "do": "Confirm every permission has Advanced Access, including public_profile, then Publish → Go live. Test posts become public at this point.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Each year, complete the Data Access Renewal within 60 days or the app is frozen. Watch the Alerts inbox and upgrade Graph API versions (each is supported about 2 years).",
+          "who": "Ops",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "The Owner and Legal handle the business portfolio and verification. Admins submit App Review. Developers configure Facebook Login for Business and webhooks. QA records the screencasts. Legal writes the privacy, terms and deletion pages. Ops handles the annual Data Access Renewal.",
+    "console": "App roles are Administrator, Developer, Tester, Analytics User and Instagram Tester. Add people under App roles → Roles → Add People, or in Business Settings → Users → People → Assign assets if the app belongs to a portfolio. You can have 50 testers, or 500 with a verified business.",
+    "customer": "The person connecting must own the Page or have the matching Page task (Content, Messages, Everything). For system-user tokens, the client's business admin has to authorize. The consent dialog is all-or-nothing.",
+    "consoleRoles": [
+      {
+        "role": "Administrator",
+        "can": "Everything: settings, roles, reset secret, remove app",
+        "who": "2–3 company staff (up to 500)"
+      },
+      {
+        "role": "Developer",
+        "can": "Change settings, test permissions, create test assets",
+        "who": "Engineers"
+      },
+      {
+        "role": "Tester",
+        "can": "Test permissions only; any regular Facebook user can hold it",
+        "who": "QA and screencast recorders"
+      },
+      {
+        "role": "Analytics User",
+        "can": "Test permissions and view insights",
+        "who": "Product and marketing"
+      },
+      {
+        "role": "Instagram Tester",
+        "can": "Use Instagram Login before approval",
+        "who": "QA with IG professional accounts"
+      },
+      {
+        "role": "Business portfolio: Full control / Partial access",
+        "can": "Once the app is in a portfolio, roles are managed in Business Settings",
+        "who": "Admins: Full control"
+      }
+    ]
+  },
+  "customerExperience": [
+    "The Facebook Login for Business dialog shows your configuration. Users must grant all permissions or the app gets none.",
+    "With system-user tokens, users pick their business portfolio and the Pages or Instagram accounts to share.",
+    "Page tokens are only issued to users who own the Page or have a task on it. Publishing needs the CREATE_CONTENT, MANAGE and MODERATE tasks.",
+    "Instagram Login (instagram.com/oauth/authorize) works for professional accounts only. Personal accounts aren't supported."
+  ],
+  "testing": [
+    "Standard Access works only for people with an app role, on assets they manage.",
+    "Meta has paused creating new test users (capped at 10). Use real accounts with the Tester role and real company Pages.",
+    "Instagram testers must accept the invite in Instagram and also need a role on the professional account.",
+    "Use Graph API Explorer (developers.facebook.com/tools/explorer) for test calls."
+  ],
+  "blockers": [
+    {
+      "problem": "Business Verification stuck in review for weeks",
+      "fix": "Start on day 1. Make the legal name and address match exactly, put the legal name and logo on your HTTPS website, and use an email address on the same domain."
+    },
+    {
+      "problem": "Reviewer couldn't log in",
+      "fix": "Create a dedicated reviewer account with preloaded data and no 2FA or geo-blocking."
+    },
+    {
+      "problem": "Requested permissions for features you haven't built",
+      "fix": "Request only what the app does today."
+    },
+    {
+      "problem": "“No evidence of delivery” in the screencast",
+      "fix": "Record one continuous take that ends with the result visible on Facebook or Instagram."
+    },
+    {
+      "problem": "Privacy policy on another domain or no deletion URL",
+      "fix": "Put both on the same domain as the app and make sure the callback works."
+    }
+  ],
+  "gotchas": [
+    "Once an app is in a business portfolio, you manage roles in Business Settings.",
+    "You can add only one Instagram setup per app. Use a second app if you also need Instagram Login.",
+    "Calls to an expired Graph API version silently run on a newer version. Pin and upgrade on purpose.",
+    "Business use case rate limits apply. Read the X-Business-Use-Case-Usage header.",
+    "The Instagram Basic Display API shut down on Dec 4, 2024."
+  ],
+  "automation": {
+    "agentCan": "Draft the privacy, terms and deletion pages, build the login, webhook and deletion callback, write per-permission usage descriptions and reviewer instructions, script the 30-day API calls, and track renewal deadlines.",
+    "humanMust": "Create the business portfolio and complete verification, register as developers, create and configure the app in the dashboard, accept tester invites, record screencasts, submit App Review, and go live."
+  },
+  "uncertain": [
+    "There's no official SLA for App Review. The 10- and 20-day figures come from developer reports.",
+    "Exact dashboard labels are uncertain: the Instagram use case name and whether the button says Publish or Go live.",
+    "It's unconfirmed whether the Pages use case and Instagram Login can coexist in one app. The docs suggest they can't.",
+    "Official docs say pages_read_* permissions need review. One vendor says they don't."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.facebook.com/documentation/development/create-an-app.md",
+      "label": "Create an app, use cases"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/development/build-and-test/app-roles.md",
+      "label": "App roles and limits"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/facebook-login/facebook-login-for-business",
+      "label": "Facebook Login for Business"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/resp-plat-initiatives/appreview/tutorial",
+      "label": "App Review screencast rules"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/development/release/business-verification.md",
+      "label": "Business Verification"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/resp-plat-initiatives/data-access-renewal.md",
+      "label": "Data Access Renewal"
+    },
+    {
+      "url": "https://developers.facebook.com/documentation/instagram-platform/overview.md",
+      "label": "Instagram setups and tokens"
+    },
+    {
+      "url": "https://developers.facebook.com/blog/post/2026/07/29/introducing-graph-api-v26-and-marketing-api-v26/",
+      "label": "Graph API v26"
+    },
+    {
+      "url": "https://bundle.social/blog/meta-app-review-20-days",
+      "label": "Community: 2026 review timelines"
+    }
+  ]
+}

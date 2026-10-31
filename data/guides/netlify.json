@@ -1,0 +1,147 @@
+{
+  "schema": 3,
+  "id": "netlify",
+  "name": "Netlify",
+  "category": "Developer, Infra & Data",
+  "website": "netlify.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 63,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: create an OAuth app under your user settings and send users to Netlify's authorize page, likely in 1-3 days. No review is documented, though the current docs could not be fully confirmed.",
+  "needGuide": "Short one: create the OAuth app, add redirect URIs, and verify grant types against current docs.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Docs say to use OAuth2 applications for public integrations and personal access tokens (PATs) for your own scripts. Authorization endpoint is https://app.netlify.com/authorize. Netlify's own tutorial uses the implicit flow (response_type=token, token in URL hash); a 2016 blog post suggests the authorization code grant when you have a server. Token lifetime, refresh tokens and scopes are not documented in the pages read. Resetting a user's password invalidates all their PATs and OAuth tokens.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (likely, no review documented)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (likely)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None documented: no review, listing or partner step is described for OAuth applications; users approve on Netlify's authorize page. Netlify also runs a separate extensions/integrations program (not researched).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scope model documented; tokens appear to act with the user's full API access.",
+    "summary": "No scope model documented: tokens appear to act with the authorizing user's full API access (inference). Check https://open-api.netlify.com for endpoints.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: The OAuth app lives in a personal user's settings, not a team, so create it from a shared company-owned Netlify user (or bot account) to avoid losing it when someone leaves. No special role documented.",
+    "Where you register: User settings → Applications → OAuth applications → New OAuth app (name, redirect URI); save Client ID and Secret",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://app.netlify.com/user/applications#oauth-applications",
+    "path": "User settings → Applications → OAuth applications → New OAuth app (name, redirect URI); save Client ID and Secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in to a company-owned Netlify user and open https://app.netlify.com/user/applications#oauth-applications",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Click New OAuth app; enter name and redirect URI(s) for dev and prod; save Client ID and secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Send users to https://app.netlify.com/authorize with client_id, redirect_uri, response_type and a random state; verify state on return",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Prefer a server-side callback so the token is never exposed to the browser; store tokens encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call https://api.netlify.com/api/v1 with Authorization: Bearer and a User-Agent header containing a contact email",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a second Netlify account, including revoke and SAML-team cases",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "The OAuth app lives in a personal user's settings, not a team, so create it from a shared company-owned Netlify user (or bot account) to avoid losing it when someone leaves. No special role documented.",
+    "console": "none documented (apps are per user; no collaborator feature found)",
+    "customer": "The end user authorizes the app on the Netlify consent page. Teams that require SAML SSO deny PATs by default; whether OAuth tokens need the same SAML opt-in was not confirmed. Team owners may be needed for team-level access (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Register an app under your own Netlify account (free) and authorize with a second test account; use a localhost redirect URI such as http://localhost:8888/ for netlify dev.",
+    "No sandbox needed."
+  ],
+  "blockers": [
+    {
+      "problem": "Implicit flow returns the token in the URL hash",
+      "fix": "Use a server and authorization code where possible; confirm the grant is accepted for your app."
+    },
+    {
+      "problem": "No documented token lifetime or refresh",
+      "fix": "Handle 401s by sending the user through authorization again."
+    },
+    {
+      "problem": "SAML-enforced teams may block tokens",
+      "fix": "Ask the customer admin to allow it (PATs have an explicit SAML checkbox)."
+    },
+    {
+      "problem": "Password reset by the user kills all tokens",
+      "fix": "Build a reconnect flow."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the authorize/callback code, token storage and API client, run test calls, and draft the app description.",
+    "humanMust": "Log in (with 2FA) and register the OAuth app in user settings, and have a customer user approve the consent screen."
+  },
+  "uncertain": [
+    "Could not confirm grant types actually supported today (code vs implicit), token lifetime, scopes, how redirect URIs are managed, or whether any extension/partner review exists.",
+    "Current OAuth reference pages failed to fetch; the 2016 blog is stale.",
+    "Community sources not consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.netlify.com/api/get-started/",
+      "label": "docs.netlify.com/api/get-started"
+    },
+    {
+      "url": "https://developers.netlify.com/guides/generating-personal-access-tokens-with-netlify-oauth",
+      "label": "developers.netlify.com/guides/generating-personal-access-tokens-with-n…"
+    },
+    {
+      "url": "https://www.netlify.com/blog/2016/10/10/integrating-with-netlify-oauth2/",
+      "label": "netlify.com/blog/2016/10/10/integrating-with-netlify-oauth2"
+    }
+  ]
+}

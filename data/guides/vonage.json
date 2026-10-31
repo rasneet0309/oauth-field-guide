@@ -1,0 +1,141 @@
+{
+  "schema": 3,
+  "id": "vonage",
+  "name": "Vonage",
+  "category": "Communications & Messaging",
+  "website": "developer.vonage.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 30,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth: each customer admin pastes their Vonage API key and secret, or an Application ID plus private key, with no review in 1-3 days. Sender or number registration may add time (unverified).",
+  "needGuide": "No — just collect the API key and secret, or the Application ID and private key.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Two mechanisms: API key + secret (Authorization: Basic base64(key:secret); two secrets can be active for rotation) and per-application JWTs signed RS256 with an Application ID and private key (default expiry 15 minutes, max 24 hours). A separate signature secret signs webhooks. No OAuth documented.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days for the connection; sender registration may add time (unverified)",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days (+ sender reg.)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for credentials. Likely: paid account for production, and number/sender registration (e.g. 10DLC, WhatsApp via Messages API) where applicable; not verified.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No OAuth scopes; applications are limited by their enabled capabilities.",
+    "summary": "No OAuth scopes. JWT claims can carry ACL paths to limit access (shown for Client SDK user tokens); applications are limited by enabled capabilities.",
+    "table": []
+  },
+  "cost": "Free sign-up; usage-based billing (trial credit likely)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Vonage account owner or admin on a company-owned account creates applications and holds the API secret.",
+    "Where you register: Vonage API Dashboard → Applications → Create a new application (enable Voice/Messages/RTC, set webhook URLs, generate keys) and Settings for API key/secret",
+    "Cost: Free sign-up; usage-based billing (trial credit likely)"
+  ],
+  "registerAt": {
+    "url": "https://developer.vonage.com/en/application/overview",
+    "path": "Vonage API Dashboard → Applications → Create a new application (enable Voice/Messages/RTC, set webhook URLs, generate keys) and Settings for API key/secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Decide per customer: collect API key/secret or an Application ID + private key",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customer creates an application in the Vonage Dashboard and enables the needed capabilities",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Build a connect form for key/secret or Application ID + private key; encrypt at rest",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Mint RS256 JWTs (15-minute default) in your backend for JWT-based APIs",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with a test API call and set the webhook URLs on the customer's application",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Verify webhook signatures with the signature secret; support secret rotation",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Vonage account owner or admin on a company-owned account creates applications and holds the API secret.",
+    "console": "none documented in the pages read (Dashboard user management likely exists).",
+    "customer": "Customer admin supplies their API key + secret, or creates an application and shares Application ID plus private key; no customer-side approval flow exists.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a trial or test account with your own numbers; JWT apps can be tested with the Vonage CLI.",
+    "Trial restrictions (e.g. verified destination numbers) are likely but not confirmed here."
+  ],
+  "blockers": [
+    {
+      "problem": "Customers sharing master API secrets",
+      "fix": "Prefer a dedicated application with its own private key where the API supports JWT."
+    },
+    {
+      "problem": "Different Vonage APIs use different auth types",
+      "fix": "Check each API's auth before building one flow."
+    },
+    {
+      "problem": "Private key is shown once at creation",
+      "fix": "Instruct customers to save it."
+    },
+    {
+      "problem": "No documented partner or subaccount delegation in the pages read",
+      "fix": "Confirm with Vonage if you manage accounts for customers."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write credential capture, JWT minting, webhook verification, test calls and customer-facing setup guides.",
+    "humanMust": "Customer creates the application or keys; account and billing setup; any number or sender registration."
+  },
+  "uncertain": [
+    "Whether Vonage has partner subaccount or OAuth options for ISVs (not covered in the pages read); trial limits; Dashboard role model."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.vonage.com/en/getting-started/concepts/authentication",
+      "label": "developer.vonage.com/en/getting-started/concepts/authentication"
+    },
+    {
+      "url": "https://developer.vonage.com/en/application/overview",
+      "label": "developer.vonage.com/en/application/overview"
+    }
+  ]
+}

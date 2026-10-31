@@ -1,0 +1,153 @@
+{
+  "schema": 3,
+  "id": "pipedrive",
+  "name": "Pipedrive",
+  "category": "CRM & Sales",
+  "website": "pipedrive.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 3,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "self",
+  "verdict": "Self-serve: a private app, once made live, can be installed by any Pipedrive company through its install link, with no review. Public Marketplace listing is optional and takes up to about 21 business days.",
+  "needGuide": "Short one: create a private app, set the callback URL and scopes, make it live.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization-code flow: user consents at /oauth/authorize, code (valid 5 minutes) is exchanged at oauth.pipedrive.com/oauth/token with HTTP Basic client auth. Access token lasts 60 minutes; refresh token expires after 60 days unused (resets on use). Token response returns a per-company api_domain. PKCE is not documented.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days via private app link; up to about 21 business days for public listing",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (private app)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "Private apps need no review: once made live they can be installed by any Pipedrive company through the installation link. Public Marketplace listing requires mandatory review (up to 21 business days) with a demo video, working test accounts, the Developer Partner Agreement, OAuth 2.0 only and no stored user API tokens. Approval leaves the app unlisted until you click Publish.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Scopes are fixed at registration and accepted all at once; no scope-specific approval is documented.",
+    "summary": "Scopes are fixed at registration; users accept or deny all at once. Request the minimum; reviewers check for necessary scopes only. No scope-specific extra approval was documented.",
+    "table": []
+  },
+  "cost": "Free (sandbox and Developer Hub); no listing fee found",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any developer with a Pipedrive developer sandbox account; use a company-owned account. App review needs a contact email who can answer during review.",
+    "Where you register: Sign up for a developer sandbox account (developers.pipedrive.com) → profile name → Developer Hub → Create an app → Create private app (or Create public app). App type cannot be changed later.",
+    "Cost: Free (sandbox and Developer Hub); no listing fee found"
+  ],
+  "registerAt": {
+    "url": "https://pipedrive.readme.io/docs/marketplace-registering-a-private-app",
+    "path": "Sign up for a developer sandbox account (developers.pipedrive.com) → profile name → Developer Hub → Create an app → Create private app (or Create public app). App type cannot be changed later."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign up for a developer sandbox at developers.pipedrive.com and attest no sanctioned-country operations",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Developer Hub → Create an app → Create private app; set callback URL and scopes on the OAuth & access scopes tab",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization-code exchange, store api_domain, refresh before 60 minutes and at least every 60 days",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Use Install & test in the sandbox, then make the app live to validate the callback URL",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Share the installation link (Share app button) with customers",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Optional public listing: create a public app, fill listing, record demo video, supply test accounts, Send to review, then Publish after approval",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any developer with a Pipedrive developer sandbox account; use a company-owned account. App review needs a contact email who can answer during review.",
+    "console": "none documented",
+    "customer": "The installing Pipedrive user approves the consent screen (Allow and install) and must have an account in your product. Whether a non-admin may install apps depends on the company's permission set; not confirmed.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Developer sandbox account; Install and test works only for users in your sandbox company and cannot be shared externally.",
+    "A draft private app can be shared only with users of the same company; a live private app can be installed anywhere."
+  ],
+  "blockers": [
+    {
+      "problem": "Only one callback URL per app",
+      "fix": "Use one redirect endpoint and route by state."
+    },
+    {
+      "problem": "A live private app cannot revert to draft and changes apply instantly",
+      "fix": "Test in a separate app first."
+    },
+    {
+      "problem": "Refresh token dies after 60 idle days",
+      "fix": "Schedule keep-alive refreshes."
+    },
+    {
+      "problem": "Public review can stretch past 21 business days",
+      "fix": "Ship privately first."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth client and refresh scheduler, draft listing text, scope justifications and the demo-video script, run sandbox API calls.",
+    "humanMust": "Create the sandbox account, click through Developer Hub, record the demo video, agree to the Developer Partner Agreement, and publish after approval."
+  },
+  "uncertain": [
+    "Who in a customer company may install apps (admin vs any user) and whether PKCE is supported were not confirmed."
+  ],
+  "sources": [
+    {
+      "url": "https://pipedrive.readme.io/docs/marketplace-registering-a-private-app",
+      "label": "pipedrive.readme.io/docs/marketplace-registering-a-private-app"
+    },
+    {
+      "url": "https://pipedrive.readme.io/docs/marketplace-registering-the-app",
+      "label": "pipedrive.readme.io/docs/marketplace-registering-the-app"
+    },
+    {
+      "url": "https://pipedrive.readme.io/docs/marketplace-app-approval-process",
+      "label": "pipedrive.readme.io/docs/marketplace-app-approval-process"
+    },
+    {
+      "url": "https://pipedrive.readme.io/docs/marketplace-oauth-authorization",
+      "label": "pipedrive.readme.io/docs/marketplace-oauth-authorization"
+    },
+    {
+      "url": "https://pipedrive.readme.io/docs/getting-started",
+      "label": "pipedrive.readme.io/docs/getting-started"
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "schema": 3,
+  "id": "plain",
+  "name": "Plain",
+  "category": "Support & Helpdesk",
+  "website": "plain.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 17,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth or approval is documented. Each customer admin creates a machine user and a least-privilege API key and shares it with you, about 1-3 days.",
+  "needGuide": "No — just collect an API key from a machine user (Settings → Machine Users).",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "GraphQL API with Bearer API keys owned by machine users (Settings → Machine Users), each key with fine-grained permissions, shown once. Plain also has OAuth apps (authorization code, S256 PKCE, openid and offline_access scopes), but docs say the app works only in the workspace where it was created, so it is not a multi-tenant third-party flow.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for API keys. No approval process, marketplace or cross-workspace OAuth is documented.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Permissions are chosen per key when it is created.",
+    "summary": "Per-key permissions chosen at creation; error messages name missing permissions. OAuth apps expose only openid and offline_access in the docs.",
+    "table": []
+  },
+  "cost": "Requires a Plain workspace (paid plan or trial; not verified)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Plain workspace member able to create machine users and API keys (the role needed is not stated).",
+    "Where you register: Customer workspace: Settings → Machine Users → + Add Machine User → create API key with chosen permissions. Own-workspace OAuth: Settings → OAuth applications → Add OAuth app.",
+    "Cost: Requires a Plain workspace (paid plan or trial; not verified)"
+  ],
+  "registerAt": {
+    "url": "https://www.plain.com/docs/graphql/authentication.md",
+    "path": "Customer workspace: Settings → Machine Users → + Add Machine User → create API key with chosen permissions. Own-workspace OAuth: Settings → OAuth applications → Add OAuth app."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Add a connect screen asking for a Plain API key and explaining the permissions needed",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Customer admin: Settings → Machine Users → + Add Machine User, name it for your app, create an API key with only the required permissions",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Validate by calling the GraphQL API (e.g. myMachineUser) with Authorization: Bearer plainApiKey_xxx; read the permission names from any error",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store the key encrypted (shown only once) and support key rotation by adding a second key",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Ask Plain whether multi-workspace OAuth is planned or available on request",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Plain workspace member able to create machine users and API keys (the role needed is not stated).",
+    "console": "none documented for developer-console collaborators; workspace roles are managed via custom roles and invites.",
+    "customer": "A workspace admin who creates a machine user and a least-privilege API key and shares the key with you.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Plain workspace or trial with a machine user key.",
+    "No separate sandbox documented."
+  ],
+  "blockers": [
+    {
+      "problem": "Keys display once",
+      "fix": "Tell the customer to copy it before leaving the page."
+    },
+    {
+      "problem": "Own-workspace OAuth is not usable across customers",
+      "fix": "Do not build on it."
+    },
+    {
+      "problem": "GraphQL subscriptions do not accept OAuth tokens",
+      "fix": "Use machine-user API keys."
+    },
+    {
+      "problem": "Insufficient permissions",
+      "fix": "Read the error and have the customer add the named permission."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the key intake, GraphQL client and permission-checking code, and draft customer setup instructions.",
+    "humanMust": "The customer admin creates the machine user and key; you contact Plain for any OAuth or partner options."
+  },
+  "uncertain": [
+    "Roles needed to create machine users and keys; refresh token and default access token lifetimes; whether an OAuth app can be authorized from another workspace (docs imply not); developer.plain.com was blocked by robots rules, so I used www.plain.com docs."
+  ],
+  "sources": [
+    {
+      "url": "https://www.plain.com/docs/graphql/authentication.md",
+      "label": "plain.com/docs/graphql/authentication.md"
+    },
+    {
+      "url": "https://www.plain.com/docs/graphql/oauth.md",
+      "label": "plain.com/docs/graphql/oauth.md"
+    },
+    {
+      "url": "https://www.plain.com/docs/api-reference/graphql/authentication",
+      "label": "plain.com/docs/api-reference/graphql/authentication"
+    },
+    {
+      "url": "https://www.plain.com/docs/llms.txt",
+      "label": "plain.com/docs/llms.txt"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schema": 3,
+  "id": "ramp",
+  "name": "Ramp",
+  "category": "Finance & Fintech",
+  "website": "docs.ramp.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 89,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "Ramp's Partner Integration process requires approval before production access: it reviews your flows and asks for SOC 2 Type II, ISO 27001, PCI or a recent pen test. No review times documented; likely several weeks.",
+  "needGuide": "Yes — request sandbox access, then apply for production access with your security documents ready.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "OAuth 2.0 with client credentials for internal server-to-server use (token about 10 days, no refresh token) and authorization code for third-party apps acting for other businesses (access token default 1 hour; code valid 10 minutes; refresh grant must be enabled; HTTPS redirect URIs; state recommended). Token endpoint POST /developer/v1/token with Basic auth. A refresh returns a new access token but not a new refresh token and does not extend the refresh token's expiry.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "30–60 min in sandbox after getting sandbox access",
+    "timeToProduction": "unknown (no review times documented); likely several weeks",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely weeks)",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Partner Integration process: Build, then Apply for Production Access (Ramp reviews your integration flows; 'approval is required before production access'), then Beta Testing, then optional Public Listing on the Ramp Integrations page. Expect to supply SOC 2 Type II, ISO 27001, PCI or a recent third-party pen test (full report), a public security policy URL, a monitored security contact and written data-handling descriptions; early-stage companies may substitute a recent pen test. The cards:read_vault scope needs extra security review. A Technology Partnerships Application exists.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "resource:permission scopes; start read-only. cards:read_vault needs an extra security review.",
+    "summary": "resource:permission pattern (transactions:read, bills:read, cards:read, users:read, business:read); start read-only and add write scopes as needed. cards:read_vault requires additional security review.",
+    "table": []
+  },
+  "cost": "Free; Ramp takes no fee and partners bill customers directly",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A developer with access to the Ramp Developer Console in your own Ramp account (likely an Admin); a partnerships owner for the application; Security and Legal for the attestations.",
+    "Where you register: Ramp Developer Console (reached from the Ramp dashboard; exact menu path not in the docs read) → create app → client ID and secret → enable Authorization Code and Refresh Token grants → add redirect URIs. Sandbox and production each need their own app.",
+    "Cost: Free; Ramp takes no fee and partners bill customers directly"
+  ],
+  "registerAt": {
+    "url": "https://docs.ramp.com/developer-api/v1/authorization",
+    "path": "Ramp Developer Console (reached from the Ramp dashboard; exact menu path not in the docs read) → create app → client ID and secret → enable Authorization Code and Refresh Token grants → add redirect URIs. Sandbox and production each need their own app."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Request sandbox access and create a sandbox app in the Developer Console",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Enable Authorization Code and Refresh Token grants; register HTTPS redirect URIs",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement the flow with read-only scopes first (transactions:read, bills:read, cards:read, users:read, business:read) and store refresh tokens",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle refresh-token expiry by restarting the authorization flow",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Prepare security evidence: SOC 2 or pen test report, security policy URL, security contact, data-handling write-up",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Submit the Technology Partnerships Application and Production Access request via a Developer API support ticket",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create a separate production app, then complete Ramp's beta test with a pilot customer admin",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A developer with access to the Ramp Developer Console in your own Ramp account (likely an Admin); a partnerships owner for the application; Security and Legal for the attestations.",
+    "console": "none documented",
+    "customer": "A Ramp Admin or Business Owner (users holding the Developer API authorization permission) must authorize; others see 'Business not authorized to use this application'.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Sandbox at demo.ramp.com (UI) and demo-api.ramp.com (API) with no real money; press Cmd+J for demo actions (mark bills or reimbursements paid, add transactions), which need Admin, Business Owner or AP Clerk roles.",
+    "Request sandbox access through Ramp's form; rate limits not documented."
+  ],
+  "blockers": [
+    {
+      "problem": "Production access needs Ramp approval",
+      "fix": "Apply early with security evidence ready."
+    },
+    {
+      "problem": "Refreshing does not extend or replace the refresh token, so users must re-authorize when it expires",
+      "fix": "Build a reconnect flow."
+    },
+    {
+      "problem": "The Refresh Token grant must be enabled on the app, and sandbox and production need separate apps",
+      "fix": ""
+    },
+    {
+      "problem": "Non-admin customer users get 'Business not authorized'",
+      "fix": "Ask an Admin or Business Owner to authorize."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and token handling, run sandbox tests, draft the partnership application, security write-ups and listing assets. Ramp documents a CLI auth flow for agents and a request page for adding redirect URIs to the Ramp MCP.",
+    "humanMust": "Developer Console login, partner application and agreement, security attestations and reports, a customer Admin or Business Owner authorizing, and any support-ticket back and forth with Ramp."
+  },
+  "uncertain": [
+    "Developer Console menu path and who may create apps, review timelines, partnership application criteria, PKCE support, sandbox rate limits (several Ramp guide pages were empty)."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.ramp.com/llms-guides/authorization.txt",
+      "label": "docs.ramp.com/llms-guides/authorization.txt"
+    },
+    {
+      "url": "https://docs.ramp.com/llms-guides/build-with-ramp.txt",
+      "label": "docs.ramp.com/llms-guides/build-with-ramp.txt"
+    },
+    {
+      "url": "https://docs.ramp.com/llms-guides/sandbox.txt",
+      "label": "docs.ramp.com/llms-guides/sandbox.txt"
+    },
+    {
+      "url": "https://docs.ramp.com/llms.txt",
+      "label": "docs.ramp.com/llms.txt"
+    }
+  ]
+}

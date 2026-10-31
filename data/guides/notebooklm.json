@@ -1,0 +1,144 @@
+{
+  "schema": 3,
+  "id": "notebooklm",
+  "name": "NotebookLM",
+  "category": "AI, Research & Media",
+  "website": "cloud.google.com/gemini",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 91,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "none",
+  "verdict": "No third-party OAuth or partner program. Each customer needs NotebookLM Enterprise licensed in their own Google Cloud project, the API is Pre-GA, and your agent must act as an IAM principal there.",
+  "needGuide": "No — there is no supported connector path; each customer's Google Cloud admin would have to grant your agent access in their project.",
+  "auth": {
+    "model": "Other",
+    "detail": "Only NotebookLM Enterprise (Gemini Notebook Enterprise) has an API, and it is Preview (v1alpha). Docs show a Google Cloud IAM bearer token from `gcloud auth print-access-token` against {us|eu|global}-discoveryengine.googleapis.com/v1alpha/projects/PROJECT_NUMBER/locations/LOCATION/notebooks. No developer-registered OAuth app or scope list is documented. Consumer NotebookLM has no public API (per brief; not re-verified).",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Very hard",
+    "timeToFirstTest": "unknown (needs a Google Cloud project with NotebookLM Enterprise licenses)",
+    "timeToProduction": "unknown; per-customer project setup on a Preview API",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown (per-customer setup)",
+    "difficulty": "N/A",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "No third-party OAuth or partner program. Each customer needs NotebookLM Enterprise set up and licensed in their own Google Cloud project, and the API is Pre-GA ('as is', limited support). Your agent must act as an IAM principal in that project; a service account or delegated user is likely, and Google OAuth verification likely applies if you use user tokens with Cloud scopes (unconfirmed).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": null,
+    "kind": "No connector path"
+  },
+  "scopes": {
+    "complexity": "N/A",
+    "why": "No connector path: IAM-based Cloud API, no OAuth scopes for third-party apps.",
+    "summary": "IAM-based, not OAuth scopes. Cloud NotebookLM User role is required for sharing recipients. Share roles are PROJECT_ROLE_OWNER, WRITER, READER and NOT_SHARED. Operations: create, get, listRecentlyViewed, batchDelete, share. Sources and chat are not in the documented API surface.",
+    "table": []
+  },
+  "cost": "Requires paid NotebookLM Enterprise licenses plus a Google Cloud project (pricing not checked)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Google Cloud project owner/admin who can set up Gemini Notebook Enterprise, buy licenses and assign IAM roles. Use a company-owned Cloud org.",
+    "Where you register: No app registration. Work happens inside a customer's Google Cloud project: set up Gemini Notebook Enterprise, assign licenses, grant the Cloud NotebookLM User IAM role.",
+    "Cost: Requires paid NotebookLM Enterprise licenses plus a Google Cloud project (pricing not checked)"
+  ],
+  "registerAt": {
+    "url": "https://docs.cloud.google.com/gemini/enterprise/notebooklm-enterprise/docs/api-notebooks",
+    "path": "No app registration. Work happens inside a customer's Google Cloud project: set up Gemini Notebook Enterprise, assign licenses, grant the Cloud NotebookLM User IAM role."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Decide the integration model: the customer's own Google Cloud project hosts NotebookLM Enterprise, and your agent calls into it.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "In a test Google Cloud project, set up Gemini Notebook Enterprise and obtain licenses (see the 'set up' links on the API doc page).",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Grant the Cloud NotebookLM User IAM role to your test user or service account in IAM & Admin.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call POST .../v1alpha/projects/PROJECT_NUMBER/locations/global/notebooks with `Authorization: Bearer $(gcloud auth print-access-token)` to create a notebook.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exercise notebooks.get, listRecentlyViewed, share (PROJECT_ROLE_OWNER/WRITER/READER) and batchDelete.",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Document for customers the IAM role, license and region (us/eu/global) they must set up, and the token model you use.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Review the cross-tenant access model (service account vs delegated user) before offering it to customers.",
+          "who": "Security",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Google Cloud project owner/admin who can set up Gemini Notebook Enterprise, buy licenses and assign IAM roles. Use a company-owned Cloud org.",
+    "console": "Google Cloud IAM: add principals and assign the Cloud NotebookLM User role in the project. No separate developer console for NotebookLM.",
+    "customer": "Customer Google Cloud admin must enable NotebookLM Enterprise, assign licenses and grant the Cloud NotebookLM User role to whatever identity your agent uses. Org policies or IAM can block this.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Google Cloud project with a trial or licensed NotebookLM Enterprise instance.",
+    "Limits seen in docs: listRecentlyViewed returns up to 500 notebooks, and batchDelete returns {} even for missing IDs."
+  ],
+  "blockers": [
+    {
+      "problem": "Consumer NotebookLM (notebooklm.google.com) has no API",
+      "fix": "Target Enterprise customers only, or do not integrate."
+    },
+    {
+      "problem": "API is v1alpha/Preview and may change",
+      "fix": "Pin the version and monitor release notes."
+    },
+    {
+      "problem": "Customer needs licenses, a project number and the right regional endpoint",
+      "fix": "Collect PROJECT_NUMBER, LOCATION and ENDPOINT_LOCATION during onboarding."
+    },
+    {
+      "problem": "Third-party identity customers use a different notebook URL domain (notebook.cloud.google vs notebook.cloud.google.com)",
+      "fix": "Build links from the customer's identity type."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the REST client, create/share/list notebooks in a test project, draft customer onboarding instructions (IAM role, licenses, region), and script gcloud setup commands.",
+    "humanMust": "Buy or enable NotebookLM Enterprise licenses, approve billing, sign in to Google Cloud, assign IAM roles, and make the cross-tenant security decision."
+  },
+  "uncertain": [
+    "Only the NotebookLM Enterprise API doc was read.",
+    "Not confirmed: whether third-party multi-tenant OAuth or Workforce Identity access is supported, license prices, GA date, and the consumer-API claim.",
+    "Only one source was fetched, so the 2-source minimum is not met."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini/enterprise/notebooklm-enterprise/docs/api-notebooks",
+      "label": "docs.cloud.google.com/gemini/enterprise/notebooklm-enterprise/docs/api…"
+    }
+  ]
+}

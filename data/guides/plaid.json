@@ -1,0 +1,162 @@
+{
+  "schema": 3,
+  "id": "plaid",
+  "name": "Plaid",
+  "category": "Finance & Fintech",
+  "website": "plaid.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 82,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Sandbox works first, but Production needs access approval, and OAuth banks need Compliance center registration including an MSA and security questionnaire. Review time is undocumented; likely 1-3 weeks.",
+  "needGuide": "Yes — start Production access and Compliance center registration early, since banks gate on them.",
+  "auth": {
+    "model": "Other",
+    "detail": "Plaid is a data aggregator, not an OAuth provider for you. You get a client_id plus one secret per environment. Your end user signs in to their own bank inside Plaid Link; Link returns a public_token that your server exchanges for a long-lived access_token per Item (standard Link flow: /link/token/create, then /item/public_token/exchange). Many banks (required for US, EU and UK) use bank-side OAuth redirects, which need HTTPS redirect URIs allowlisted in the Dashboard and OAuth institution registration.",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30–60 min (Sandbox)",
+    "timeToProduction": "Production review time is not documented; likely 1–3 weeks including MSA and security questionnaire. OAuth bank approvals: hours to 5+ business days.",
+    "firstShort": "30–60 min",
+    "prodShort": "Likely 1–3 weeks incl. review",
+    "difficulty": "Moderate",
+    "prodDays": 21
+  },
+  "approval": {
+    "gate": "Production needs access approval: Pay-as-you-go via the Dashboard product request form; Growth or Custom via sales (EU and UK are Custom only). New US/Canada teams created on or after 2026-04-15 can use a free Trial plan with real data capped at 10 Production Items; Limited Production is deprecated. For OAuth banks, finish Compliance center registration: public application display info, company info, MSA (US/CA) and the security questionnaire (US/CA; Chase requires it, PNC requires the latest MSA, unless on Trial). Most institutions approve within hours; Schwab can take up to 5 business days after Production approval, Fidelity longer.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Access is per Plaid product, each enabled by a Production request; adding a product later needs another request.",
+    "summary": "No OAuth scopes: access is by Plaid product (Transactions, Auth, Identity, Balance, Investments, Liabilities, Income, Assets and others), each enabled by your Production request. Adding a product later means a new request. Production Link requires a stated use case; Sandbox does not.",
+    "table": []
+  },
+  "cost": "Sandbox free; Trial free up to 10 Production Items; Pay-as-you-go has no minimum (per-use pricing shown on the request form); Growth and Custom need an annual commitment",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Dashboard account owner able to sign Plaid's MSA and fill in company info; a security contact to complete the questionnaire. Use a company email, not a personal one.",
+    "Where you register: Dashboard → sign up (team) → Developers → Keys for Sandbox secret; request Production via the product request form on the Dashboard homepage; Trial plan at dashboard.plaid.com/trial-plan; redirect URIs and OAuth registration under the Dashboard API settings and Compliance center.",
+    "Cost: Sandbox free; Trial free up to 10 Production Items; Pay-as-you-go has no minimum (per-use pricing shown on the request form); Growth and Custom need an annual commitment"
+  ],
+  "registerAt": {
+    "url": "https://dashboard.plaid.com/",
+    "path": "Dashboard → sign up (team) → Developers → Keys for Sandbox secret; request Production via the product request form on the Dashboard homepage; Trial plan at dashboard.plaid.com/trial-plan; redirect URIs and OAuth registration under the Dashboard API settings and Compliance center."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a Dashboard team with a company email and copy Sandbox client_id and secret",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Build the backend: /link/token/create (set user.client_user_id), Link in the front end, then /item/public_token/exchange; persist access tokens",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test OAuth with the Platypus OAuth bank on every client platform (web, webview, iOS, Android)",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Fill in application display info (name, logo, privacy policy URL) and company info in the Compliance center",
+          "who": "Legal",
+          "agent": true
+        },
+        {
+          "do": "Submit the Production request form with products and use case; pick a plan",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Sign the MSA (US/CA) and complete the security questionnaire",
+          "who": "Security",
+          "agent": false
+        },
+        {
+          "do": "Add HTTPS redirect URIs to the Dashboard allowlist (no # or query strings; wildcards only in the allowlist)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Watch the Dashboard OAuth institution page for approvals, then swap in the Production secret",
+          "who": "Developer",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Dashboard account owner able to sign Plaid's MSA and fill in company info; a security contact to complete the questionnaire. Use a company email, not a personal one.",
+    "console": "Dashboard has a Teams section for membership; role names are not documented in the pages read.",
+    "customer": "The end user only needs their bank login and consent in Link. Business bank accounts may require the bank's own admin entitlement (likely, not confirmed).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Sandbox is free with unlimited test Items; login user_good / pass_good.",
+    "OAuth test institutions: Platypus OAuth Bank ins_127287, EU ins_117181, App-to-App ins_132241 (iOS SDK 5.1+).",
+    "Update mode via /sandbox/item/reset_login.",
+    "HTTP localhost redirects allowed only in Sandbox.",
+    "Institution-specific OAuth screens cannot be tested in Sandbox."
+  ],
+  "blockers": [
+    {
+      "problem": "Some US banks reject apps with an empty application profile",
+      "fix": "Complete display info before requesting OAuth institutions."
+    },
+    {
+      "problem": "Redirect URIs must be HTTPS in Production, no hash routing, no query parameters",
+      "fix": "Fix mismatches in the Dashboard allowlist."
+    },
+    {
+      "problem": "Chase needs the security questionnaire and PNC the latest MSA",
+      "fix": "Submit early because review takes time."
+    },
+    {
+      "problem": "Trial caps at 10 Production Items and deleting Items does not free slots",
+      "fix": "Persist every access token."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the Link token, exchange and webhook code; run Sandbox flows; draft application profile text and security questionnaire answers; generate the redirect URI list.",
+    "humanMust": "Create the Dashboard account, submit the Production form, sign the MSA, attest to the security questionnaire, set up billing, and (for end users) enter bank credentials. Sales contact needed for Growth, Custom, EU and UK."
+  },
+  "uncertain": [
+    "Plaid's published Production review timeline, the Dashboard team role names, and the exact Dashboard path for redirect URIs (docs page on account and Production access did not render details)."
+  ],
+  "sources": [
+    {
+      "url": "https://plaid.com/docs/link/oauth/",
+      "label": "plaid.com/docs/link/oauth"
+    },
+    {
+      "url": "https://plaid.com/docs/account/billing/",
+      "label": "plaid.com/docs/account/billing"
+    },
+    {
+      "url": "https://plaid.com/docs/sandbox/",
+      "label": "plaid.com/docs/sandbox"
+    },
+    {
+      "url": "https://plaid.com/docs/quickstart/",
+      "label": "plaid.com/docs/quickstart"
+    }
+  ]
+}

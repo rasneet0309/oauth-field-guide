@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "sendgrid",
+  "name": "SendGrid",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "sendgrid.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 40,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth app was found. Each customer's owner or admin creates a restricted API key and pastes it in, about 1-3 days; reseller or provisioning routes need a formal Twilio SendGrid partnership.",
+  "needGuide": "No — just collect a restricted API key from each customer (Settings → API Keys).",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "v3 APIs use an API key as Authorization: Bearer <key>; SMTP uses username 'apikey' with the key as password. No customer-facing OAuth was found in the docs read. Parent accounts can act for Subusers with the On-Behalf-Of header; customer accounts exist only for formal Twilio SendGrid resellers.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review) on the API-key path; reseller partnership timeline unknown",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for the API-key path. A customer account-provisioning or reseller route (Account Provisioning API, 'customer accounts' under On-Behalf-Of) requires a formal reseller partnership with Twilio SendGrid, which was not documented in detail here. Sending mail also requires sender authentication in practice (not confirmed in the pages read).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No OAuth; ask customers for a restricted key with mail.send and only the other permissions you use.",
+    "summary": "Key permission levels: Full Access, Custom/Restricted Access (pick endpoints and read/write levels), Billing Access, and Email Address Validation Access. Billing-related calls need a separate key. Ask customers for a restricted key with mail.send and only the other scopes you use.",
+    "table": []
+  },
+  "cost": "Free to integrate; the customer needs their own SendGrid plan",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A developer with a SendGrid account for a test key; for the partner route, a business contact negotiating a reseller agreement with Twilio SendGrid.",
+    "Where you register: Customer's SendGrid console -> Settings -> API Keys -> Create API Key -> choose permissions -> Create & View",
+    "Cost: Free to integrate; the customer needs their own SendGrid plan"
+  ],
+  "registerAt": {
+    "url": "https://app.sendgrid.com/settings/api_keys",
+    "path": "Customer's SendGrid console -> Settings -> API Keys -> Create API Key -> choose permissions -> Create & View"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Customer opens Settings -> API Keys -> Create API Key, names it for your app, picks Restricted/Custom Access with only the needed scopes",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customer clicks Create & View and copies the key (shown only once) into your connect screen",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store the key encrypted per customer; never log it or commit it",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with GET https://api.sendgrid.com/v3/scopes using Bearer auth and compare returned scopes to what you need",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Use api.eu.sendgrid.com for EU regional subusers; use the On-Behalf-Of header only if you are the parent account (it does not work with Mail Send)",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If you need one-click onboarding, contact Twilio SendGrid about partner or reseller provisioning",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A developer with a SendGrid account for a test key; for the partner route, a business contact negotiating a reseller agreement with Twilio SendGrid.",
+    "console": "Teammates are managed in the SendGrid console; a key cannot have greater permissions than its creator, so use an admin to create keys.",
+    "customer": "The account owner or an admin teammate creates the key and pastes it into your app. Subuser access requires the Pro or Premier plan.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own SendGrid account and a restricted test key; limits apply per plan.",
+    "Accounts are limited to 100 API keys."
+  ],
+  "blockers": [
+    {
+      "problem": "A key cannot exceed its creator's permissions",
+      "fix": "A non-admin teammate may be unable to grant what you need."
+    },
+    {
+      "problem": "The key is shown only once",
+      "fix": "A lost key requires creating a new one."
+    },
+    {
+      "problem": "On-Behalf-Of does not support Mail Send and needs the parent account's key",
+      "fix": "It is not a way to access an unrelated customer's account."
+    },
+    {
+      "problem": "No OAuth means no consent screen or scoped revocation outside the key itself",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the key storage and validation code, draft customer setup instructions with the exact scopes, run test calls and sample sends.",
+    "humanMust": "Customer creates and pastes the key; a human negotiates any reseller or partner agreement and handles legal acceptance."
+  },
+  "uncertain": [
+    "The Account Provisioning API page failed to fetch and no OAuth or technology-partner program was found; the 2FA requirement, current free-plan status and sender-authentication rules were not confirmed.",
+    "Search and fetch budgets ran out before community sources were checked."
+  ],
+  "sources": [
+    {
+      "url": "https://www.twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/authentication",
+      "label": "twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/…"
+    },
+    {
+      "url": "https://www.twilio.com/docs/sendgrid/ui/account-and-settings/api-keys",
+      "label": "twilio.com/docs/sendgrid/ui/account-and-settings/api-keys"
+    },
+    {
+      "url": "https://www.twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/on-behalf-of",
+      "label": "twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/…"
+    },
+    {
+      "url": "https://www.twilio.com/docs/sendgrid/for-developers/partners",
+      "label": "twilio.com/docs/sendgrid/for-developers/partners"
+    }
+  ]
+}

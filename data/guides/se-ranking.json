@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "se-ranking",
+  "name": "SE Ranking",
+  "category": "Data, SEO & Scraping",
+  "website": "seranking.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 52,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No OAuth: each customer creates an API key in their API Dashboard and pastes it in. Embedding SE Ranking data in your own product needs sales permission, so check that before building.",
+  "needGuide": "No — just collect each customer's API key, but ask SE Ranking sales first if you embed its data.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Send Authorization: Token <key> (a ?apikey= query parameter also works). One key covers the Data and Project APIs. There is no developer-registered OAuth. Their hosted MCP server (https://api.seranking.com/mcp) offers OAuth 2.1 browser sign-in for MCP clients, or an X-Api-Key header. Keys have full account access; read-only keys are not yet available.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "Same day for own use; unknown if sales permission is needed to embed data",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day; embed needs sales",
+    "difficulty": "Easy",
+    "prodDays": 0.5
+  },
+  "approval": {
+    "gate": "No approval for using your own key. Embedding SE Ranking data in a third-party product is a non-standard use: the commercial-use page says to book a demo or contact sales for permission, and direct competitors need explicit consent. Customers who want their own data would supply their own key.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes: keys have full account access.",
+    "summary": "None. Keys have full account access across the Data, Project, Local Marketing and SE Visible APIs. The MCP server does not expose every endpoint.",
+    "table": []
+  },
+  "cost": "API access is included in every platform plan (Essential, Pro, Business, Core, Growth, Enterprise); monthly Data API credits are 10k, 25k, or 100k depending on plan. Standalone Data API credit packs are annual, lowest tier 12M credits for $2,148/yr.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Use a company-owned master account; API access belongs to the master account.",
+    "Where you register: Log in, click the API icon in the left nav, then Dashboard, then + CREATE API KEY, name it, and click CREATE KEY",
+    "Cost: API access is included in every platform plan (Essential, Pro, Business, Core, Growth, Enterprise); monthly Data API credits are 10k, 25k, or 100k depending on plan. Standalone Data API credit packs are annual, lowest tier 12M credits for $2,148/yr."
+  ],
+  "registerAt": {
+    "url": "https://seranking.com/api/how-to-get-api/",
+    "path": "Log in, click the API icon in the left nav, then Dashboard, then + CREATE API KEY, name it, and click CREATE KEY"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Confirm the account plan includes API access (API icon in the left nav)",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create a key at API Dashboard, then + CREATE API KEY; use one key per environment",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Build the client with Authorization: Token <key> against the Data and Project APIs",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Add a key-validation call to the account subscription endpoint (0 credits) in your connect flow",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Contact sales (demo or contact page) if your product displays SE Ranking data to third parties",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Store customer-pasted keys encrypted and track credit usage per customer",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Use a company-owned master account; API access belongs to the master account.",
+    "console": "none documented (no role restrictions on key creation were stated; multiple keys per account are allowed)",
+    "customer": "The customer generates a key in their own API Dashboard and pastes it into your app. Sub-account users cannot use OAuth in MCP and must get the key from the account administrator.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "No sandbox is documented.",
+    "Use a Postman collection and a free trial account (whether trials include API access is not stated).",
+    "Only 2xx responses use credits, and the account subscription endpoint costs 0 credits, so use it to validate a pasted key."
+  ],
+  "blockers": [
+    {
+      "problem": "Full-access keys only",
+      "fix": "Tell customers a pasted key grants everything, and warn that restricted keys are not yet available."
+    },
+    {
+      "problem": "Sub-account users cannot use OAuth-based MCP",
+      "fix": "Ask the master account holder for a key."
+    },
+    {
+      "problem": "Credits are consumed per request and per record",
+      "fix": "Model costs before launch."
+    },
+    {
+      "problem": "Embedding data in a customer-facing product may need written permission from sales",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the API client, key-validation call and credit tracking, run test calls, and draft the sales request for commercial embedding.",
+    "humanMust": "Create or own the account, buy a plan or credit pack, and ask SE Ranking sales for commercial or embedded-use permission."
+  },
+  "uncertain": [
+    "Whether trial accounts include API access, rate limit numbers, role requirements for key creation, and whether the MCP OAuth supports third-party clients beyond Claude, ChatGPT and Cursor."
+  ],
+  "sources": [
+    {
+      "url": "https://seranking.com/api/data/getting-started/",
+      "label": "seranking.com/api/data/getting-started"
+    },
+    {
+      "url": "https://seranking.com/api/how-to-get-api/",
+      "label": "seranking.com/api/how-to-get-api"
+    },
+    {
+      "url": "https://seranking.com/api/integrations/mcp/",
+      "label": "seranking.com/api/integrations/mcp"
+    },
+    {
+      "url": "https://seranking.com/api/usage-guidelines-for-commercial-purposes/",
+      "label": "seranking.com/api/usage-guidelines-for-commercial-purposes"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "schema": 3,
+  "id": "otter-ai",
+  "name": "Otter AI",
+  "category": "AI, Research & Media",
+  "website": "help.otter.ai",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 92,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "none",
+  "verdict": "No public developer app, review or partner path was found. The likely route is connecting as an MCP client to Otter's server or asking Otter for partner access; both are unconfirmed, low confidence.",
+  "needGuide": "No — nothing is documented yet; check Otter's help center for an MCP server or ask Otter for API access.",
+  "auth": {
+    "model": "MCP OAuth",
+    "detail": "Unverified. Otter is understood to offer a hosted MCP server where users sign in to their own Otter account from an MCP client (likely OAuth). No Otter MCP or API article could be fetched, and the help-center homepage shows only Zapier and Slack integrations. No developer-registered OAuth app was found.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "unknown",
+    "timeToProduction": "unknown",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown",
+    "difficulty": "N/A",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Unknown. No public developer-app registration, review or partner program was found. Likely path is connecting your agent as an MCP client to Otter's server, or asking Otter for partner/API access. Plan restrictions (paid or Enterprise only) are unconfirmed.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": null,
+    "kind": "No connector path"
+  },
+  "scopes": {
+    "complexity": "N/A",
+    "why": "No connector path for third-party apps is documented.",
+    "summary": "Unknown. MCP tools likely expose the signed-in user's own meetings and transcripts; exact scopes unconfirmed.",
+    "table": []
+  },
+  "cost": "Likely requires a paid Otter plan for MCP/API access (unconfirmed)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Someone with an Otter account on a plan that includes MCP/API access, using a company-owned account.",
+    "Where you register: Not found. Search the help center for 'MCP' or 'API', or contact Otter support/sales for developer access.",
+    "Cost: Likely requires a paid Otter plan for MCP/API access (unconfirmed)"
+  ],
+  "registerAt": {
+    "url": "https://help.otter.ai",
+    "path": "Not found. Search the help center for 'MCP' or 'API', or contact Otter support/sales for developer access."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Search help.otter.ai for 'MCP server' and 'API' articles and record the server URL, plan requirement and auth method.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If an MCP server exists, add it to your agent's MCP client config and complete the browser sign-in with a test Otter account.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Verify the OAuth discovery metadata and whether dynamic client registration works for your agent's redirect URI.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If you need a first-party API or a registered OAuth app, email Otter support/sales to request access.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Test search/fetch of meeting transcripts against a test workspace.",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Document which Otter plans your customers need and what the customer admin must allow.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Someone with an Otter account on a plan that includes MCP/API access, using a company-owned account.",
+    "console": "none documented",
+    "customer": "Each end user (or workspace admin on Business/Enterprise, likely) signs in to Otter and approves the MCP connection. Admin controls over MCP access are unconfirmed.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Otter account and connect an MCP-capable client.",
+    "Free-plan access and limits are unconfirmed."
+  ],
+  "blockers": [
+    {
+      "problem": "Could not confirm MCP/API availability or plan gating",
+      "fix": "Read the live Otter help center and contact support before committing."
+    },
+    {
+      "problem": "No developer-registered OAuth app was found",
+      "fix": "Plan around the MCP route or request partner access."
+    },
+    {
+      "problem": "Workspace admins may restrict integrations (likely)",
+      "fix": "Give customers a short admin enablement note."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the support/sales request for API or partner access, write MCP client config, test MCP tool calls once authorized, and draft customer enablement notes.",
+    "humanMust": "Sign in with a real Otter account (2FA), accept terms, buy a plan if gated, and contact Otter sales for any partner access."
+  },
+  "uncertain": [
+    "help.otter.ai MCP/API articles returned a client error, so MCP server existence, URL, auth method and plan gating are unconfirmed.",
+    "Search budget was exhausted and the fetch limit was hit before otter.ai/mcp could be read.",
+    "No usable source for MCP details."
+  ],
+  "sources": [
+    {
+      "url": "https://help.otter.ai",
+      "label": "help.otter.ai"
+    }
+  ]
+}
