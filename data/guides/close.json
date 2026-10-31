@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "close",
+  "name": "Close",
+  "category": "CRM & Sales",
+  "website": "close.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 8,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "review",
+  "verdict": "Self-serve to build and test inside your own Close organization, but other organizations can connect only after Close reviews the app: click Make Public and submit it. No review timeline is published.",
+  "needGuide": "Yes: the build is short, but Close's review decides when customers outside your organization can connect.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Likely: authorization-code flow (app.close.com/oauth2/authorize, token at api.close.com/oauth2/token) with offline_access for refresh tokens and a one-hour access token. Unverified this session.",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "unknown (Close publishes no review timeline)",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Mandatory review before other organizations can connect. OAuth apps are private by default: only members of your own Close organization can authorize them. To open the app up, click Make Public in its settings and submit it for review; Close replies by email, and once approved any Close user can authorize it. No review timeline is published. A listing in the Close Integrations Directory is separate and optional: once the app is public, email support@close.com to apply (public OAuth 2.0 integrations only).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Likely coarse scopes (all.full_access, offline_access); behaviour follows the authorizing user's permissions (unverified).",
+    "summary": "Likely coarse scopes (all.full_access, offline_access) rather than per-object permissions; behaviour follows the authorizing user's permissions. Unverified.",
+    "table": []
+  },
+  "cost": "Free to register; Close plans are paid, but API access is believed to be included",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Close organization admin is likely needed to create OAuth apps; use a company-owned Close account (a trial can serve).",
+    "Where you register: Close → Settings → Developer → OAuth Apps → Create App. The app is private to your own Close organization until Close approves it.",
+    "Cost: Free to register; Close plans are paid, but API access is believed to be included"
+  ],
+  "registerAt": {
+    "url": "https://developer.close.com/integrations/create-an-oauth-app",
+    "path": "Close → Settings → Developer → OAuth Apps → Create App. The app is private to your own Close organization until Close approves it."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a Close trial org with a company email",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "In Settings → Developer → OAuth Apps, click Create App, enter the app details and redirect URIs, then copy the Client ID and Client Secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization-code flow requesting offline_access plus the needed scope",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store refresh token; refresh access tokens before expiry",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with API calls on leads, contacts and activities; handle rate-limit headers",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Click Make Public and submit the app for Close's review; customers outside your organization can connect only after Close approves it by email",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Close organization admin is likely needed to create OAuth apps; use a company-owned Close account (a trial can serve).",
+    "console": "none documented",
+    "customer": "The user authorizing grants access as themselves; organization admins may restrict who can authorize or install apps (unverified).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "A Close trial organization acts as the test tenant; there is no separate sandbox that I know of."
+  ],
+  "blockers": [
+    {
+      "problem": "Other organizations can't authorize the app until Close approves it",
+      "fix": "Submit it for review as soon as the flow works."
+    },
+    {
+      "problem": "Coarse scopes mean broad access",
+      "fix": "Pitch least-privilege at the user-role level."
+    },
+    {
+      "problem": "Rate limits per organization",
+      "fix": "Respect Retry-After headers."
+    },
+    {
+      "problem": "Tokens are user-tied",
+      "fix": "Reconnect if the authorizing user leaves."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth client and refresh logic, draft the review submission and the directory application email, and run test calls.",
+    "humanMust": "Create the app in the Close UI, submit it for Close's review, and have the customer user authorize."
+  },
+  "uncertain": [
+    "The registration path and the review that makes an app public were confirmed in Close's developer docs on 30 Oct 2026.",
+    "Scope names, token lifetime, the review's criteria and its timeline were not confirmed."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.close.com/integrations/create-an-oauth-app",
+      "label": "developer.close.com/integrations/create-an-oauth-app"
+    },
+    {
+      "url": "https://developer.close.com/integrations/publish",
+      "label": "developer.close.com/integrations/publish"
+    },
+    {
+      "url": "https://developer.close.com/",
+      "label": "developer.close.com"
+    }
+  ]
+}

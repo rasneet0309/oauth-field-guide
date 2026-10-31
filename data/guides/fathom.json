@@ -1,0 +1,158 @@
+{
+  "schema": 3,
+  "id": "fathom",
+  "name": "Fathom",
+  "category": "AI, Research & Media",
+  "website": "fathom.video",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 93,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: create an app at fathom.video/marketplace_applications/new and each user authorizes their own account, likely in 1-3 days. The docs say apps are subject to review but do not say it blocks installs.",
+  "needGuide": "Short one: create the app, add HTTPS redirect URIs, and build the authorization link with the Fathom SDK.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Two methods. API keys are per user, sent as `X-Api-Key`, with no org-level keys. OAuth apps use authorization code, token URL https://api.fathom.ai/external/v1/oauth2/token, a single scope `public_api`, and a Bearer token. Access tokens are short-lived. Refresh tokens are single-use and rotate on each refresh. PKCE is not mentioned.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review documented); review timing unknown",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (no review stated)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No hard gate documented. OAuth apps are 'subject to review to ensure the best experience for all users', but the docs do not say review blocks installs. Marketplace/co-marketing promotion is quarterly and invites apps with 20+ users. Production redirect URIs must be HTTPS, and multiple production URIs need separate OAuth apps.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "One scope (public_api) with full API access for the authorizing user.",
+    "summary": "Only `public_api` (full Fathom API access for the authorizing user). No per-resource scopes, so no scope-triggered review is documented.",
+    "table": []
+  },
+  "cost": "Free; API access is included on all plans",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any developer with a Fathom account can register an app (eligibility not stated). Use a company-owned account because the app is tied to the registering user.",
+    "Where you register: Fathom marketplace applications → New: set redirect URIs and receive Client ID and Client Secret (docs say about 2 minutes).",
+    "Cost: Free; API access is included on all plans"
+  ],
+  "registerAt": {
+    "url": "https://fathom.video/marketplace_applications/new",
+    "path": "Fathom marketplace applications → New: set redirect URIs and receive Client ID and Client Secret (docs say about 2 minutes)."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in to Fathom and open fathom.video/marketplace_applications/new.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create the app: set HTTPS redirect URIs (several allowed for dev, one per production app) and save the Client ID and Secret.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Build the authorization link with the Fathom SDK (getAuthorizationUrl / get_authorization_url, scope public_api, state).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange the code at the token URL with grant_type=authorization_code, then persist tokens in a real TokenStore.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Refresh with grant_type=refresh_token, store the new refresh token each time and serialize refreshes with a lock.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call /recordings summary and transcript endpoints (OAuth cannot use include_summary or include_transcript on /meetings).",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Review Fathom brand guidelines and email help@fathom.video about listing or launch materials.",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any developer with a Fathom account can register an app (eligibility not stated). Use a company-owned account because the app is tied to the registering user.",
+    "console": "none documented (no collaborator feature found)",
+    "customer": "The individual Fathom user authorizes their own account. Tokens see meetings they recorded or that were shared with them or their team; private calls stay host-only even for Admins. Admin controls blocking OAuth apps are not documented.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Fathom account (API keys work on all plans) and register multiple development redirect URIs.",
+    "Token endpoint limit is 60 requests per 60 seconds per OAuth app."
+  ],
+  "blockers": [
+    {
+      "problem": "Refresh tokens are single-use, so concurrent refreshes fail with HTTP 400",
+      "fix": "Lock per connection and store the new token."
+    },
+    {
+      "problem": "OAuth apps cannot use include_summary/include_transcript on /meetings",
+      "fix": "Call /recordings endpoints."
+    },
+    {
+      "problem": "One production redirect URI per app",
+      "fix": "Register separate apps per environment or domain."
+    },
+    {
+      "problem": "Review process and timing are undocumented",
+      "fix": "Email help@fathom.video before launch."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth flow with the SDK, implement locked refresh, run test calls to meetings, summary and transcript, draft launch copy and brand-compliant listing text.",
+    "humanMust": "Log in to Fathom to register the app, authorize the test account, and handle any marketplace or partner contact with Fathom."
+  },
+  "uncertain": [
+    "Who may register apps, whether review blocks customer installs, PKCE support, access-token lifetime, authorization endpoint URL, and MCP auth (api.fathom.ai/mcp) details were not documented in fetched pages."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.fathom.ai/oauth.md",
+      "label": "developers.fathom.ai/oauth.md"
+    },
+    {
+      "url": "https://developers.fathom.ai/sdks/oauth.md",
+      "label": "developers.fathom.ai/sdks/oauth.md"
+    },
+    {
+      "url": "https://developers.fathom.ai/faq.md",
+      "label": "developers.fathom.ai/faq.md"
+    },
+    {
+      "url": "https://developers.fathom.ai/quickstart.md",
+      "label": "developers.fathom.ai/quickstart.md"
+    },
+    {
+      "url": "https://developers.fathom.ai/llms.txt",
+      "label": "developers.fathom.ai/llms.txt"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "klaviyo",
+  "name": "Klaviyo",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "klaviyo.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 36,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "self",
+  "verdict": "Self-serve: share your installation URL and customers can connect in about 1-3 days, though they see a warning that Klaviyo has not reviewed the app. Marketplace listing is optional and needs 5 active installs plus review.",
+  "needGuide": "Short one: create the app, implement PKCE, share the install link; listing is optional.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code with mandatory PKCE (S256) for public and confidential clients. Authorize at https://www.klaviyo.com/oauth/authorize (code valid 5 minutes); token endpoint https://a.klaviyo.com/oauth/token with Basic auth, server-to-server only. Access token about 1 hour; refresh token lasts until uninstall but is revoked after 90 days unused (10 refreshes per minute; revoke at /oauth/revoke).",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "1-3 days unlisted; Marketplace listing timeline not published (likely several weeks after the 5 installs)",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days unlisted",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None to connect customers: share the installation URL directly (unlisted apps work), though users see an OAuth warning that the app has not been reviewed by Klaviyo. App Marketplace listing is optional but needs at least 5 active customer installs with live API activity (test accounts do not count), the once-per-company integration registration form, a per-app security form, and Klaviyo review; Klaviyo can decline for any reason.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (listing optional)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Klaviyo requires the least permissive scope set and rejects apps that request excess scopes in review.",
+    "summary": "Scopes are listed in the app settings and requested as a space-separated list; accounts:read is mandatory. Klaviyo requires the least permissive scope set and rejects apps requesting excess scopes in review.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Klaviyo user with owner, admin or manager role in the developer's company Klaviyo account creates OAuth apps.",
+    "Where you register: Klaviyo -> Manage apps (klaviyo.com/manage-apps) -> Create app; set scopes and redirect URLs; Save",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://www.klaviyo.com/manage-apps",
+    "path": "Klaviyo -> Manage apps (klaviyo.com/manage-apps) -> Create app; set scopes and redirect URLs; Save"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "As owner/admin/manager open klaviyo.com/manage-apps and click Create app; name it",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Set scopes (keep accounts:read; least permissive set) and redirect URLs; Save; copy client ID and secret (secret shown once)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement PKCE: new verifier (43-128 chars) and S256 challenge per request, store keyed by state; redirect to /oauth/authorize",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange code at https://a.klaviyo.com/oauth/token with Basic auth; refresh about hourly and treat invalid_grant as uninstall",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Share the install URL with first customers; accept the warning screen",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "After 5 active installs, complete the registration form, security form and listing fields (logo SVG, 4-8 images, user guide, privacy policy), add a test-instructions Google Doc, submit",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Klaviyo user with owner, admin or manager role in the developer's company Klaviyo account creates OAuth apps.",
+    "console": "none documented for sharing app ownership beyond Klaviyo account roles (owner, admin, manager); add teammates via normal account user management.",
+    "customer": "A Klaviyo user who can approve the installation (role requirement not documented, likely owner/admin/manager). Customers see the unreviewed-app warning until the listing is approved.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Any Klaviyo account (including your own or a trial) works for dev; example apps exist on GitHub (Pet Party Planner, Node Express).",
+    "Test accounts do not count toward the 5 installs required for listing."
+  ],
+  "blockers": [
+    {
+      "problem": "PKCE is required",
+      "fix": "Omit the verifier and the token exchange fails."
+    },
+    {
+      "problem": "Chicken-and-egg",
+      "fix": "Marketplace needs 5 live installs, so early customers see an unreviewed warning; brief them in advance."
+    },
+    {
+      "problem": "Token requests via www.klaviyo.com are blocked (since 2025-03-31)",
+      "fix": "Use a.klaviyo.com."
+    },
+    {
+      "problem": "Refresh token unused for 90 days is revoked",
+      "fix": "Schedule periodic refreshes."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Implement PKCE OAuth and refresh, draft listing text, scope justification and the testing-instructions doc, run test calls.",
+    "humanMust": "Create the app in the UI, complete the registration and security forms and accept terms, produce the logo and screenshots, submit and respond to Klaviyo reviewers."
+  },
+  "uncertain": [
+    "Marketplace review timeline, customer role required to install, and whether Klaviyo plan tier affects app creation were not documented."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.klaviyo.com/en/docs/set_up_oauth",
+      "label": "developers.klaviyo.com/en/docs/set_up_oauth"
+    },
+    {
+      "url": "https://developers.klaviyo.com/en/docs/create_a_public_oauth_app",
+      "label": "developers.klaviyo.com/en/docs/create_a_public_oauth_app"
+    },
+    {
+      "url": "https://developers.klaviyo.com/en/docs/submit_your_app_for_review",
+      "label": "developers.klaviyo.com/en/docs/submit_your_app_for_review"
+    }
+  ]
+}

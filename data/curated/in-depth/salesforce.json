@@ -1,0 +1,163 @@
+{
+  "$comment": "In-depth guide restructured from the Salesforce research profile (data/research/profiles/crm.json) and its headline. No new facts: phases, tiers and the scope table regroup what the research found. Tier difficulty ratings are editorial.",
+  "id": "salesforce",
+  "n": 1,
+  "name": "Salesforce",
+  "sub": "External Client Apps · Packaging · AgentExchange",
+  "category": "CRM & Sales",
+  "website": "salesforce.com",
+  "path": "self",
+  "headline": "Self-serve, but build it as an External Client App and ship it in a package each customer's admin installs. No Salesforce review unless you list on AgentExchange; unlisted is roughly 1–3 weeks.",
+  "needGuide": "Yes. New Connected Apps are blocked since Spring '26, so follow the External Client App and packaging steps.",
+  "authModel": "OAuth 2.0",
+  "authDetail": "Authorization-code flow (PKCE is the ECA default) with refresh tokens via the refresh_token / offline_access scope. Each customer org has its own instance_url (My Domain); sandboxes log in at test.salesforce.com. Access tokens last about 2 hours by default and customer admins can change that. Enable 'Introspect All Tokens' because Salesforce does not return expiry.",
+  "userOAuth": "yes",
+  "access": "Self-serve",
+  "productionGate": "As of Spring '26 new Connected Apps cannot be created without a Support request, so register an External Client App (ECA). To reach other customers' orgs the ECA is distributed inside a package that the customer admin installs (likely a 2GP package). Listing on AgentExchange (formerly AppExchange) requires the ISV Partner Program, a verified Partner Business Org and a mandatory Security Review.",
+  "difficulty": "Hard",
+  "timeToFirstTest": "1–2 hours",
+  "timeToProduction": "1–3 weeks unlisted (package + customer admin install); roughly 6–12+ weeks incl. security review and listing (unverified estimate)",
+  "firstShort": "1–2 hours",
+  "prodShort": "1–3 weeks unlisted",
+  "cost": "Developer Edition free. ISV Partner Program membership and a security review fee apply for listing; amounts not confirmed in the docs read.",
+  "confidence": "Medium",
+  "lastChecked": "2026-10-28",
+  "registerAt": {
+    "url": "https://help.salesforce.com/s/articleView?id=xcloud.create_a_local_external_client_app.htm",
+    "path": "Setup → External Client App Manager → New External Client App (enable OAuth, add the callback URL and scopes, set Distribution State to Packaged). Connected Apps are no longer the default path."
+  },
+  "tiers": [
+    {
+      "label": "Unlisted package",
+      "eg": "Pilot and early customers",
+      "difficulty": "Hard",
+      "time": "1–3 weeks",
+      "note": "Ship the ECA in a package that each customer's admin installs. No Salesforce review."
+    },
+    {
+      "label": "AgentExchange listing",
+      "eg": "Marketplace distribution",
+      "difficulty": "Very hard",
+      "time": "Roughly 6–12+ weeks (unverified)",
+      "note": "Needs the ISV Partner Program, a verified Partner Business Org and a mandatory Security Review."
+    }
+  ],
+  "prereqs": [
+    "A company-owned Developer Edition org with a System Administrator, not a personal login.",
+    "A Dev Hub-enabled org and a registered namespace if you will package (likely 2GP).",
+    "A second Developer Edition org or a sandbox to rehearse the customer install.",
+    "For an AgentExchange listing only: ISV Partner Program membership and a verified Partner Business Org."
+  ],
+  "phases": [
+    {
+      "name": "Create the app",
+      "duration": "1–2 hours",
+      "steps": [
+        { "do": "Sign up for a company-owned Developer Edition org at developer.salesforce.com/signup.", "who": "Owner", "agent": false },
+        {
+          "do": "Create the app: Setup → External Client App Manager → New External Client App. Enable OAuth, add the callback URL and the scopes api, refresh_token and openid, require PKCE, and set Distribution State to Packaged.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement authorization code + PKCE and token refresh. Store instance_url per connection and call login.salesforce.com or the org's My Domain.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Package and pilot",
+      "duration": "1–3 weeks",
+      "steps": [
+        { "do": "Enable Dev Hub and register a namespace if you will package (Setup → Dev Hub).", "who": "Owner", "agent": false },
+        {
+          "do": "Package the ECA (2GP) and install it in a separate sandbox or Developer Edition org. Verify the admin-approved-users policy.",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Give each customer admin an install link and a checklist: install the package, assign the permission set, confirm API Enabled.",
+          "who": "Owner",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Optional: AgentExchange listing",
+      "duration": "Roughly 6–12+ weeks (unverified)",
+      "steps": [
+        {
+          "do": "Join the ISV Partner Program, verify the Partner Business Org, run Code Analyzer scans and submit the Security Review.",
+          "who": "Security",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "consoleRoles": [
+    {
+      "role": "Org users with permission sets",
+      "can": "Work on the app inside the org. There is no separate developer console.",
+      "who": "Developers with System Administrator or the right permission sets"
+    }
+  ],
+  "roles": {
+    "team": "System Administrator in a company-owned Developer Edition org (not a personal login). Packaging needs a Dev Hub-enabled org and namespace. Listing needs a verified Partner Business Org and ISV Partner Program signup.",
+    "console": "No separate developer console; collaborators are org users with the right permission sets. Partner Console roles for security review submissions are not documented in what was read.",
+    "customer": "A Salesforce admin must install the package or ECA, approve it (admin-approved users / permission sets) and keep API Enabled on user profiles. Admin controls that can block: connected-app and ECA creation settings, OAuth usage policies, IP relaxation, API access controls."
+  },
+  "customer": [
+    "A Salesforce admin installs your package and approves the app through admin-approved users or permission sets.",
+    "Connecting users need API Enabled on their profile.",
+    "Admin settings that can block you: connected-app and ECA creation settings, OAuth usage policies, IP relaxation and API access controls.",
+    "Likely but unconfirmed: since 2025, orgs restrict authorization of uninstalled connected apps, and admins can limit API access to approved apps."
+  ],
+  "testing": "Free Developer Edition orgs, scratch orgs and customer sandboxes. A Developer Edition org is not a sandbox. Install the package into a second Developer Edition or sandbox org to rehearse the customer flow. No stated user caps for unlisted testing.",
+  "scopesTable": [
+    { "use": "REST data", "scope": "api", "tier": "Standard", "note": "Still limited by the user's profile and field-level security" },
+    { "use": "Refresh tokens", "scope": "refresh_token / offline_access", "tier": "Standard", "note": "Needed to stay connected" },
+    { "use": "Identity", "scope": "openid, id", "tier": "Standard", "note": "" },
+    { "use": "Broad access", "scope": "full, web", "tier": "Standard", "note": "Request only if the agent needs them" }
+  ],
+  "review": {
+    "when": "Salesforce doesn't review unlisted apps. A listing on AgentExchange (formerly AppExchange) needs the ISV Partner Program, a verified Partner Business Org and a mandatory Security Review, triggered by the listing route rather than by individual scopes.",
+    "timeline": [
+      { "label": "Unlisted package", "official": "No Salesforce review", "reported": "1–3 weeks including customer admin installs" },
+      { "label": "Security Review", "official": "Mandatory for AgentExchange; fee and timeline not confirmed in the docs read", "reported": "Roughly 6–12+ weeks including the listing (unverified estimate)" }
+    ],
+    "recurring": ""
+  },
+  "blockers": [
+    {
+      "problem": "New Connected Apps are blocked since Spring '26",
+      "fix": "Build an External Client App, or ask Support to enable creation (Support won't be able to once connected apps reach end of support)."
+    },
+    { "problem": "Customer admins may refuse uninstalled or unreviewed apps", "fix": "Ship via a package and give admins an install guide." },
+    { "problem": "Security review is mandatory for AgentExchange listings and typically slow", "fix": "Submit early and run Code Analyzer first." },
+    { "problem": "Wrong login host for sandboxes or My Domain orgs", "fix": "Store the instance and login host per connection." }
+  ],
+  "gotchas": [
+    "Salesforce doesn't return token expiry, so enable Introspect All Tokens.",
+    "Access tokens last about 2 hours by default, and customer admins can change that.",
+    "Each customer org has its own instance_url (My Domain); sandboxes log in at test.salesforce.com."
+  ],
+  "agentCan": "Write the OAuth/PKCE client and token-refresh code, generate ECA and package metadata, script package creation with the sf CLI, draft the admin install guide and security review documentation, run test API calls.",
+  "humanMust": "Sign up for orgs, accept Partner Program terms, verify the Partner Business Org, pay review fees, submit and answer the security review, and have the customer admin install and approve.",
+  "uncertain": [
+    "Salesforce Help articles (ECA setup, API Access Control, uninstalled connected app approval) did not render, so the 2025 admin restriction, the exact ECA packaging rules and the security review fee and timeline are unverified."
+  ],
+  "sources": [
+    { "url": "https://help.salesforce.com/s/articleView?id=005228017&type=1", "label": "Salesforce Help article 005228017" },
+    {
+      "url": "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_oauth_and_connected_apps.htm",
+      "label": "REST API: OAuth and connected apps"
+    },
+    {
+      "url": "https://developer.salesforce.com/docs/platform/isvforce/guide/security-review-create-secure-solution.html",
+      "label": "Security Review"
+    },
+    { "url": "https://developer.salesforce.com/docs/platform/isvforce/guide/appexchange-partner-start.html", "label": "ISV partner onboarding" },
+    { "url": "https://docs.nango.dev/integrations/all/salesforce", "label": "Community: Nango Salesforce notes" }
+  ]
+}

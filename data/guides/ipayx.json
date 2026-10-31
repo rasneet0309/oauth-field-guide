@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "ipayx",
+  "name": "iPayX",
+  "category": "Finance & Fintech",
+  "website": "ipayx.ai",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 85,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No customer OAuth: your agent calls iPayX with your own bearer token on a paid API plan, with no per-customer approval or review. About 1-3 days.",
+  "needGuide": "No — pick an API plan, store your token server-side and call it.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "iPayX is an FX forensic-audit service (FINTRAC-registered MSB per its site), not a system holding the user's accounts. REST: POST https://api.ipayx.ai/functions/v1/fx-audit-engine with a Bearer token. MCP server: https://mcp.ipayx.ai/mcp (streamable HTTP) with tools fx_audit, calcul_spread, score_fx, rapport_forensique and verify_integrity; MCP manifest at /.well-known/mcp.json and OpenAPI 3.1 at /.well-known/openapi.json. No OAuth documented. Bank data comes from PDF/CSV upload or from Plaid (US/Canada) on the service side.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "under 30 min once you have a token (MCP endpoint or one REST call)",
+    "timeToProduction": "1–3 days",
+    "firstShort": "Under 30 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None documented; access appears to be by paid API plan. There is no per-customer approval or marketplace review because your agent calls iPayX with your own token.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scope model documented; one token covers the API and MCP tools.",
+    "summary": "No scope model documented; one token covers the audit API and MCP tools.",
+    "table": []
+  },
+  "cost": "API plans from $99/month; Forensic Pack from $297 (per the site)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Whoever owns the iPayX account and billing (use a company account); a developer to store the Bearer token as a secret.",
+    "Where you register: Site → Pricing → API plans (from $99/month) → obtain Bearer token. How keys are issued is not described in the pages read.",
+    "Cost: API plans from $99/month; Forensic Pack from $297 (per the site)"
+  ],
+  "registerAt": {
+    "url": "https://ipayx.ai/",
+    "path": "Site → Pricing → API plans (from $99/month) → obtain Bearer token. How keys are issued is not described in the pages read."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Choose an API plan on the Pricing page and create or request a Bearer token",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store the token in a secrets manager; never ship it to the browser",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call POST /functions/v1/fx-audit-engine with a sample rate or statement and check the score and markup percentage",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Optionally register https://mcp.ipayx.ai/mcp as an MCP server in your agent and test the five tools",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Review data-handling terms (PIPEDA/FINTRAC claims) before sending customer statements",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Add error handling and usage metering against your plan limits",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Whoever owns the iPayX account and billing (use a company account); a developer to store the Bearer token as a secret.",
+    "console": "none documented",
+    "customer": "No customer-side OAuth. If your flow uses Plaid-backed bank connection, the end user authorizes through Plaid Link; otherwise the customer's finance staff supply statements or CSV files.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "The site has a Demo page; whether sandbox or test tokens exist is not stated.",
+    "Test through the MCP server with sample rates and statements."
+  ],
+  "blockers": [
+    {
+      "problem": "Key issuance and sandbox are not documented publicly",
+      "fix": "Contact iPayX before planning a launch."
+    },
+    {
+      "problem": "Statements contain sensitive financial data",
+      "fix": "Confirm retention and sub-processors (the site names GPT-4o, DeepSeek and Twelve Data) before use."
+    },
+    {
+      "problem": "Small vendor",
+      "fix": "Check uptime and support terms (likely)."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Call the API or MCP tools, write wrappers and tests, and draft the vendor due-diligence questions.",
+    "humanMust": "Sign up and pay for a plan, accept terms, vendor due diligence, and handle any customer consent for uploading statements."
+  },
+  "uncertain": [
+    "How tokens are issued, rate limits, sandbox availability, SLA, and whether /docs exists (the docs URL returned only marketing metadata).",
+    "Claims come from the vendor's own llms.txt and are unaudited."
+  ],
+  "sources": [
+    {
+      "url": "https://ipayx.ai/llms.txt",
+      "label": "ipayx.ai/llms.txt"
+    },
+    {
+      "url": "https://ipayx.ai/docs",
+      "label": "ipayx.ai/docs"
+    },
+    {
+      "url": "https://ipayx.ai/",
+      "label": "ipayx.ai"
+    }
+  ]
+}

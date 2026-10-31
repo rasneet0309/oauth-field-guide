@@ -1,0 +1,162 @@
+{
+  "schema": 3,
+  "id": "google-ads",
+  "name": "Google Ads",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "ads.google.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 31,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Self-serve to build, but production needs a higher Google Ads API access level. Standard, the realistic one for many customers, needs a manual audit of about 10 business days, and OAuth verification likely adds time.",
+  "needGuide": "Yes — plan the API access-level upgrade (Explorer, Basic, Standard) and check whether OAuth consent-screen verification applies.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization-code OAuth 2.0 (multi-user web-app scenario) with scope https://www.googleapis.com/auth/adwords. IMPORTANT CHANGE: Google's docs (page updated 2026-10-19) say developer tokens were sunset on 2026-09-09; access levels are now granted per Google Cloud project (the project that owns the OAuth client or service account). The older 'developer token from an MCC manager account' model in the hint is stale.",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours (Test access is automatic once the API is enabled)",
+    "timeToProduction": "Explorer same day; Basic days after brand verification; Standard ~10 business days after applying (plus any OAuth verification time) - likely 2-5 weeks end to end",
+    "firstShort": "1–2 hours",
+    "prodShort": "Likely 2–5 weeks incl. review",
+    "difficulty": "Moderate",
+    "prodDays": 35
+  },
+  "approval": {
+    "gate": "Access level of the Cloud project. Test (auto, 15,000 ops/day, test accounts only) cannot touch production (v25+ returns CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION). Explorer (automated; 2,880 prod ops/day; blocks account creation, user management, planning services, billing). Basic (15,000 ops/day; needs completed brand verification; automated). Standard (unlimited; manual compliance audit, ~10 business days; may need demo sign-in for external users and Required Minimum Functionality). Standard is the realistic level for a multi-customer agent. OAuth consent-screen verification of the adwords scope is likely also needed (see uncertain).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "One scope (adwords) covers read and write; Google reviews your developer-token access level, not scopes.",
+    "summary": "Single scope https://www.googleapis.com/auth/adwords gives read and write to the user's Google Ads accounts; no read-only variant is documented in the pages read. Standard access also has a 'permissible use' declaration (ad management, reporting, or keyword research) that limits which API features you may use.",
+    "table": []
+  },
+  "cost": "Free (no API usage charge; customers pay for ad spend)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Google Cloud project owner/editor on a company-owned (not personal) Google account who can enable the API, run the Auth Platform branding and verification, and apply for access. A Google Ads manager (MCC) account is no longer needed for basic access, only to link and manage multiple accounts via API.",
+    "Where you register: Cloud Console -> APIs & Services -> Library -> Google Ads API -> Enable; then Google Ads API -> Overview -> Upgrade access level; OAuth client under Google Auth Platform -> Clients -> Create client (Web application)",
+    "Cost: Free (no API usage charge; customers pay for ad spend)"
+  ],
+  "registerAt": {
+    "url": "https://console.cloud.google.com/apis/library/googleads.googleapis.com",
+    "path": "Cloud Console -> APIs & Services -> Library -> Google Ads API -> Enable; then Google Ads API -> Overview -> Upgrade access level; OAuth client under Google Auth Platform -> Clients -> Create client (Web application)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create or pick a company-owned Cloud project and enable Google Ads API (gcloud services enable googleads.googleapis.com); Test access is granted automatically",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Google Auth Platform -> Branding/Audience/Data access: set app name, logo, authorized domain, privacy policy; add the adwords scope; complete brand verification",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Google Auth Platform -> Clients -> Create client -> Web application; add HTTPS redirect URIs; store client secret in a secret manager",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization-code flow with access_type=offline and prompt=consent; store refresh tokens per customer; send login-customer-id when acting through a manager account",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Apply for Explorer: Google Ads API -> Overview -> Upgrade access level; test against test accounts",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "After brand verification clears, apply for Basic, then click Start application for Standard; describe the tool, audience and permissible use, and provide demo sign-in",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Submit OAuth app verification for the sensitive adwords scope if serving more than 100 users or removing the unverified-app warning (likely required)",
+          "who": "Security",
+          "agent": false
+        },
+        {
+          "do": "Watch email for compliance questions and answer promptly",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Google Cloud project owner/editor on a company-owned (not personal) Google account who can enable the API, run the Auth Platform branding and verification, and apply for access. A Google Ads manager (MCC) account is no longer needed for basic access, only to link and manage multiple accounts via API.",
+    "console": "Google Cloud IAM roles (Owner/Editor) - add via IAM & Admin -> IAM -> Grant access. Access level belongs to the project, so every OAuth client in it shares the level.",
+    "customer": "A Google Ads user with access to the ad account (or a manager-account user) who completes the consent screen; for manager linking, an account admin accepts the link. Likely blockers: Workspace admins restricting third-party app access to Google APIs.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Test access: 15,000 ops/day on Google Ads test accounts (create a test manager account).",
+    "Explorer/Basic allow production accounts at low volume.",
+    "Keep the consent screen in Testing status for dev (refresh tokens then expire in 7 days - general Google behavior, not confirmed on the pages read)."
+  ],
+  "blockers": [
+    {
+      "problem": "Following old guides and hunting for an MCC developer token",
+      "fix": "API Center applications are no longer processed; apply from the Cloud project's Google Ads API Overview page instead."
+    },
+    {
+      "problem": "Explorer blocks account creation, user management, planning services and billing, and caps production at 2,880 ops/day",
+      "fix": "Apply for Basic/Standard before onboarding many customers."
+    },
+    {
+      "problem": "Basic needs brand verification with no warnings first",
+      "fix": "Fix branding and domain ownership on the consent screen before applying."
+    },
+    {
+      "problem": "Test-access projects fail against production accounts with CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION from v25",
+      "fix": "Do not ship with Test access."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Enable the API and create resources via gcloud, write the OAuth and token-refresh code, handle login-customer-id, draft the Standard-access application answers, tool description and permissible-use text, run test calls against test accounts.",
+    "humanMust": "Sign in to Cloud Console with 2FA, accept terms, complete brand and OAuth verification, submit the access applications, supply demo sign-in credentials, and answer Google compliance emails."
+  },
+  "uncertain": [
+    "Whether the adwords scope is classified sensitive and what OAuth verification timeline applies was not confirmed on fetched pages (scopes page was truncated); my understanding is that it is sensitive.",
+    "Basic-level review time not stated.",
+    "Search and fetch budgets ran out, so community timelines were not checked."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.google.com/google-ads/api/docs/access-levels",
+      "label": "developers.google.com/google-ads/api/docs/access-levels"
+    },
+    {
+      "url": "https://developers.google.com/google-ads/api/docs/api-policy/developer-token",
+      "label": "developers.google.com/google-ads/api/docs/api-policy/developer-token"
+    },
+    {
+      "url": "https://developers.google.com/google-ads/api/docs/oauth/overview",
+      "label": "developers.google.com/google-ads/api/docs/oauth/overview"
+    },
+    {
+      "url": "https://developers.google.com/google-ads/api/docs/oauth/cloud-project",
+      "label": "developers.google.com/google-ads/api/docs/oauth/cloud-project"
+    }
+  ]
+}

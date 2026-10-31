@@ -1,0 +1,342 @@
+{
+  "id": "github",
+  "n": 61,
+  "name": "GitHub",
+  "sub": "GitHub App · user-to-server tokens · installations",
+  "category": "Developer, Infra & Data",
+  "website": "docs.github.com",
+  "deep": true,
+  "featured": true,
+  "path": "self",
+  "headline": "GitHub doesn't review apps. Build a GitHub App owned by your org. The friction is customers' org owners approving the install.",
+  "needGuide": "Short guide. The setup is quick. Most of the work is handling installs that need approval, expiring tokens and SSO orgs.",
+  "authModel": "OAuth 2.0",
+  "authDetail": "GitHub App user access tokens (ghu_) last 8 hours and refresh tokens (ghr_) last 6 months, rotated on every refresh. PKCE (S256) is supported. Installation tokens last 1 hour.",
+  "userOAuth": "yes",
+  "access": "Self-serve",
+  "difficulty": "Moderate",
+  "timeToFirstTest": "2–4 hours",
+  "timeToProduction": "1–3 weeks (engineering and QA, no review)",
+  "cost": "$0. A free organization can own and publish the app.",
+  "confidence": "High",
+  "lastChecked": "2026-10-28",
+  "tiers": [
+    {
+      "label": "Public GitHub App",
+      "eg": "Any account can install",
+      "difficulty": "Moderate",
+      "time": "1–3 weeks",
+      "note": "No GitHub gate. Each customer org's owner approves the install."
+    },
+    {
+      "label": "Marketplace listing (optional)",
+      "eg": "Free or paid plans",
+      "difficulty": "Hard",
+      "time": "Undocumented (1–6 weeks reported)",
+      "note": "Paid listings need a verified publisher and 100 or more installs."
+    }
+  ],
+  "prereqs": [
+    "A company GitHub organization (the free plan is fine) with 2 or more owners and 2FA required.",
+    "A verified domain on the org. You need it for publisher verification and the Marketplace.",
+    "HTTPS endpoints for the callback, setup URL and webhook.",
+    "A secrets vault for the private key, client secret and webhook secret. Store user tokens encrypted.",
+    "Database columns that hold at least 520 characters. Treat tokens as opaque strings."
+  ],
+  "phases": [
+    {
+      "name": "Prepare the org",
+      "duration": "30 min",
+      "steps": [
+        {
+          "do": "Make sure the company org has 2 or more owners and requires 2FA.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Give the integration team the App Manager role: Org Settings → Access → Organization roles → Role assignments → New role assignment → App Manager. Alternatively, add managers for a single app later.",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Register the dev app",
+      "duration": "30 min",
+      "steps": [
+        {
+          "do": "Go to Org → Settings → Developer settings → GitHub Apps → New GitHub App. Name: “YourApp Agent (Dev)”, 34 characters max and unique. Homepage: https://yourco.com.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Set the callback URL to https://app.yourco.com/integrations/github/callback, plus http://127.0.0.1:PORT/… for local dev. Leave wildcard matching off.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Tick “Expire user authorization tokens”. Leave “Request user authorization during installation” unticked. Set the Setup URL with “Redirect on update”, set the Webhook URL and secret, and leave Device Flow off.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Choose the minimum permissions (see the table) and set installation to “Only on this account” for now. Click Create GitHub App. An agent can prepare this through the manifest flow, but a human clicks Create and the code has to be converted within 1 hour.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Generate a private key under Edit → Credentials → Key pairs (up to 25; they never expire) and a client secret. Store both in the vault.",
+          "who": "Security",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Build the flow",
+      "duration": "1–2 weeks",
+      "steps": [
+        {
+          "do": "Send the user to https://github.com/login/oauth/authorize with client_id, redirect_uri, state, code_challenge and code_challenge_method=S256. Exchange the code at /login/oauth/access_token within 10 minutes.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call GET /user/installations. If the target org has no installation, send the user to https://github.com/apps/<slug>/installations/new.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Don't trust installation_id on the Setup URL. Check it with the user's token.",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Make refresh single-flight and save the new refresh token atomically. Handle the installation, installation_repositories and github_app_authorization webhooks. Identify users by their numeric id.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Test across orgs",
+      "duration": "2–3 days",
+      "steps": [
+        {
+          "do": "Org A: your own. Org B: owned by another teammate, with your tester as a member, not an owner, so you can test the “Request” path and owner approval.",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Test personal repos, “Only select repositories”, revoking in Settings → Applications, uninstalling, adding a permission (each install must accept it), and concurrent token refreshes.",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "If customers use SAML SSO, test in an Enterprise Cloud trial org with SSO enforced.",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Ship",
+      "duration": "1 day",
+      "steps": [
+        {
+          "do": "Register the production app with production URLs and “Any account”, or use Advanced → Make public. An app installed on other accounts can't be made private again.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Optional: add your egress IPs under the app's IP allow list for customers who use IP allow lists.",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Optional Marketplace listing: Org Settings → Developer settings → Publisher Verification → Request Verification. Then open your listing → Overview → Request publish.",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "consoleRoles": [
+    {
+      "role": "Organization Owner",
+      "can": "Everything: install and uninstall, publisher verification, Marketplace, approving OAuth Apps",
+      "who": "2–3 senior people"
+    },
+    {
+      "role": "App Manager (org role)",
+      "can": "Create, edit and delete every GitHub App in the org. Can't install them.",
+      "who": "Integration team (can be assigned to a team)"
+    },
+    {
+      "role": "GitHub App manager (per app)",
+      "can": "Manage one app's settings",
+      "who": "Individual developers"
+    },
+    {
+      "role": "Repository admin",
+      "can": "Install on their own repos if the app requests no org permissions",
+      "who": "—"
+    },
+    {
+      "role": "Member / outside collaborator",
+      "can": "Request an install, which owners approve",
+      "who": "—"
+    }
+  ],
+  "roles": {
+    "team": "Org Owners hold publisher verification and installs. App Managers register and configure the app. Developers build the flow. Security holds keys and IP lists. QA needs two orgs and a member-only account. Legal and Design provide the privacy policy, support page and logo.",
+    "console": "Org Owner, the App Manager org role, and per-app GitHub App managers. Add a per-app manager under Org Settings → Developer settings → GitHub Apps → your app → App managers → Grant.",
+    "customer": "End users authorize the app. Installing it on an org needs an org owner, or a repo admin if no org permissions are requested. Owners can limit who may request apps. SAML SSO orgs need an active SSO session, and IP allow lists can block you."
+  },
+  "testing": [
+    "There's no pre-approval gate. Any account can install once the app is public.",
+    "Use teammates' real accounts. The terms allow one free account per person plus one machine account.",
+    "Use prompt=select_account to switch between accounts while testing.",
+    "Testing SSO needs a GitHub Enterprise Cloud org; a trial is likely enough."
+  ],
+  "customer": [
+    "The authorize screen shows “Act on your behalf”. The user needs a verified primary email.",
+    "The install screen offers All repositories or Only select repositories, and the button says Install, Install and request, or Request.",
+    "Members' requests email the org owners. Owners can't revoke individual users' authorizations; they can only uninstall the app.",
+    "OAuth Apps (not GitHub Apps) are blocked by OAuth app access restrictions, which are on by default for new orgs.",
+    "In SAML orgs, users without an SSO session get 403 “Resource protected by organization SAML enforcement”.",
+    "Enterprise Managed Users can't install apps on their personal accounts."
+  ],
+  "scopesTable": [
+    {
+      "use": "Read code",
+      "scope": "Contents: Read-only, Metadata: Read-only",
+      "tier": "Install approval",
+      "note": "OAuth Apps only offer the all-or-nothing repo scope"
+    },
+    {
+      "use": "Open pull requests",
+      "scope": "Contents: R/W, Pull requests: R/W",
+      "tier": "Install approval",
+      "note": "Add Workflows: R/W to edit .github/workflows"
+    },
+    {
+      "use": "Manage issues",
+      "scope": "Issues: Read & write",
+      "tier": "Install approval",
+      "note": ""
+    },
+    {
+      "use": "Read org members",
+      "scope": "Organization → Members: Read-only",
+      "tier": "Org owner must install",
+      "note": "Org permissions block repo-admin installs"
+    },
+    {
+      "use": "User email",
+      "scope": "Account → Email addresses: Read-only",
+      "tier": "User consent",
+      "note": ""
+    }
+  ],
+  "review": {
+    "when": "GitHub doesn't review an app before it can be used. Marketplace listing is optional. Paid plans need a verified publisher and at least 100 installations.",
+    "timeline": [
+      {
+        "label": "Public app",
+        "official": "Immediate",
+        "reported": "Waits come from each customer's owner approval"
+      },
+      {
+        "label": "Publisher verification",
+        "official": "Not documented",
+        "reported": "—"
+      },
+      {
+        "label": "Marketplace listing",
+        "official": "Not documented",
+        "reported": "About 1–6 weeks (weak source)"
+      }
+    ],
+    "recurring": "Rotate private keys manually. When you add permissions, each installation has to accept them. Installation token formats changed in 2026 (about 520 characters), so don't depend on the format."
+  },
+  "blockers": [
+    {
+      "problem": "redirect_uri_mismatch",
+      "fix": "The redirect URI must exactly match a registered callback. Don't add extra query parameters."
+    },
+    {
+      "problem": "The user connected but sees no org repos",
+      "fix": "The app isn't installed, the install is waiting for owner approval, the SSO session is missing, or an IP allow list is blocking you. Detect this with /user/installations and show “Ask your admin”."
+    },
+    {
+      "problem": "“Resource not accessible by integration”",
+      "fix": "A permission is missing or the app isn't installed on that repo."
+    },
+    {
+      "problem": "A member's install has no installation_id",
+      "fix": "Use the installation webhook and /user/installations to work out which install it was."
+    },
+    {
+      "problem": "bad_refresh_token",
+      "fix": "Make refresh single-flight. Re-authenticate after 2 failures."
+    },
+    {
+      "problem": "Pushing a workflow is refused",
+      "fix": "Add the Workflows permission."
+    }
+  ],
+  "gotchas": [
+    "User tokens share the user's 5,000 requests per hour with their other apps (15,000 if your app's org is on Enterprise Cloud). Secondary limits apply to agents that post a lot.",
+    "Since Aug 2026, wildcard callback matching is set per URL. Apps that had a single callback before Aug 3, 2026 have it turned on by default, so turn it off.",
+    "Install-time OAuth always redirects to the first callback URL.",
+    "OAuth tokens unused for a year are revoked, and so are tokens leaked to public repos.",
+    "Never ask users for a personal access token or password."
+  ],
+  "agentCan": "Write the app manifest, the OAuth, installation and webhook code, and the refresh locking; script the test matrix; draft the privacy policy and support pages; and keep the permission spec current.",
+  "humanMust": "Hold org ownership and 2FA, click Create GitHub App, download keys, make the app public, request publisher verification, and test with real accounts and orgs.",
+  "uncertain": [
+    "Docs conflict on which plans include the App Manager org role. Per-app managers work on every plan.",
+    "No official timeline for Marketplace or publisher verification.",
+    "It's unconfirmed whether webhooks you didn't subscribe to (installation, github_app_authorization) still arrive."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps",
+      "label": "GitHub Apps vs OAuth Apps"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app",
+      "label": "Register a GitHub App"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app",
+      "label": "User access tokens, PKCE"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/refreshing-user-access-tokens",
+      "label": "Refreshing tokens"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party",
+      "label": "Who can install"
+    },
+    {
+      "url": "https://docs.github.com/en/organizations/managing-programmatic-access-to-your-organization/adding-and-removing-github-app-managers-in-your-organization",
+      "label": "App managers"
+    },
+    {
+      "url": "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
+      "label": "Rate limits"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-08-14-multiple-redirect-uris-and-token-refresh-for-oauth-apps",
+      "label": "Aug 2026 callback changes"
+    },
+    {
+      "url": "https://nango.dev/blog/github-app-oauth-refresh-token-bad-refresh-token",
+      "label": "Community: refresh-token races"
+    }
+  ],
+  "firstShort": "2–4 hours",
+  "prodShort": "1–3 weeks, no review"
+}

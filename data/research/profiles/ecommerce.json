@@ -1,0 +1,773 @@
+[
+  {
+    "n": 41,
+    "id": "shopify",
+    "name": "Shopify",
+    "category": "Ecommerce",
+    "website": "shopify.dev",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Embedded apps use the token exchange grant (App Bridge ID token to access token); non-embedded apps use the authorization code grant; managed installation (scopes declared in shopify.app.toml) is the default for CLI-built apps. Offline tokens are per store. Expiring offline tokens last 1 hour with a 90-day refresh token (rotating); public apps must use expiring tokens for the GraphQL Admin API by 2027-01-01 (new public apps cannot use non-expiring ones). Per-shop URLs ({shop}.myshopify.com).",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://dev.shopify.com/dashboard",
+      "path": "Dev Dashboard → Apps → Create app (or `shopify app init`); then select Distribution = Public on the production app (cannot be changed later). Protected customer data: app → API access requests → Protected customer data access → Request access."
+    },
+    "access": "Application/approval required",
+    "productionGate": "Creating apps, dev stores and custom-distribution apps is self-serve, but custom distribution only covers one store or stores in one Plus organization. Serving arbitrary other merchants needs public distribution: Shopify App Store review (automated checks, then human review), a one-time registration fee, Shopify billing API for any charges, compliance webhooks, and protected customer data access (Level 1, or Level 2 for name/email/phone/address, with possible data protection review).",
+    "difficulty": "Hard",
+    "timeToFirstTest": "1-2 hours (CLI template + dev store)",
+    "timeToProduction": "unknown; review duration is not stated in official docs. Plan several weeks including resubmissions.",
+    "cost": "Free to build and test. Public listing: one-time App Store registration fee (amount not on fetched pages; commonly cited as US$19, verify) plus Shopify revenue share on app billing.",
+    "roles": {
+      "team": "A company-owned Shopify ID that owns the Dev Dashboard organization and has app development access. Use one org-level owner, not a personal login, since distribution and the app listing belong to the org.",
+      "console": "Dev Dashboard documents two permissions: app development access and View financials. Org settings hold users and payout/billing (replaces the Partner Dashboard); exact add-user path not confirmed.",
+      "customer": "Store owner or staff with permission to install apps approves the scopes on install. Unapproved protected-customer-data fields come back redacted for public apps."
+    },
+    "testing": "Free development stores via Dev Dashboard; `shopify app dev` tunnels. Apps installed only on dev stores can read protected customer data without review (after the access-request form is filled). No real payments on dev stores.",
+    "steps": [
+      {
+        "do": "Create a company-owned Shopify ID and Dev Dashboard organization",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Scaffold the app with `shopify app init`, set distribution to Public on the production app, and keep a separate dev app",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Declare scopes in shopify.app.toml and rely on managed installation; implement token exchange (embedded) or authorization code grant (standalone) with expiring=1 and refresh-token handling",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement mandatory compliance webhooks (customers/data_request, customers/redact, shop/redact) and use GraphQL Admin API only",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Request protected customer data access in the app's API access requests (reasons per field, data protection details)",
+        "who": "Security",
+        "agent": true
+      },
+      {
+        "do": "Install on a dev store and run end-to-end tests including uninstall/reinstall and token refresh",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Prepare listing: 1200x1200 icon, English screencast, test credentials, emergency contact, privacy policy; run automated checks",
+        "who": "Design",
+        "agent": true
+      },
+      {
+        "do": "Pay the registration fee and submit to App Store review; answer reviewer email from noreply@shopify.com",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Access scopes are declared in shopify.app.toml (read_/write_ pairs such as products, orders, customers, inventory). Customer name/email/phone/address fields need protected customer data Level 2; any customer data needs Level 1 access, and both are checked at App Store review. Request only what the app uses.",
+    "blockers": [
+      "Distribution method cannot be changed once chosen: create the production app as Public from the start.",
+      "Non-expiring offline tokens stop working for public-app GraphQL Admin calls after 2027-01-01: use expiring tokens and never refresh and re-acquire at the same time for one store.",
+      "Missing compliance webhooks, off-platform billing, or REST Admin API use cause review rejection, and repeated failures trigger a submission cooldown.",
+      "Protected customer data: unapproved fields are redacted (GraphQL returns HTTP 200 with an error), so request access before testing against real merchants."
+    ],
+    "agentCan": "Write the token-exchange/refresh code, shopify.app.toml scopes, compliance webhook handlers, GraphQL queries and test calls, and draft listing copy, data-protection answers and screencast scripts.",
+    "humanMust": "Create and own the Shopify ID/org, accept Partner agreements, pay the registration fee, record the screencast, submit for review, and handle reviewer correspondence.",
+    "confidence": "High",
+    "uncertain": "App Store review turnaround and the exact fee amount were not on fetched pages. The Dev Dashboard URL and add-user path are inferred. The protected-data page still says Partner Dashboard (likely stale vs the Dev Dashboard replacement). Managed-installation pages for token exchange returned errors.",
+    "sources": [
+      "https://shopify.dev/docs/apps/launch/distribution",
+      "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens",
+      "https://shopify.dev/docs/apps/build/authentication-authorization",
+      "https://shopify.dev/docs/apps/launch/protected-customer-data",
+      "https://shopify.dev/docs/apps/build/dev-dashboard",
+      "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review"
+    ]
+  },
+  {
+    "n": 42,
+    "id": "woocommerce",
+    "name": "WooCommerce",
+    "category": "Ecommerce",
+    "website": "woocommerce.com",
+    "authModel": "API key / token only",
+    "authDetail": "No OAuth 2.0 and no developer registration. Each self-hosted store issues its own consumer key/secret (Read, Write or Read/Write, tied to a WordPress user). Apps can automate issuance via /wc-auth/v1/authorize: merchant approves, then the store POSTs the keys to your callback_url. Calls use HTTP Basic Auth over HTTPS, or OAuth 1.0a one-legged signing over HTTP. Keys do not expire.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://woocommerce.github.io/woocommerce-rest-api-docs/#authentication",
+      "path": "No developer console. Merchant side: WooCommerce → Settings → Advanced → REST API → Add key. App side: redirect merchant to {store}/wc-auth/v1/authorize."
+    },
+    "access": "Self-serve",
+    "productionGate": "None. Works with any store that has the REST API reachable over HTTPS. The customer's WordPress admin must approve each connection; nothing to submit to WooCommerce.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min with a local WordPress + WooCommerce",
+    "timeToProduction": "1-3 days (no review); budget extra for host/WAF quirks",
+    "cost": "Free (customer pays their own hosting)",
+    "roles": {
+      "team": "Any developer; no vendor account needed. Own a public HTTPS callback_url endpoint to receive keys.",
+      "console": "none documented (no developer console).",
+      "customer": "A WordPress user with permission to manage WooCommerce (administrator or shop manager, likely) logs in on the store to approve. Keys inherit that user's capabilities and stop working if the user is deleted."
+    },
+    "testing": "Spin up a local or hosted WordPress with WooCommerce and sample data; test the wc-auth flow against it. Multiple test stores are free. Legacy REST API plugin is only needed for old legacy-API integrations.",
+    "steps": [
+      {
+        "do": "Ask the user for their store URL and normalize to https://{store}; confirm /wp-json/wc/v3 responds",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Redirect the merchant to {store}/wc-auth/v1/authorize with app_name, scope (read/write/read_write), user_id (your internal id), return_url and callback_url, all URL-encoded",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Merchant logs in as store admin and clicks Approve",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Receive the JSON POST at callback_url (key_id, consumer_key, consumer_secret, key_permissions) and store it encrypted, keyed by your user_id",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Handle return_url success=0/1, then validate with a test GET /wp-json/wc/v3/products using Basic Auth over HTTPS",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Offer manual fallback: merchant creates a key under WooCommerce → Settings → Advanced → REST API and pastes it",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Handle 401/revocation and prompt reconnect; register webhooks via /wc/v3/webhooks for events",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Only read, write or read_write per key; no per-resource scopes. Effective access also follows the capabilities of the WordPress user the key belongs to. Nothing triggers a review.",
+    "blockers": [
+      "HTTP-only or self-signed stores: Basic Auth needs HTTPS; otherwise use OAuth 1.0a signing. Push customers to enable SSL.",
+      "Hosts/WAF/security plugins that strip the Authorization header: fall back to consumer_key and consumer_secret as query parameters over HTTPS.",
+      "Key tied to a WordPress user: if that user is removed the key dies, so ask for a dedicated service admin user.",
+      "Pretty permalinks disabled can break /wp-json (likely); ask the customer to enable them."
+    ],
+    "agentCan": "Write the wc-auth redirect and callback handler, signing/Basic Auth client, webhook registration, and connection-validation calls; draft a customer-facing manual key-creation guide.",
+    "humanMust": "The customer's admin must log in and approve (or create the key). The developer must host a public HTTPS callback.",
+    "confidence": "High",
+    "uncertain": "WordPress Application Passwords as an alternative auth for wc/v3 (named in the brief) were not verified on fetched pages. The woocommerce.com doc page did not mention /wc-auth; it is documented in the GitHub-hosted REST docs, which may be older than the current WooCommerce release. Plugin and Marketplace requirements for distributing an extension were not checked.",
+    "sources": [
+      "https://woocommerce.com/document/woocommerce-rest-api/",
+      "https://woocommerce.github.io/woocommerce-rest-api-docs/#authentication"
+    ]
+  },
+  {
+    "n": 43,
+    "id": "bigcommerce",
+    "name": "BigCommerce",
+    "category": "Ecommerce",
+    "website": "developer.bigcommerce.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Single-click apps: merchant installs, BigCommerce calls your GET /auth callback with code, scope and context (stores/{hash}); you POST to https://login.bigcommerce.com/oauth2/token and get a per-store access token with no refresh-token flow. Merchants must accept all scopes; a scope change or merchant email change invalidates the token and re-prompts. Separate load, uninstall and remove_user callbacks. Docs call the token both semi-permanent and permanent.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://devtools.bigcommerce.com/",
+      "path": "Developer Portal (Dev Tools) → My Apps → Create an app; set callback URLs and scopes in the app profile; copy client_id and client_secret. (Portal URL and menu names not confirmed.)"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Apps become available to all merchants only after approval for the BigCommerce App Marketplace (requirements are in a separate guide that was not retrieved). Per the docs, apps approved for public listing can mint tokens for any store owner or authorized user. Partner program application is recommended if charging for the app. Draft apps are for testing, likely only on the developer's own or sandbox stores.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours (sandbox store + ngrok)",
+    "timeToProduction": "unknown (marketplace review length not documented on fetched pages; likely several weeks)",
+    "cost": "Free to build and test; Partner program terms and any marketplace revenue share not confirmed.",
+    "roles": {
+      "team": "A company-owned Developer Portal account created with a shared company email; the same identity owns the sandbox store and draft app installs.",
+      "console": "none documented on fetched pages.",
+      "customer": "The store owner (or a user allowed to install apps) clicks install, sees the full scope list and must accept all of it. Re-consent is required after scope changes."
+    },
+    "testing": "Create a free BigCommerce sandbox store; install the draft app; expose localhost via ngrok or another tunnel; starter apps exist for Node/Next.js, Python, PHP, Ruby, Laravel.",
+    "steps": [
+      {
+        "do": "Register a company Developer Portal account and create a sandbox store",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create the app in the Developer Portal and set auth, load, uninstall and remove_user callback URLs plus minimal scopes",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement GET /auth: validate scopes, POST code to https://login.bigcommerce.com/oauth2/token, persist access_token, scope, context and user",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement load callback (signed payload verification), uninstall and remove_user handlers",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Install the draft app on the sandbox store through a tunnel and test the iframe UI and API calls with X-Auth-Token",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Draft the marketplace listing, privacy policy and support docs; apply to the Partner program if monetizing",
+        "who": "Legal",
+        "agent": true
+      },
+      {
+        "do": "Submit the app for approval and fix review feedback",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Scopes are chosen in the app profile (products, orders, customers, content, carts and so on, each read-only or modify). Merchants cannot pick a subset, and changing scopes forces re-acceptance. Whether sensitive scopes get extra scrutiny at approval was not confirmed.",
+    "blockers": [
+      "If the /auth or /load callback does not respond, the merchant sees a blank screen: return quickly and log failures.",
+      "Scope changes invalidate tokens: keep scopes minimal from the first release.",
+      "Draft apps are probably not installable by arbitrary customers, so pilots with real merchants may need store-level API accounts (merchant-created token) until approval; not confirmed.",
+      "Marketplace approval requirements live in a separate guide: read it before building the UI."
+    ],
+    "agentCan": "Write the OAuth/callback server and API client, set up ngrok-based test flows, and draft listing copy and policy pages.",
+    "humanMust": "Register the portal account, accept the developer and Partner agreements, submit for approval, and have a merchant owner click install.",
+    "confidence": "Medium",
+    "uncertain": "Draft app installation limits, approval requirements, review timeline, Partner program fee, and the Developer Portal URL were not retrieved (fetch limit reached). Official domain redirects from developer.bigcommerce.com to docs.bigcommerce.com for some pages.",
+    "sources": [
+      "https://developer.bigcommerce.com/docs/integrations/apps",
+      "https://docs.bigcommerce.com/developer/docs/integrations/apps/introduction",
+      "https://docs.bigcommerce.com/developer/docs/integrations/apps/guide/auth"
+    ]
+  },
+  {
+    "n": 44,
+    "id": "salesforce-commerce-cloud",
+    "name": "Salesforce Commerce Cloud",
+    "category": "Ecommerce",
+    "website": "developer.salesforce.com/docs/commerce",
+    "authModel": "Client credentials only",
+    "authDetail": "B2C Commerce has no multi-tenant app install. Back-office integrations use an Account Manager API client (client credentials, created and permissioned per customer org and instance). SLAS (Shopper Login and API Access Service) is OAuth 2.0 authorization code with PKCE, but only for shoppers of one storefront: each SLAS client is tied to one SLAS tenant (one instance). Access tokens last 30 min; refresh tokens 90 days (registered), 30 days (guest), 9 days non-production.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html",
+      "path": "Customer side: Account Manager → API Client → Add API Client (likely), then Business Manager API permissions. SLAS: SLAS Admin UI/API or B2C CLI with the SLAS Organization Administrator role."
+    },
+    "access": "Not offered",
+    "productionGate": "No Salesforce approval to connect, but no self-serve multi-customer registration either: every customer must create an API client in their own Account Manager organization and grant it permissions on their instances, then give you client ID, secret, short code, organization ID and site ID. Optional LINK/AppExchange partner listing is a separate program (not confirmed).",
+    "difficulty": "Hard",
+    "timeToFirstTest": "unknown; needs a sandbox realm (hours once you have one)",
+    "timeToProduction": "per customer: days to weeks depending on their admin availability; no vendor review",
+    "cost": "Requires a licensed B2C Commerce realm/sandbox; integration itself has no fee.",
+    "roles": {
+      "team": "Developer needs a customer-granted or partner sandbox realm; use a company-owned Account Manager user, not a personal login.",
+      "console": "Account Manager access controls via roles; SLAS administration requires the SLAS Organization Administrator role with instance filters. Add users in Account Manager (customer admin).",
+      "customer": "Account Manager administrator (to create the API client and assign roles/scopes) plus Business Manager admin (to allow the client under API settings) at each instance; SLAS Organization Administrator for shopper auth."
+    },
+    "testing": "Use an on-demand sandbox or a customer-provided staging instance; SLAS refresh tokens in non-production last only 9 days. No free public developer tenant was confirmed.",
+    "steps": [
+      {
+        "do": "Decide scope: back-office (Account Manager API client + OCAPI/SCAPI Admin APIs) or shopper-facing (SLAS client + Shopper APIs)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Write a customer setup guide: create API client in Account Manager, set scopes/roles, and allow it in Business Manager API settings per site/instance",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Customer admin performs the setup and sends client ID, secret, short code, organization ID, site ID and instance host",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Obtain tokens with client credentials against Account Manager and call a test endpoint; store secrets encrypted per customer",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "For shoppers, create a SLAS client with the B2C CLI or Admin API, register redirect URIs, and implement authorization_code_pkce with token refresh handling",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test against a sandbox, including expired refresh tokens and rotation of single-use public-client refresh tokens",
+        "who": "QA",
+        "agent": true
+      }
+    ],
+    "scopes": "Back-office access is set by roles and scopes on the API client and by per-client resource permissions in Business Manager. SLAS clients carry their own scopes, channels and redirect URIs. No Salesforce review gate was found.",
+    "blockers": [
+      "Each SLAS client maps to one tenant/instance: you need one client per customer instance and cannot reuse a global client.",
+      "Customer needs two admin consoles (Account Manager and Business Manager): send a precise checklist.",
+      "Public-client refresh tokens are single-use and rotate; losing one forces re-login.",
+      "Non-production refresh tokens expire in 9 days: tests that pass in a sandbox may differ in production."
+    ],
+    "agentCan": "Draft the customer onboarding checklist, write token acquisition/refresh code, configure SLAS clients through the B2C CLI or Admin API, and run test calls.",
+    "humanMust": "Customer admins must log in to Account Manager and Business Manager (with 2FA) to create and permission clients; the developer needs a sandbox entitlement.",
+    "confidence": "Medium",
+    "uncertain": "Only the SLAS page was retrieved. Account Manager API client menu names, role names, OCAPI/SCAPI permission screens, sandbox availability and LINK partner details come from background knowledge, not fetched sources.",
+    "sources": [
+      "https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html"
+    ]
+  },
+  {
+    "n": 45,
+    "id": "magento",
+    "name": "Magento (Adobe Commerce)",
+    "category": "Ecommerce",
+    "website": "developer.adobe.com/commerce",
+    "authModel": "OAuth 1.0a",
+    "authDetail": "Per-store integration: merchant creates an Integration in Admin, which generates a consumer key/secret. On activation the store POSTs the key, secret, verifier and base URL to your callback URL, opens your identity link URL for merchant login, then you call /oauth/token/request and /oauth/token/access with HMAC-SHA256 signed requests. The access token is long-lived until revoked. Applies to PaaS (on-prem/cloud); Adobe Commerce cloud-service customers use a different auth method.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://developer.adobe.com/commerce/webapi/get-started/authentication/gs-authentication-oauth/",
+      "path": "No central registration. Merchant Admin → System → Extensions → Integrations → Add New Integration → set callback and identity link URLs and API resources → Save & Activate."
+    },
+    "access": "Self-serve",
+    "productionGate": "None for the OAuth 1.0a handshake: each merchant admin activates it. Distributing an extension as code is optional through Adobe Commerce Marketplace (listing review not retrieved).",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "2-4 hours (local Magento + OAuth 1.0a signing)",
+    "timeToProduction": "1-3 days (no review) for the integration; Marketplace listing timing unknown",
+    "cost": "Free for Magento Open Source; Adobe Commerce requires a merchant license. Developer needs no fee for the integration.",
+    "roles": {
+      "team": "Any developer. Needs a public HTTPS callback and identity-link page that can authenticate your own user and map them to the store.",
+      "console": "none documented (no developer console for Integrations; Adobe Developer Console applies to other Adobe APIs).",
+      "customer": "A store admin with access to System → Integrations and to the API resources being granted creates and activates the integration, and clicks Allow. Hosting WAF/CDN rules can block /rest or /oauth paths."
+    },
+    "testing": "Use a local Magento Open Source or Adobe Commerce cloud dev environment and Adobe's sample PHP scripts (endpoint.php, login.php, checklogin.php) that simulate the flow. Installing via Composer likely needs Commerce Marketplace access keys.",
+    "steps": [
+      {
+        "do": "Stand up a test Magento store and enable HTTPS",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Build the callback endpoint to receive the activation POST (store URL, verifier, consumer key/secret) and store them",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Build the identity link page: merchant logs into your app, then you call POST /oauth/token/request and /oauth/token/access with signed parameters",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Merchant creates the integration (callback URL, identity link URL, resource ACL) and clicks Save and Activate",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Call REST (for example GET /rest/V1/products) with the signed Authorization header and validate success",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Handle revocation (merchant deletes or deactivates the integration) and re-activation",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Optional: package an extension for Adobe Commerce Marketplace",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "The merchant picks which API resources (ACL tree) the integration may access during creation; there are no scope names or review triggers. Access is all-or-nothing per resource list.",
+    "blockers": [
+      "OAuth 1.0a signing is easy to get wrong: reuse an existing library (such as PHPoAuthLib in the Adobe samples).",
+      "The merchant must correctly paste both callback and identity link URLs; give them a copy-paste block.",
+      "Cloud-service/SaaS Commerce customers use a different auth path, so detect the deployment type early.",
+      "CDN or firewall rules often block /oauth and /rest calls from your server IPs: ask the customer to allowlist."
+    ],
+    "agentCan": "Write the signing client, callback and identity-link endpoints, the customer setup guide with exact field values, and revocation handling.",
+    "humanMust": "The customer's admin must log in, create and activate the integration; a human accepts any Marketplace agreement.",
+    "confidence": "Medium",
+    "uncertain": "Adobe Commerce Marketplace review, the standalone-bearer-token option for integration tokens, and the Adobe IMS / App Builder route for cloud-service customers were not retrieved. Per-integration ACL details beyond the OAuth page were not checked.",
+    "sources": [
+      "https://developer.adobe.com/commerce/webapi/get-started/authentication/gs-authentication-oauth/"
+    ]
+  },
+  {
+    "n": 46,
+    "id": "squarespace",
+    "name": "Squarespace",
+    "category": "Ecommerce",
+    "website": "developers.squarespace.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Authorization code flow: GET /authorize with client_id, redirect_uri, scope, state (add access_type=offline for a refresh token); the code is valid for 2 minutes and single-use; exchange at POST /tokens. Access tokens last 30 minutes; refresh tokens last 7 days and are single-use (a new one is returned on each refresh). Separate per-site API keys exist for single-site custom apps.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://account.squarespace.com/developer-apps",
+      "path": "Log in at account.squarespace.com → Developer Apps → register an OAuth client: client name, 1:1 .png/.svg icon (max 200 KB), redirect URIs, terms and privacy links. Squarespace reviews it, then issues client ID and secret."
+    },
+    "access": "Application/approval required",
+    "productionGate": "Squarespace reviews every OAuth client registration before issuing credentials (no timeline given beyond 'as soon as possible'). The docs say OAuth is for Squarespace Extensions. The Commerce APIs-only API-key path needs no approval but only serves one site and needs a Commerce Advanced plan.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours after credentials are issued; credentials wait is unknown",
+    "timeToProduction": "unknown (approval of the client registration has no stated SLA)",
+    "cost": "OAuth: no fee documented. API keys: site must be on Commerce Advanced plan.",
+    "roles": {
+      "team": "A company-owned Squarespace account to hold the developer app registration.",
+      "console": "none documented.",
+      "customer": "The site owner or a user allowed to connect extensions approves the consent screen; they can revoke it in Squarespace later, which invalidates tokens."
+    },
+    "testing": "No dedicated sandbox was documented. Use a Squarespace trial or test site with Commerce data once your client is approved, and a second site to test the multi-site case. API keys (Settings → Advanced → Developer API Keys) can test endpoints on your own site before OAuth approval.",
+    "steps": [
+      {
+        "do": "Prepare icon, privacy policy and terms pages, and HTTPS redirect URIs",
+        "who": "Design",
+        "agent": true
+      },
+      {
+        "do": "Register the OAuth client at account.squarespace.com/developer-apps and wait for review",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Meanwhile prototype with a per-site API key on your own Commerce Advanced site",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement authorize redirect with state, code exchange at POST /tokens, and offline access",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement refresh with single-use rotation, storing the latest refresh token, refreshing before 30-minute expiry and at least weekly",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Handle 401 by asking the user to reconnect; test deny and revoke paths",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Subscribe to webhooks through the Webhook Subscriptions API (OAuth only)",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Scopes: website.orders, website.transactions.read, website.inventory, website.products, website.contacts, website.discounts, each with a .read variant. No scope-specific review was documented.",
+    "blockers": [
+      "Refresh tokens expire after 7 days: a connection idle for more than a week needs re-consent, so schedule refreshes.",
+      "Refresh tokens are single-use: persist atomically or concurrent refreshes lock you out.",
+      "Registration review has no timeline: submit early and have a per-site API key fallback for single customers.",
+      "Authorization code lives only 2 minutes: exchange immediately and URL-decode before sending."
+    ],
+    "agentCan": "Write the OAuth client and token-rotation code, draft registration copy and privacy/terms pages, and run API test calls.",
+    "humanMust": "Register the client while logged in, wait for approval, and have the site owner approve the consent screen.",
+    "confidence": "Medium",
+    "uncertain": "Whether unlisted extensions or only Extension Directory partners are approved, approval timeline, and whether Commerce plan is needed on customer sites for OAuth were not confirmed. The authentication page said OAuth works on any plan.",
+    "sources": [
+      "https://developers.squarespace.com/oauth",
+      "https://developers.squarespace.com/commerce-apis/authentication-and-permissions"
+    ]
+  },
+  {
+    "n": 47,
+    "id": "ecwid",
+    "name": "Ecwid",
+    "category": "Ecommerce",
+    "website": "api-docs.ecwid.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Public apps use OAuth with client_id/client_secret issued after Ecwid approves your app idea; the token endpoint for public apps was changed from GET to POST in March 2025 and Store ID became required for external-app authentication in September 2025. Private (custom) apps are auto-created per account, use access tokens instead of an OAuth flow, and work only on the owner's store.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://portal.ecwid.com/en-us/app-market-request",
+      "path": "Submit the app idea form (description, merchant value, billing type, regions/platforms). After approval you get a dev app and a free Premium test store in the Ecwid admin app dashboard."
+    },
+    "access": "Application/approval required",
+    "productionGate": "App idea must be approved, then you build a dev version and pass App Market validation (guide plus a recorded screencast) before publication. You must sign a partner contract with revenue share, and Ecwid's billing is mandatory for supported monetization models. Changes to published apps need Ecwid approval.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min with the auto-created custom app and a paid-plan test store",
+    "timeToProduction": "1-2 business days per submission step per the FAQ (ambiguous whether idea or validation); total unknown",
+    "cost": "Free to list; revenue share under the partner contract; developer needs a PayPal or bank account that accepts USD. API access needs a paid store plan (free upgrade for test stores on request).",
+    "roles": {
+      "team": "A registered individual entrepreneur or corporate entity; AI-based apps require a registered corporate entity (not an individual). Company-owned Ecwid account.",
+      "console": "none documented beyond the app dashboard; extra staging apps/stores available on request from API support.",
+      "customer": "The store owner or admin installs from the Ecwid App Market and accepts permissions. The store must be on a paid plan for API access."
+    },
+    "testing": "Ecwid provides a free Premium-plan test store and a dev app after idea approval; staging apps on request. Rate limits apply.",
+    "steps": [
+      {
+        "do": "Submit the app idea at portal.ecwid.com app-market-request with value, billing type and regions",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Prove entity status (entrepreneur or corporation) and set up a USD-capable payout account; sign the partner agreement",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Choose Native or External app type and read app settings for client_id and secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement OAuth for public apps (POST to token endpoint; include Store ID) and store tokens per store",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test in the free Premium test store with the dev app",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Record the validation screencast and complete App Validation",
+        "who": "Design",
+        "agent": false
+      },
+      {
+        "do": "Wire up Ecwid billing if charging, then publish to the App Market",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Apps request access scopes in app settings (catalog, orders, customers, store profile, etc.; exact names not confirmed). Custom apps default to products, categories, store profile read and orders. Apps that make little use of Ecwid APIs may be refused.",
+    "blockers": [
+      "AI-based apps need a corporate entity: sole-proprietor developers can be declined.",
+      "Free-plan stores cannot use the API, which shrinks who can connect.",
+      "Public OAuth details changed in 2025 (POST token request, Store ID required); older tutorials may be stale.",
+      "Excluded categories (unauthorized payment apps, POS integrations) are rejected at the idea stage."
+    ],
+    "agentCan": "Draft the app idea submission and listing copy, write OAuth and token storage code, and script the screencast.",
+    "humanMust": "Submit via the portal, sign the partner contract, prove entity status, record the validation screencast, and handle billing setup.",
+    "confidence": "Medium",
+    "uncertain": "The OAuth authorization URL, scope names, token lifetime and the App Validation guide were not retrieved (fetch limit reached). The FAQ's 1-2 business-day review time could refer to the idea submission rather than validation.",
+    "sources": [
+      "https://docs.ecwid.com/launch-apps/faq-about-public-applications.md",
+      "https://docs.ecwid.com/launch-apps/steps-to-go-live-with-a-public-app.md",
+      "https://docs.ecwid.com/develop-apps/private-and-public-ecwid-apps.md",
+      "https://docs.ecwid.com/get-started/set-up-your-dev-environment-in-ecwid.md",
+      "https://docs.ecwid.com/llms.txt"
+    ]
+  },
+  {
+    "n": 48,
+    "id": "gumroad",
+    "name": "Gumroad",
+    "category": "Ecommerce",
+    "website": "gumroad.com/api",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Likely OAuth 2.0 authorization code against gumroad.com/oauth/authorize and /oauth/token with scopes such as view_profile, edit_products, view_sales, mark_sales_as_shipped, refund_sales; access tokens likely do not expire and there is likely no refresh token. API base api.gumroad.com/v2. Based on background knowledge: the docs page rendered empty when fetched.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://gumroad.com/api",
+      "path": "Likely Gumroad Settings → Advanced → Applications → Create application (name, redirect URI, icon); yields Application ID and Secret. Not verified."
+    },
+    "access": "Self-serve",
+    "productionGate": "None found. Applications are self-serve, with no documented review or listing requirement (unverified).",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review)",
+    "cost": "Free",
+    "roles": {
+      "team": "A Gumroad creator account owned by the company (likely one login per account; no team seats confirmed).",
+      "console": "none documented.",
+      "customer": "The creator (seller) who owns the Gumroad account clicks Authorize; no workspace admin layer."
+    },
+    "testing": "Use your own seller account with free or low-priced test products; also generate an access token for your own account for quick tests. Whether Gumroad offers a sandbox is unknown.",
+    "steps": [
+      {
+        "do": "Create the Gumroad application in settings and record Application ID/Secret and redirect URI",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Implement the authorize redirect with chosen scopes and state",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exchange the code at the token endpoint and store the access token encrypted per creator",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with GET /v2/user and /v2/products, then list sales if scope allows",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Register resource subscriptions (webhook-style pings) for sales if needed and handle revoked tokens",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a second seller account to confirm the flow works for external users",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "Likely: view_profile, edit_products, view_sales, mark_sales_as_shipped, refund_sales (and possibly account). Refunds and product edits are the sensitive ones; no review process is known.",
+    "blockers": [
+      "Docs are not machine-readable (the page rendered empty), so confirm endpoint names in a browser before coding.",
+      "Likely long-lived tokens with no refresh: provide revoke/disconnect UX and rotate on 401.",
+      "Request only view_sales or view_profile unless the agent truly needs refunds or edits.",
+      "Gumroad has no known multi-user team model, so one seller login may be shared."
+    ],
+    "agentCan": "Write the OAuth flow, API client and webhook handlers, and draft the permission-explanation copy.",
+    "humanMust": "Log in to create the OAuth application and handle any 2FA; the customer clicks Authorize.",
+    "confidence": "Low",
+    "uncertain": "Gumroad API docs and help-center pages returned only page metadata (JS-rendered/redirected), so every Gumroad detail here is background knowledge. Scope names, token lifetime, and the registration menu path need to be confirmed in a browser. A later fetch rate limit prevented a retry.",
+    "sources": [
+      "https://gumroad.com/api",
+      "https://gumroad.com/help"
+    ]
+  },
+  {
+    "n": 49,
+    "id": "amazon-selling-partner",
+    "name": "Amazon Selling Partner API",
+    "category": "Ecommerce",
+    "website": "developer-docs.amazon.com/sp-api",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Login with Amazon (LWA) OAuth 2.0: sellers authorize a public app from your website or the Selling Partner Appstore, you exchange the returned code for a refresh token, then LWA access tokens call the API. Reauthorization is needed annually or when roles are added. Private apps self-authorize in Seller/Vendor Central. Restricted data (PII) needs a Restricted Data Token. AWS IAM/SigV4 was dropped in 2023 (from the brief; not re-verified).",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://developer-docs.amazon/sp-api/docs/sp-api-registration-overview",
+      "path": "Primary-account user in Seller Central (Professional account) → Apps & Services → Develop Apps (Solution Provider Portal) → developer profile → request roles → register application. Exact menu names not re-verified."
+    },
+    "access": "Application/approval required",
+    "productionGate": "You must register as an SP-API developer (profile reviewed by Amazon, security-control questionnaire, AUP/DPP/Solution Provider Portal Agreement). Roles are approved by Amazon, with restricted roles/PII needing extra justification. Public developers must list their app in the Selling Partner Appstore. Public and private apps have authorization limits.",
+    "difficulty": "Very hard",
+    "timeToFirstTest": "1-2 days (self-authorized private app) once the developer profile is approved",
+    "timeToProduction": "unknown (docs give no SLA); plan weeks, longer with restricted roles",
+    "cost": "Needs a Professional selling account (monthly fee). Amazon reportedly introduced SP-API developer fees in 2026; not verified, so confirm in the Solution Provider Portal.",
+    "roles": {
+      "team": "A primary account user of the company's Seller Central (individual seller accounts are not eligible for private seller apps) must complete developer registration; the technical/security owner answers the security questions.",
+      "console": "none documented on fetched pages; developer profile and app status live in the Solution Provider Portal.",
+      "customer": "The seller's primary account user (or a user with Manage Your Apps permission) authorizes via your login URI or the Appstore and re-authorizes yearly. Appstore authorization does not apply to vendors."
+    },
+    "testing": "Private apps can be self-authorized on your own seller or vendor account; a sandbox endpoint exists for mock responses (not re-verified); draft public apps can be authorized for testing within authorization limits (not retrieved).",
+    "steps": [
+      {
+        "do": "Upgrade or create a company Professional seller account and log in as the primary account user",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Read the Acceptable Use Policy, Data Protection Policy and Solution Provider Portal Agreement and answer security-control questions",
+        "who": "Security",
+        "agent": true
+      },
+      {
+        "do": "Submit the developer profile (under 500 words, original text), choose the minimum roles and wait for approval",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Register the app (public) with OAuth login URI and redirect URI, then build the authorize/reauthorize flow and LWA token exchange",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Self-authorize a draft or private app and run test calls; add Restricted Data Token handling if using PII roles",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Build the website guideline-compliant landing page and Appstore listing; submit the app for Appstore listing",
+        "who": "Legal",
+        "agent": true
+      },
+      {
+        "do": "Support seller reauthorization every year and on role changes",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Access is by roles (for example Product Listing, Orders, Reports, Inventory), each mapped to API operations. Roles that expose PII need Restricted Data Tokens and extra Data Protection Policy controls and approval.",
+    "blockers": [
+      "Developer registration is gated on the primary account user: use a company login, not an employee's.",
+      "Adding a role later forces every seller to reauthorize: choose roles up front.",
+      "Restricted (PII) roles require extra review and security controls; skip them unless the agent needs buyer data.",
+      "Vendor accounts cannot use Appstore authorization; they need a separate private or manual process."
+    ],
+    "agentCan": "Draft the developer profile, DPP security answers, Appstore copy and role justifications; write LWA/OAuth code, RDT handling and test calls.",
+    "humanMust": "Primary account holder logs in (2FA), accepts agreements, submits the profile and Appstore listing; the seller clicks authorize; payment of seller plan fees.",
+    "confidence": "Medium",
+    "uncertain": "Approval timelines, restricted-role criteria, authorization limits for draft apps, Appstore review steps, and the 2026 developer fee were not confirmed. The developer-docs.amazon.com host redirected to developer-docs.amazon (as supplied by the fetch tool). Menu names are from background knowledge.",
+    "sources": [
+      "https://developer-docs.amazon/sp-api/docs/sp-api-registration-overview",
+      "https://developer-docs.amazon/sp-api/docs/authorizing-selling-partner-api-applications"
+    ]
+  },
+  {
+    "n": 50,
+    "id": "fanbasis",
+    "name": "fanbasis (now Commas)",
+    "category": "Ecommerce",
+    "website": "fanbasis.com",
+    "authModel": "Other",
+    "authDetail": "No public developer docs or OAuth found. fanbasis.com redirects to commas.com ('FanBasis is now Commas'). The site lists an Enterprise 'APIs and SDKs' offering and an MCP (beta) that lets an AI assistant create checkout links, issue refunds and pull numbers; auth method for either is not stated.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://commas.com/enterprises",
+      "path": "No self-serve console found. Enterprise & APIs page, then contact Commas at https://commas.com/contact."
+    },
+    "access": "Application/approval required",
+    "productionGate": "API access appears to be part of an Enterprise offering reached by contacting Commas (likely a sales conversation). No developer registration, scopes or review process is documented publicly.",
+    "difficulty": "N/A",
+    "timeToFirstTest": "unknown",
+    "timeToProduction": "unknown",
+    "cost": "unknown (Enterprise pricing not public)",
+    "roles": {
+      "team": "Likely a company-owned Commas account and a named contact for Enterprise/API access.",
+      "console": "none documented.",
+      "customer": "Not documented. Likely each creator or account owner connects their own Commas account or provides a key or MCP connection."
+    },
+    "testing": "Not documented. Create your own Commas account to test checkout links and the MCP beta; confirm sandbox availability with Commas.",
+    "steps": [
+      {
+        "do": "Email Commas (commas.com/contact) asking whether a public API, API keys, webhooks or OAuth exist, and request docs",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Ask whether the MCP (beta) supports OAuth for third-party accounts and what scopes it exposes",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "If Enterprise APIs are offered, request sandbox keys and a reference for auth and rate limits",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "If only keys exist, design a connect screen where the user pastes a key; store it encrypted and validate with a test call",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Evaluate webhooks or CSV export as a fallback to read sales data",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Unknown. The MCP beta description implies actions like creating checkout links, issuing refunds and reading metrics, so expect refund permissions to be sensitive.",
+    "blockers": [
+      "Brand changed from FanBasis to Commas: search docs under the new name.",
+      "No public API reference was found: you may be blocked until Commas shares docs under an Enterprise agreement.",
+      "The MCP beta may only support interactive use for a single account, which does not serve multi-customer agents.",
+      "Embedded payments products may require KYC-style onboarding for your own platform."
+    ],
+    "agentCan": "Draft the outreach email and integration questionnaire, and build a paste-a-key connect flow plus test-call validation once credentials exist.",
+    "humanMust": "A human contacts Commas sales/support, signs any Enterprise or partner agreement, and completes any KYC for payment features.",
+    "confidence": "Low",
+    "uncertain": "Only the commas.com home page was read; the Enterprise & APIs page and any docs could not be fetched because of a fetch rate limit. Auth method, existence of public API docs, and MCP auth are all unconfirmed.",
+    "sources": [
+      "https://fanbasis.com",
+      "https://commas.com/"
+    ]
+  }
+]

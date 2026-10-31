@@ -1,0 +1,144 @@
+{
+  "schema": 3,
+  "id": "coda",
+  "name": "Coda",
+  "category": "Productivity & PM",
+  "website": "coda.io",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 78,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No developer OAuth app was confirmed: each customer generates an API token in their account settings and pastes it in, about 1-3 days. Whether OAuth or MCP exists is unconfirmed.",
+  "needGuide": "No — just collect each customer's API token (My account → API settings, path unconfirmed).",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "The Coda API v1 uses a per-user bearer API token (UUID format, shown once, from My account). An unrestricted token can do anything its owner can; restricted tokens (by read/write and by doc or table) are described as under development on the docs page. No OAuth 2.0 authorization-code flow for third-party apps was found in the docs reviewed. Packs OAuth works the other way (Coda to third-party services).",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (token paste UX); OAuth route unknown",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for token use. There is no developer-registered OAuth app to approve. If an OAuth or MCP option exists it was not confirmed.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No OAuth scopes; tokens follow the owner's access, optionally narrowed per doc or operation.",
+    "summary": "No OAuth scopes. Token permission follows the owner's access, optionally narrowed by operation (read/write) or object (single doc/table) if restricted tokens are available.",
+    "table": []
+  },
+  "cost": "Free; API usage depends on the token owner's workspace role",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Coda user can create a token for testing; use a dedicated service-account user for your own test docs.",
+    "Where you register: Each user creates their own token in Coda → My account (account settings) → API settings → Generate API token; there is no developer-registered app",
+    "Cost: Free; API usage depends on the token owner's workspace role"
+  ],
+  "registerAt": {
+    "url": "https://coda.io/developers/apis/v1",
+    "path": "Each user creates their own token in Coda → My account (account settings) → API settings → Generate API token; there is no developer-registered app"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Show customers where to create a token: Coda → My account → API settings → Generate API token, and what access you need",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Offer a secure paste field; store the token encrypted, never log it, and mask it in the UI",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate immediately with GET /whoami and a test doc list call; show the connected user name",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Recommend that customers create a dedicated agent user and share only the needed docs with it, then use that user's token",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Add a disconnect button that deletes the stored token and tells the user to delete it in Coda",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Ask Coda support or check current docs about OAuth or restricted-token availability before launch",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Coda user can create a token for testing; use a dedicated service-account user for your own test docs.",
+    "console": "none documented (no developer console for the REST API).",
+    "customer": "Each customer user generates and pastes their own token; it works with their workspace role (e.g. creating docs needs Doc Maker or Admin). Workspace admin controls on API tokens not confirmed.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a free Coda account, generate a token, and call GET /whoami.",
+    "Use a restricted token if available.",
+    "No sandbox needed."
+  ],
+  "blockers": [
+    {
+      "problem": "Tokens are user-level and shown once",
+      "fix": "Instruct users to copy immediately and keep a key rotation path."
+    },
+    {
+      "problem": "Unrestricted tokens grant everything the user can do",
+      "fix": "Prefer a dedicated agent user or restricted tokens."
+    },
+    {
+      "problem": "Role limits can fail calls (e.g. createDoc needs Doc Maker or Admin)",
+      "fix": "Surface clear errors."
+    },
+    {
+      "problem": "Pasted tokens are weak for enterprise security reviews",
+      "fix": "Be ready to explain storage and offer MCP/OAuth if Coda adds it."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the token-paste UX, secure storage, validation calls, and customer instructions, and run test API calls.",
+    "humanMust": "Each customer user creates their token in Coda; the developer confirms any OAuth or partnership options with Coda."
+  },
+  "uncertain": [
+    "Whether Coda now offers OAuth or a hosted MCP server for third-party apps was not confirmed (the MCP docs page was blocked by robots.txt and the Packs OAuth page 404'd).",
+    "The exact token-creation menu path is from memory of the docs wording 'My account'.",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://coda.io/developers/apis/v1",
+      "label": "coda.io/developers/apis/v1"
+    },
+    {
+      "url": "https://coda.io/packs/build/latest/guides/basics/authentication/",
+      "label": "coda.io/packs/build/latest/guides/basics/authentication"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "schema": 3,
+  "id": "front",
+  "name": "Front",
+  "category": "Support & Helpdesk",
+  "website": "front.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 14,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "partner",
+  "verdict": "Apps are private to the Front instance that built them. To reach other customers you submit the partner form, Front tests and approves, and OAuth is required unless Front grants an exception; no published timeline.",
+  "needGuide": "Yes — build the app as an admin, then go through Front's partner submission and technical approval to publish.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Authorization code grant only. Authorize at https://app.frontapp.com/oauth/authorize, exchange at https://app.frontapp.com/oauth/token with HTTP Basic (client id:secret). Access token lasts 60 minutes; refresh token 6 months, renewed with a new refresh token in its final 24 hours.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown (no timeline published)",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (no timeline)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Apps are private to the Front instance that created them. To reach all Front customers you publish: submit the partner form, Front tests and gives technical approval, then builds your listing. Front may refuse integrations case by case, and smaller teams may face security or legal review. OAuth is required for public apps unless Front grants an exception.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Scopes are selected on the app and approved by customer admins at install (scope list not verified).",
+    "summary": "Scopes are selected on the app and listed on Front's Authentication page (not fetched). Customer admins approve them at install.",
+    "table": []
+  },
+  "cost": "Free to publish; you set your own pricing",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Front company admin must create and manage the app; use a company-owned Front account.",
+    "Where you register: Settings → Company → Developers → Create app (company admin only)",
+    "Cost: Free to publish; you set your own pricing"
+  ],
+  "registerAt": {
+    "url": "https://dev.frontapp.com/docs/create-and-manage-apps",
+    "path": "Settings → Company → Developers → Create app (company admin only)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Get a Front instance and have a company admin go to Settings → Company → Developers → Create app",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Add the OAuth feature with redirect URI and scopes (exact UI labels not verified)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code flow and token refresh with Basic auth on the token endpoint",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Authorize as an admin in your own instance and run Core API test calls",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Email Front's partner team if fit is unclear, then submit the partner form with images and marketing details",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Respond to Front technical testing and any security/legal review; confirm launch",
+          "who": "Security",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Front company admin must create and manage the app; use a company-owned Front account.",
+    "console": "Collaborator sharing not documented in the fetched page.",
+    "customer": "Front admin only: end users authorizing OAuth apps must be admins (private and public). The Front MCP server is the exception.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a private app in your own Front instance and authorize as admin.",
+    "Plugin URLs can use http://localhost:3000; use ngrok for channel webhooks; dryRun=true for trigger test events.",
+    "Published apps cannot be edited, so test changes in a new app."
+  ],
+  "blockers": [
+    {
+      "problem": "Non-admin teammates cannot authorize",
+      "fix": "Customers must involve a Front admin."
+    },
+    {
+      "problem": "Core API needs OAuth for public apps unless Front grants an exception",
+      "fix": "Ask the partner team early."
+    },
+    {
+      "problem": "Published apps are locked",
+      "fix": "Keep a separate test app and email the original publication thread for changes."
+    },
+    {
+      "problem": "Browser extensions cannot be listed",
+      "fix": "Build on Core API/Plugin SDK instead."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and refresh code, test Core API calls, draft the partner form answers, listing copy and security questionnaire responses.",
+    "humanMust": "Admin creates the app in Front, submits the partner form, handles legal/security review, and commits to ongoing support."
+  },
+  "uncertain": [
+    "Review timeline; exact scope list; whether private apps can be installed in other companies' instances without publishing (docs say private to the creating instance); collaborator features."
+  ],
+  "sources": [
+    {
+      "url": "https://dev.frontapp.com/docs/oauth",
+      "label": "dev.frontapp.com/docs/oauth"
+    },
+    {
+      "url": "https://dev.frontapp.com/docs/create-and-manage-apps",
+      "label": "dev.frontapp.com/docs/create-and-manage-apps"
+    },
+    {
+      "url": "https://dev.frontapp.com/docs/partnering-with-front",
+      "label": "dev.frontapp.com/docs/partnering-with-front"
+    }
+  ]
+}

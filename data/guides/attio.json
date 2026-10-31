@@ -1,0 +1,154 @@
+{
+  "schema": 3,
+  "id": "attio",
+  "name": "Attio",
+  "category": "CRM & Sales",
+  "website": "attio.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 4,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve OAuth app, with no approval for other workspaces documented (likely none, unconfirmed). Only admins can grant workspace-level tokens, and the optional App Store listing has a code review of unknown length.",
+  "needGuide": "Short one: register the app, add redirect URIs, and plan for the admin-only workspace token rule.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization-code flow: authorize at app.attio.com/authorize, exchange at app.attio.com/oauth/token. token_level=workspace (default) or user; user-level tokens require PKCE (S256). Token lifetimes and refresh behavior were not stated in the pages I read.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days unlisted; App Store listing timeline unknown",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days unlisted",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No approval documented for OAuth apps to be authorized by other workspaces (likely none; unconfirmed). Attio's App Store listing has a publication lifecycle and code review (docs.attio.com/share/*), which I could not read. Private invites exist for unlisted sharing.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "One scope set configured in the console and shared with API keys; no scope-triggered review is documented.",
+    "summary": "API keys and OAuth share one scope set configured in the console; each endpoint lists its required scopes. Typical agent scopes: record read/write, list read/write, object configuration. Webhooks accept only workspace-level tokens.",
+    "table": []
+  },
+  "cost": "Free Attio account; no developer fee found",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any member of a free Attio workspace can open the developer console; use a company-owned workspace.",
+    "Where you register: build.attio.com → New app (name and slug) → OAuth tab: toggle OAuth 2.0, add redirect URIs, copy client ID and secret → Scopes tab",
+    "Cost: Free Attio account; no developer fee found"
+  ],
+  "registerAt": {
+    "url": "https://build.attio.com",
+    "path": "build.attio.com → New app (name and slug) → OAuth tab: toggle OAuth 2.0, add redirect URIs, copy client ID and secret → Scopes tab"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create or choose a company-owned Attio workspace and open build.attio.com",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "New app → name and slug (slug is permanent)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "OAuth tab: enable OAuth 2.0 and add HTTPS redirect URIs plus localhost for dev; copy client ID and secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Scopes tab: select minimal read/write scopes for records, lists, objects",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement authorization-code exchange; add PKCE and token_level=user if acting as the member",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Install into a test workspace as admin, run test API calls against api.attio.com/v2",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Optional: read the publication lifecycle and code review pages and submit to the App Store, or send private invites",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any member of a free Attio workspace can open the developer console; use a company-owned workspace.",
+    "console": "none documented",
+    "customer": "Only workspace admins can grant a workspace-level token. For user-level tokens any member can authorize, but an admin must approve the requested scopes at install; non-admins can send an install request.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Attio workspace (free) as the test tenant; localhost redirect URIs are used in the tutorial.",
+    "No sandbox limits documented."
+  ],
+  "blockers": [
+    {
+      "problem": "Non-admins cannot grant workspace tokens",
+      "fix": "Instruct customers to ask an admin or use an install request."
+    },
+    {
+      "problem": "User-level tokens fail without PKCE S256",
+      "fix": "Implement code_challenge."
+    },
+    {
+      "problem": "App Store listing requirements (code review) not verified",
+      "fix": "Read docs.attio.com/share/code-review.md before promising a date."
+    },
+    {
+      "problem": "Redirect URIs must match exactly",
+      "fix": "Register every environment."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth/PKCE client, choose scopes, run test calls, draft listing copy and images brief.",
+    "humanMust": "Log in to build.attio.com, copy secrets, have a customer admin authorize, and complete any App Store submission."
+  },
+  "uncertain": [
+    "Token lifetime and refresh details, whether unpublished apps can be installed by other workspaces, and App Store review timeline were not confirmed (the publishing pages could not be fetched before the fetch limit was hit)."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.attio.com/rest-api/tutorials/connect-an-app-through-oauth",
+      "label": "docs.attio.com/rest-api/tutorials/connect-an-app-through-oauth"
+    },
+    {
+      "url": "https://docs.attio.com/rest-api/guides/authentication",
+      "label": "docs.attio.com/rest-api/guides/authentication"
+    },
+    {
+      "url": "https://docs.attio.com/llms.txt",
+      "label": "docs.attio.com/llms.txt"
+    },
+    {
+      "url": "https://docs.nango.dev/integrations/all/attio",
+      "label": "docs.nango.dev/integrations/all/attio"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "$comment": "Which phases of the in-depth guides are provider approval gates. 'required' = the provider must approve before outside customers can connect on that route; 'optional' = a review you only meet if you choose that route (for example a marketplace listing). Phases not listed are work, not waiting.",
+  "google-workspace": { "Verify and publish": "required" },
+  "microsoft-365": { "Start identity checks (day 1, in parallel)": "required", "Verify the publisher": "required" },
+  "slack": { "Marketplace review": "required" },
+  "meta": { "Day 1: identity": "required", "App Review": "required" },
+  "salesforce": { "Optional: AgentExchange listing": "optional" },
+  "stripe": { "App Marketplace review": "required" },
+  "hubspot": { "Optional: Marketplace listing": "optional" },
+  "shopify": { "App Store review": "required" }
+}

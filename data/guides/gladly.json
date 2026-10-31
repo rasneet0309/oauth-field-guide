@@ -1,0 +1,135 @@
+{
+  "schema": 3,
+  "id": "gladly",
+  "name": "Gladly",
+  "category": "Support & Helpdesk",
+  "website": "gladly.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 20,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth app was found. Each customer's Gladly Administrator sets up an API user and token that you collect with their organization URL, so plan about 1-2 weeks of customer admin coordination.",
+  "needGuide": "No — just collect the organization URL, API user email and API token, but you need a Gladly tenant to test.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "REST API uses token-based HTTP Basic auth: agent email as username, API token as password, over HTTPS. Tokens are unrestricted for that user and shown once. The fetched REST docs do not mention OAuth. Gladly also has an App Platform for integrations, not reviewed here.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-3 days (needs a Gladly tenant)",
+    "timeToProduction": "1-2 weeks (customer admin coordination); unknown otherwise",
+    "firstShort": "1–3 days",
+    "prodShort": "1–2 weeks (customer admin)",
+    "difficulty": "Moderate",
+    "prodDays": 14
+  },
+  "approval": {
+    "gate": "None documented for API tokens. Gladly is enterprise sales-led, so customers likely coordinate with their Gladly contact. No OAuth app registration, review or partner agreement was found.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes: a token can do anything its user can, so use a dedicated user.",
+    "summary": "No scopes: a token can perform any API request for its user. Use a dedicated user, since a token cannot be restricted.",
+    "table": []
+  },
+  "cost": "Requires a customer Gladly contract; no developer sandbox fee found",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: No Gladly tenant is self-serve: you need a customer or partner tenant and a user with API User permission.",
+    "Where you register: Customer: admin grants API User permission (Settings → Users), then that user goes to More settings → API Tokens → Create Token",
+    "Cost: Requires a customer Gladly contract; no developer sandbox fee found"
+  ],
+  "registerAt": {
+    "url": "https://developer.gladly.com/rest/",
+    "path": "Customer: admin grants API User permission (Settings → Users), then that user goes to More settings → API Tokens → Create Token"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Add a connect form for Gladly organization URL, API user email and API token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Customer Administrator creates a dedicated agent and grants API User under Settings → Users",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "That user creates a token: More settings → API Tokens → Create Token; copy it once",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Validate with a read-only call using Basic auth (email:token) over HTTPS; handle rate limits",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store the token encrypted and document rotation; ask Gladly about App Platform or OAuth if needed",
+          "who": "Security",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "No Gladly tenant is self-serve: you need a customer or partner tenant and a user with API User permission.",
+    "console": "none documented",
+    "customer": "A Gladly Administrator grants the API User permission per agent (the agent keeps the Agent role); that user creates the token. Gladly recommends a dedicated API user for auditing.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "No public sandbox documented: use a customer-provided or partner test tenant with a dedicated API user."
+  ],
+  "blockers": [
+    {
+      "problem": "Tokens are unrestricted",
+      "fix": "Customers may balk, so document exactly which endpoints you call."
+    },
+    {
+      "problem": "Tokens are shown once and tied to the creating user",
+      "fix": "Use a dedicated API user."
+    },
+    {
+      "problem": "No self-serve sandbox",
+      "fix": "Line up a customer or partner test tenant early."
+    },
+    {
+      "problem": "Rate-limit details were not retrieved",
+      "fix": "Read the Rate Limit Handling section."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the Basic-auth client, validation calls and rate-limit handling, and draft setup instructions for the customer admin.",
+    "humanMust": "A Gladly Administrator grants permission and creates the token; a sales contact is likely needed for a test tenant or App Platform access."
+  },
+  "uncertain": [
+    "Whether Gladly offers OAuth or an App Platform marketplace to third parties (hub page mentions it, body not retrievable); rate limit values; the last 1,737 characters of the REST page were not read."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.gladly.com/rest/",
+      "label": "developer.gladly.com/rest"
+    },
+    {
+      "url": "https://developer.gladly.com/",
+      "label": "developer.gladly.com"
+    }
+  ]
+}

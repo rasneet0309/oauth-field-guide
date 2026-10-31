@@ -1,0 +1,148 @@
+{
+  "schema": 3,
+  "id": "jira",
+  "name": "Jira",
+  "category": "Productivity & PM",
+  "website": "atlassian.com/software/jira",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 74,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: enable sharing under Distribution and anyone with your authorization URL can install, with a warning that Atlassian has not reviewed the app. Since 2026-03-02 API quotas are a points pool shared across tenants.",
+  "needGuide": "Short one, but read the 2026 points-based quota rules before relying on it at scale.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "OAuth 2.0 (3LO) authorization code via auth.atlassian.com; add offline_access for a refresh token. Refresh tokens rotate (each use issues a new one and disables the old; 10-minute reuse window) and expire after 90 days of inactivity. After auth, call /oauth/token/accessible-resources to get the cloudid and use api.atlassian.com/ex/jira/{cloudid}/.... Access token lifetime comes back as expires_in (commonly 1 hour; not stated on the page).",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "1-3 days with sharing only; Marketplace approval timeline unknown",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "New apps are private (creator only). Turning on Distribution → Enable sharing lets anyone with the authorization URL install, with no review. Users see a warning that Atlassian has not reviewed the integration until it is approved through the Marketplace process. 3LO apps can only have informational Marketplace listings with limited features. Since 2026-03-02, points-based API quotas apply (65,000 points/hour in a global pool shared across all tenants); a per-tenant pool needs Atlassian review via the Partner Portal.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Granular and classic scopes added per API in the console; changing scopes forces re-consent and some resources aren't available to 3LO.",
+    "summary": "Granular and classic Jira scopes added per API in the console; request only scopes already added. Changing scopes forces re-consent. Some resources are not available to 3LO at all. offline_access is needed for refresh tokens. No scope documented as triggering review.",
+    "table": []
+  },
+  "cost": "Free to build and share; Marketplace listing terms not researched",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: An Atlassian account in the developer console owns the app; use a company-owned account (ownership transfer not documented).",
+    "Where you register: Developer console → Create → OAuth 2.0 integration → Permissions (add Jira API + scopes) → Authorization → OAuth 2.0 (3LO) → Configure callback URL → Distribution → Enable sharing",
+    "Cost: Free to build and share; Marketplace listing terms not researched"
+  ],
+  "registerAt": {
+    "url": "https://developer.atlassian.com/console/myapps/",
+    "path": "Developer console → Create → OAuth 2.0 integration → Permissions (add Jira API + scopes) → Authorization → OAuth 2.0 (3LO) → Configure callback URL → Distribution → Enable sharing"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in to developer.atlassian.com/console/myapps with a company account and click Create → OAuth 2.0 integration",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Under Permissions add Jira platform REST API and the minimum scopes (e.g. read:jira-work, write:jira-work, read:jira-user) plus offline_access in the request",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Under Authorization → OAuth 2.0 (3LO) → Configure, set the exact callback URL",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement code exchange, accessible-resources lookup (cloudid per site), rotating-refresh storage with a lock per user, and points-quota backoff using the RateLimit-Reason header",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Under Distribution, complete the sharing form and enable sharing; copy the authorization URL",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Test with an account on a separate site, including re-consent after a scope change",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Optionally request Marketplace approval to remove the unreviewed warning",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "An Atlassian account in the developer console owns the app; use a company-owned account (ownership transfer not documented).",
+    "console": "none documented in the pages read (a collaborator or ownership setting may exist in the console; unconfirmed).",
+    "customer": "The authorizing user picks sites (account-level grant spans sites, resource-level limits to selected ones). Effective access is still limited by the user's Jira permissions. An admin cannot revoke a user's grant from the Connected Apps user screen; they can only uninstall the app. Org-level app access rules not confirmed.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "The app is private by default and works for the creator's own sites.",
+    "A free Atlassian cloud developer site is the likely test tenant (not confirmed in fetched pages).",
+    "Invite a second account on another site to test the sharing link."
+  ],
+  "blockers": [
+    {
+      "problem": "Refresh token reuse or 90 days of inactivity gives invalid_grant",
+      "fix": "Store each new refresh token immediately, lock refreshes, and prompt re-auth."
+    },
+    {
+      "problem": "Customers see an 'unreviewed' warning",
+      "fix": "Start Marketplace approval early or brief admins in advance."
+    },
+    {
+      "problem": "Shared 65,000 points/hour global pool can throttle all customers together",
+      "fix": "Cache, batch, and request tier 2 via Partner Portal if usage is large."
+    },
+    {
+      "problem": "Each site has a different cloudid and users may authorize several sites",
+      "fix": "Always key tokens and calls by cloudid."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the 3LO flow, token storage, cloudid routing, rate-limit handling, Marketplace listing copy, and run test calls against a dev site.",
+    "humanMust": "Console sign-in and app creation, completing the sharing form with company details, any Marketplace submission, and customer admin communication."
+  },
+  "uncertain": [
+    "The vendor/privacy info required by the Distribution form, Atlassian org-admin app access rules, console collaborator roles, Forge vs OAuth tradeoffs, and Marketplace review timelines were not confirmed (admin support page failed; fetch budget ended).",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+      "label": "developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps"
+    },
+    {
+      "url": "https://developer.atlassian.com/cloud/jira/platform/rate-limiting/",
+      "label": "developer.atlassian.com/cloud/jira/platform/rate-limiting"
+    }
+  ]
+}

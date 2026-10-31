@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "lastChecked": "2026-10-28",
+  "profileFiles": [
+    "crm",
+    "support",
+    "comms",
+    "marketing",
+    "ecommerce",
+    "data",
+    "devinfra",
+    "productivity",
+    "finance",
+    "ai"
+  ],
+  "exemplars": [
+    "linear",
+    "pinterest",
+    "gorgias",
+    "firecrawl",
+    "mermaid-cli"
+  ],
+  "guideOrder": [
+    "google-workspace",
+    "microsoft-365",
+    "slack",
+    "github",
+    "notion",
+    "meta"
+  ]
+}

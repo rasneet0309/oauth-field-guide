@@ -1,0 +1,776 @@
+[
+  {
+    "n": 31,
+    "id": "google-ads",
+    "name": "Google Ads",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "ads.google.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code OAuth 2.0 (multi-user web-app scenario) with scope https://www.googleapis.com/auth/adwords. IMPORTANT CHANGE: Google's docs (page updated 2026-10-19) say developer tokens were sunset on 2026-09-09; access levels are now granted per Google Cloud project (the project that owns the OAuth client or service account). The older 'developer token from an MCC manager account' model in the hint is stale.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://console.cloud.google.com/apis/library/googleads.googleapis.com",
+      "path": "Cloud Console -> APIs & Services -> Library -> Google Ads API -> Enable; then Google Ads API -> Overview -> Upgrade access level; OAuth client under Google Auth Platform -> Clients -> Create client (Web application)"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Access level of the Cloud project. Test (auto, 15,000 ops/day, test accounts only) cannot touch production (v25+ returns CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION). Explorer (automated; 2,880 prod ops/day; blocks account creation, user management, planning services, billing). Basic (15,000 ops/day; needs completed brand verification; automated). Standard (unlimited; manual compliance audit, ~10 business days; may need demo sign-in for external users and Required Minimum Functionality). Standard is the realistic level for a multi-customer agent. OAuth consent-screen verification of the adwords scope is likely also needed (see uncertain).",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours (Test access is automatic once the API is enabled)",
+    "timeToProduction": "Explorer same day; Basic days after brand verification; Standard ~10 business days after applying (plus any OAuth verification time) - likely 2-5 weeks end to end",
+    "cost": "Free (no API usage charge; customers pay for ad spend)",
+    "roles": {
+      "team": "A Google Cloud project owner/editor on a company-owned (not personal) Google account who can enable the API, run the Auth Platform branding and verification, and apply for access. A Google Ads manager (MCC) account is no longer needed for basic access, only to link and manage multiple accounts via API.",
+      "console": "Google Cloud IAM roles (Owner/Editor) - add via IAM & Admin -> IAM -> Grant access. Access level belongs to the project, so every OAuth client in it shares the level.",
+      "customer": "A Google Ads user with access to the ad account (or a manager-account user) who completes the consent screen; for manager linking, an account admin accepts the link. Likely blockers: Workspace admins restricting third-party app access to Google APIs."
+    },
+    "testing": "Test access: 15,000 ops/day on Google Ads test accounts (create a test manager account). Explorer/Basic allow production accounts at low volume. Keep the consent screen in Testing status for dev (refresh tokens then expire in 7 days - general Google behavior, not confirmed on the pages read).",
+    "steps": [
+      {
+        "do": "Create or pick a company-owned Cloud project and enable Google Ads API (gcloud services enable googleads.googleapis.com); Test access is granted automatically",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Google Auth Platform -> Branding/Audience/Data access: set app name, logo, authorized domain, privacy policy; add the adwords scope; complete brand verification",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Google Auth Platform -> Clients -> Create client -> Web application; add HTTPS redirect URIs; store client secret in a secret manager",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization-code flow with access_type=offline and prompt=consent; store refresh tokens per customer; send login-customer-id when acting through a manager account",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Apply for Explorer: Google Ads API -> Overview -> Upgrade access level; test against test accounts",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "After brand verification clears, apply for Basic, then click Start application for Standard; describe the tool, audience and permissible use, and provide demo sign-in",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Submit OAuth app verification for the sensitive adwords scope if serving more than 100 users or removing the unverified-app warning (likely required)",
+        "who": "Security",
+        "agent": false
+      },
+      {
+        "do": "Watch email for compliance questions and answer promptly",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Single scope https://www.googleapis.com/auth/adwords gives read and write to the user's Google Ads accounts; no read-only variant is documented in the pages read. Standard access also has a 'permissible use' declaration (ad management, reporting, or keyword research) that limits which API features you may use.",
+    "blockers": [
+      "Following old guides and hunting for an MCC developer token: API Center applications are no longer processed; apply from the Cloud project's Google Ads API Overview page instead.",
+      "Explorer blocks account creation, user management, planning services and billing, and caps production at 2,880 ops/day; apply for Basic/Standard before onboarding many customers.",
+      "Basic needs brand verification with no warnings first; fix branding and domain ownership on the consent screen before applying.",
+      "Test-access projects fail against production accounts with CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION from v25; do not ship with Test access."
+    ],
+    "agentCan": "Enable the API and create resources via gcloud, write the OAuth and token-refresh code, handle login-customer-id, draft the Standard-access application answers, tool description and permissible-use text, run test calls against test accounts.",
+    "humanMust": "Sign in to Cloud Console with 2FA, accept terms, complete brand and OAuth verification, submit the access applications, supply demo sign-in credentials, and answer Google compliance emails.",
+    "confidence": "Medium",
+    "uncertain": "Whether the adwords scope is classified sensitive and what OAuth verification timeline applies was not confirmed on fetched pages (scopes page was truncated); my understanding is that it is sensitive. Basic-level review time not stated. Search and fetch budgets ran out, so community timelines were not checked.",
+    "sources": [
+      "https://developers.google.com/google-ads/api/docs/access-levels",
+      "https://developers.google.com/google-ads/api/docs/api-policy/developer-token",
+      "https://developers.google.com/google-ads/api/docs/oauth/overview",
+      "https://developers.google.com/google-ads/api/docs/oauth/cloud-project"
+    ]
+  },
+  {
+    "n": 32,
+    "id": "meta-ads",
+    "name": "Meta Ads",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "developers.facebook.com/docs/marketing-apis",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Facebook Login OAuth dialog with scope parameter (ads_read, ads_management); user clicks Allow. Token lifetimes were not on the pages read; commonly short-lived tokens are exchanged for ~60-day long-lived tokens, and system-user tokens exist for business-level access (from general knowledge, unverified here).",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.facebook.com/apps/",
+      "path": "My Apps -> Create App -> choose the Marketing API (create and manage ads) use case; App settings -> Basic for App ID/secret; Use cases -> Customize -> Permissions and features; App Review -> Permissions and Features"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Managing other people's ad accounts needs Advanced Access to ads_read and/or ads_management via App Review, and Advanced Access requires Business Verification (since 2023-02-01). Separately, the Marketing API tier starts at Limited access (development only, heavily rate-limited, not for live advertisers) and upgrades to Full access after App Review plus 500 successful Marketing API calls in the last 15 days with under 15% errors over the last 500.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "1-2 hours (dev mode, app role users only)",
+    "timeToProduction": "unknown; likely 3-8 weeks (Business Verification plus one or more App Review rounds plus the 15-day activity requirement)",
+    "cost": "Free (customers pay for ad spend)",
+    "roles": {
+      "team": "Developer with a personal Facebook login who is an Administrator on the app and an Admin of the company's Business (portfolio). Use a company-owned Business, not a personal one.",
+      "console": "App Dashboard -> App roles -> Roles -> Add People (Administrators, Developers, Testers). Only a Business Admin can finish Business Verification, though any app Administrator can link the app to a Business.",
+      "customer": "A person with a role on the ad account (admin or advertiser, via their Business portfolio) who grants permission in the OAuth dialog. Business-level admins can restrict who holds ad account roles (likely)."
+    },
+    "testing": "Until approved, only people with a role on the app can grant permissions (dev mode). Limited tier allows 1 system user plus 1 admin system user; Full allows 10 plus 1. Both tiers can reach unlimited ad accounts. A Marketing API sandbox may exist but was not confirmed.",
+    "steps": [
+      {
+        "do": "Register as Meta developer and create an app with the Marketing API use case in the App Dashboard, owned by the company Business",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Settings -> Basic: add privacy policy URL, app icon, data deletion URL; set Valid OAuth Redirect URIs",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Settings -> Basic -> Verification -> Start Verification; Business Admin completes Business Verification with legal documents",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Implement OAuth with scope ads_read,ads_management; exchange for long-lived tokens; test with role users and own ad accounts",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "App Review -> Permissions and Features: request Advanced Access for ads_read/ads_management with screencast of the full login-to-ad-action flow and reviewer test instructions",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Switch app to Live; generate at least 500 successful Marketing API calls in 15 days with under 15% errors to reach Full tier",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Keep traffic steady: Advanced Access lapses if the 500-calls-in-15-days and under 15% error rule is not maintained",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "ads_read (read ad data) and ads_management (create and edit ads). Standard Access is enough only for your own ad accounts; both need Advanced Access to serve other businesses. Related permissions such as business_management or page permissions (not covered by pages read) likely need review as well.",
+    "blockers": [
+      "Advanced Access is blocked until Business Verification completes; start it first because only a Business Admin can finish it.",
+      "App Review rejects the whole submission if Meta cannot access the app; provide working test credentials and a complete screencast.",
+      "Naming confusion: permission levels (Standard/Advanced) versus Marketing API tiers (Limited/Full, renamed from Standard/Advanced); the Full tier needs 500 calls in 15 days and an error rate under 15%.",
+      "Limited tier is for development only and heavily rate-limited, so do not onboard live advertisers on it."
+    ],
+    "agentCan": "Write OAuth and token-exchange code, generate call volume and monitor error rates, draft App Review use-case descriptions per permission, test-instruction text and screencast scripts, run test calls.",
+    "humanMust": "Business Verification (legal documents, Business Admin), login and 2FA, recording the screencast, accepting platform terms, submitting App Review.",
+    "confidence": "Medium",
+    "uncertain": "Business Verification and App Review timelines, token lifetimes, sandbox availability and exact current use-case names were not on the pages read; search budget ran out, so no community timelines were checked.",
+    "sources": [
+      "https://developers.facebook.com/docs/marketing-api/overview/authorization",
+      "https://developers.facebook.com/docs/development/release/business-verification",
+      "https://developers.facebook.com/docs/resp-plat-initiatives/individual-processes/app-review",
+      "https://developers.facebook.com/docs/marketing-api/get-started"
+    ]
+  },
+  {
+    "n": 33,
+    "id": "linkedin-ads",
+    "name": "LinkedIn Ads",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "linkedin.com/developers",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "3-legged authorization-code OAuth only (client credentials is not available for marketing use). Access tokens last 60 days; programmatic refresh tokens are limited to a small set of partners; PKCE is not documented. Members must accept all requested scopes together.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://www.linkedin.com/developers/apps/new",
+      "path": "Developer Portal -> Create app (associate a LinkedIn Page) -> Products tab -> Advertising API -> Request access (access form); ad accounts: Products -> View Ad Accounts -> Add Ad Account"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Advertising API starts in the Development tier after an access application: you can edit at most 5 ad accounts you administer, create 1 test ad account via API, and real accounts must be made in Campaign Manager. Serving many customers needs the Standard tier, requested by a support ticket on the Developer Support Portal with a video showing the platform creating, editing or optimizing LinkedIn campaigns. LinkedIn selects partners at its discretion and may decline even qualifying ones; no timeline is published.",
+    "difficulty": "Very hard",
+    "timeToFirstTest": "days to weeks (Development tier needs approval; timeline not documented)",
+    "timeToProduction": "unknown; likely 6-12+ weeks (inference, no published timeline)",
+    "cost": "Free (no fee documented)",
+    "roles": {
+      "team": "Someone who can create a developer app tied to the company's LinkedIn Page; the Page admin must approve the association and verification (likely via a verification link in the app Settings, not confirmed on the pages read). Use a company-owned LinkedIn login.",
+      "console": "none documented in the sources read; the Developer Portal app likely has a team members area (unconfirmed).",
+      "customer": "A member holding a role on the ad account (rw_ads needs ACCOUNT_BILLING_ADMIN, ACCOUNT_MANAGER, CAMPAIGN_MANAGER or CREATIVE_MANAGER) or on the Company Page; their token fails without the role. A Company Page can link many ad accounts, but an ad account links to only one Page, permanently."
+    },
+    "testing": "Development tier: Token Generator in the Developer Portal (or the Postman workspace); map up to 5 ad accounts you administer; 1 API-created test ad account. Customer ad accounts beyond those cannot be used until Standard.",
+    "steps": [
+      {
+        "do": "Create or confirm a LinkedIn Company Page; Page super admin available",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create the app at linkedin.com/developers/apps/new and associate it with the Page; have the Page admin verify it",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Read the restricted use-cases list, then Products tab -> Advertising API -> request access and complete the form",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "After approval, Products -> View Ad Accounts -> Add Ad Account (9-digit ID from Campaign Manager); generate a test token",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Build 3-legged OAuth (authorization at /oauth/v2/authorization, tokens at /oauth/v2/accessToken); handle 60-day expiry with re-auth",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Record a demo video of the platform creating, editing and optimizing campaigns on LinkedIn",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Submit Standard tier upgrade ticket at linkedin.com/help/linkedin/ask/dsapi; follow up through support",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Use current versioned API; version 202511 sunsets 2026-11-16",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "r_ads, rw_ads, r_ads_reporting for advertising; rw_organization_admin and r_organization_admin for Page admin data; w_organization_social and r_organization_social for Page posts. Scopes are granted automatically once API access is approved; the member also needs the matching role.",
+    "blockers": [
+      "Development tier caps at 5 editable ad accounts, so a multi-customer agent cannot launch until Standard is approved.",
+      "Standard is discretionary with no published timeline or criteria; plan for ticket follow-ups and a polished demo video.",
+      "Token from a member without a role on the Page or ad account returns errors; check roles with /adAccountUsers and /organizationAcls.",
+      "60-day access tokens and no standard refresh tokens mean customers must re-authorize periodically unless you are a partner with programmatic refresh."
+    ],
+    "agentCan": "Draft the access-form use case and Standard upgrade narrative, write the OAuth and role-check code, script the demo flow, run API test calls with the generated token, migrate to the current API version.",
+    "humanMust": "Page admin verification, LinkedIn login and 2FA, submitting the access form and support ticket, recording the demo video, communicating with LinkedIn support.",
+    "confidence": "Medium",
+    "uncertain": "Company Page verification steps, Development-tier approval time and Standard review time were not documented in the fetched pages; the increasing-access page without a version parameter errored; no community sources were checked because search and fetch budgets ran out.",
+    "sources": [
+      "https://learn.microsoft.com/en-us/linkedin/marketing/increasing-access?view=li-lms-2026-10",
+      "https://learn.microsoft.com/en-us/linkedin/marketing/quick-start",
+      "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started",
+      "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+      "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/getting-started?view=li-lms-2026-10"
+    ]
+  },
+  {
+    "n": 34,
+    "id": "gohighlevel",
+    "name": "GoHighLevel",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "gohighlevel.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code grant for v2 APIs; token endpoint https://services.leadconnectorhq.com/oauth/token with user_type Company (agency tokens) or Location (sub-account tokens). Access tokens last about 24 hours; refresh tokens last 1 year if unused and rotate on each use. An agency token can mint location tokens via /oauth/locationToken. PKCE not documented.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://marketplace.gohighlevel.com",
+      "path": "Developer Marketplace -> My Apps -> Create App; Advanced Settings -> Auth (scopes, redirect URL, Installation URL); Manage -> Secrets -> Client Keys -> Add"
+    },
+    "access": "Self-serve",
+    "productionGate": "Private apps need no review but are not listed. Public Marketplace listing requires review against the App Review Guidelines (HTTPS redirect on a verified domain, minimal scopes, working install, support channel with 24-hour first response, uninstall/disconnect flow, and a Loom demo video as the final submission step). Whether private apps can be installed by unrelated customers at scale was not confirmed.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "unknown; private install likely days, public listing review time not published",
+    "cost": "Free developer account (likely); customers need their own HighLevel subscription",
+    "roles": {
+      "team": "A developer with a HighLevel Developer Account (sign in at marketplace.gohighlevel.com); use a company-owned login. Whether a paid agency plan is required was not stated.",
+      "console": "none documented in the pages read.",
+      "customer": "A sub-account (location) admin installs for one location; an agency admin installs at agency level or in bulk, which yields Company-type tokens. Target User and Who Can Install settings decide who sees the app."
+    },
+    "testing": "Create a Sandbox (App Test) account and a Private Integration Token for it, install the app through the private install link, and verify OAuth, scopes, API behavior and webhooks; a pre-release checklist is in the App Testing Guide.",
+    "steps": [
+      {
+        "do": "Sign in to marketplace.gohighlevel.com -> My Apps -> Create App; set App Type Private, Target User Sub-account, Who Can Install, Listing Type",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Advanced Settings -> Auth: pick minimum scopes, add HTTPS redirect URL, copy the Installation URL",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Manage -> Secrets -> Client Keys -> Add; store client ID and secret (secret shown once)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Create a Sandbox account and install the app; exchange code at /oauth/token with the right user_type; refresh and persist rotated refresh tokens",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "For agency installs, call /oauth/locationToken per sub-account and handle uninstall events",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Complete Profile (logo, category, description, screenshots), record a Loom demo of install, setup, core flow, errors and disconnect",
+        "who": "Design",
+        "agent": false
+      },
+      {
+        "do": "Switch to Public and submit for review; set up support email or phone",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Scopes are selected per app in Advanced Settings -> Auth (for example contacts, conversations, workflows, locations); request only what you need because reviewers ask you to justify them. The exact scope list is in the Scopes docs (not read).",
+    "blockers": [
+      "Using the wrong user_type returns the wrong token level; Company tokens cannot make location calls without exchanging for a location token.",
+      "Refresh tokens rotate; failing to save the new one breaks the connection until reinstall.",
+      "Whitelabel apps must not show HighLevel or GHL branding anywhere, including OAuth screens.",
+      "Redirect URLs must be HTTPS and match a verified domain or review fails."
+    ],
+    "agentCan": "Write the OAuth and location-token code, set up webhook handlers, draft listing copy, scope justifications and the Loom script, run sandbox test calls.",
+    "humanMust": "Developer account sign-in, install into the sandbox, record the Loom demo, submit for review, provide support contact.",
+    "confidence": "Medium",
+    "uncertain": "Public review timeline, private-app install limits for external customers, and whether an agency plan is needed to host a developer account were not documented on the pages read.",
+    "sources": [
+      "https://marketplace.gohighlevel.com/docs/oauth/CreateMarketplaceApp",
+      "https://marketplace.gohighlevel.com/docs/oauth/AppReviewGuidelines",
+      "https://marketplace.gohighlevel.com/docs/Authorization/OAuth2.0",
+      "https://marketplace.gohighlevel.com/docs/oauth/AppTestingGuide"
+    ]
+  },
+  {
+    "n": 35,
+    "id": "mailchimp",
+    "name": "Mailchimp",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "mailchimp.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code flow: authorize at https://login.mailchimp.com/oauth2/authorize, exchange at https://login.mailchimp.com/oauth2/token. Access tokens have no expiry and there is no refresh token; a token stays valid until the user revokes or is removed. After auth, call https://login.mailchimp.com/oauth2/metadata (header Authorization: OAuth <token>) to get dc, api_endpoint and login_url, since each account lives on a data center like us19 (metadata endpoint from general knowledge; the pages read did not show it).",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://admin.mailchimp.com/account/oauth2/",
+      "path": "Mailchimp account -> Registered Apps (OAuth2) -> Register An App -> fill form -> Create; copy client_id and client_secret (secret shown once)"
+    },
+    "access": "Self-serve",
+    "productionGate": "None for connecting customers: registering an app is enough and the docs describe no review. Mailchimp Marketplace listing is optional, requires OAuth, and goes through the Integration Partner Program (requirements not read).",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review)",
+    "cost": "Free to register; customers need their own Mailchimp account (plan limits apply to their audiences)",
+    "roles": {
+      "team": "A user with a Mailchimp login on a company-owned account to register the app; the secret can be rotated from the same page if exposed.",
+      "console": "none documented; app registration belongs to the Mailchimp user who registered it, so share via a company login.",
+      "customer": "A Mailchimp user with access to the account approves in the consent screen; the token carries that user's access. Which user roles may authorize apps was not documented (likely Admin or Owner is safest)."
+    },
+    "testing": "Use your own Mailchimp account (free tier) plus a second account as a stand-in customer; http://127.0.0.1 redirect URIs work for local development. No sandbox beyond normal accounts.",
+    "steps": [
+      {
+        "do": "Log in as the company Mailchimp user; open Registered Apps and click Register An App; enter name, description, company, HTTPS redirect URI",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Copy client_id and client_secret to a secret manager (secret shown once)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Redirect users to https://login.mailchimp.com/oauth2/authorize?response_type=code&client_id=...&redirect_uri=...",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "POST the code to /oauth2/token with grant_type=authorization_code, client_id, client_secret, redirect_uri to get access_token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call /oauth2/metadata to read dc and api_endpoint; store them per customer and call https://<dc>.api.mailchimp.com/3.0/",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "On 401 treat the token as revoked and ask the user to reconnect; delete stored tokens and sync configs on disconnect",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "The OAuth guides read show no scope parameter; the token acts with the authorizing user's access to the whole account (likely, unconfirmed). There are no scope-based review gates.",
+    "blockers": [
+      "Hard-coding a data center fails for other customers; always read dc from the metadata endpoint.",
+      "Client secret is shown only once; rotation invalidates old-secret requests with 401.",
+      "Tokens never refresh, so a 401 means revoked and a full re-authorization is required.",
+      "Marketplace listing requires OAuth plus Integration Partner Program steps not documented here."
+    ],
+    "agentCan": "Write the full OAuth, metadata and API client code, handle revocation, run test calls, draft listing copy.",
+    "humanMust": "Log in to register the app, store the secret, and apply to the Integration Partner Program if listing is wanted.",
+    "confidence": "Medium",
+    "uncertain": "Metadata endpoint details, who can register apps, role needed to authorize, and Marketplace requirements were not on the pages read. No PKCE mention found.",
+    "sources": [
+      "https://mailchimp.com/developer/marketing/guides/access-user-data-oauth-2/",
+      "https://mailchimp.com/developer/marketing/api-concepts/authentication/oauth-2/"
+    ]
+  },
+  {
+    "n": 36,
+    "id": "klaviyo",
+    "name": "Klaviyo",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "klaviyo.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code with mandatory PKCE (S256) for public and confidential clients. Authorize at https://www.klaviyo.com/oauth/authorize (code valid 5 minutes); token endpoint https://a.klaviyo.com/oauth/token with Basic auth, server-to-server only. Access token about 1 hour; refresh token lasts until uninstall but is revoked after 90 days unused (10 refreshes per minute; revoke at /oauth/revoke).",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://www.klaviyo.com/manage-apps",
+      "path": "Klaviyo -> Manage apps (klaviyo.com/manage-apps) -> Create app; set scopes and redirect URLs; Save"
+    },
+    "access": "Self-serve",
+    "productionGate": "None to connect customers: share the installation URL directly (unlisted apps work), though users see an OAuth warning that the app has not been reviewed by Klaviyo. App Marketplace listing is optional but needs at least 5 active customer installs with live API activity (test accounts do not count), the once-per-company integration registration form, a per-app security form, and Klaviyo review; Klaviyo can decline for any reason.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "1-3 days unlisted; Marketplace listing timeline not published (likely several weeks after the 5 installs)",
+    "cost": "Free",
+    "roles": {
+      "team": "A Klaviyo user with owner, admin or manager role in the developer's company Klaviyo account creates OAuth apps.",
+      "console": "none documented for sharing app ownership beyond Klaviyo account roles (owner, admin, manager); add teammates via normal account user management.",
+      "customer": "A Klaviyo user who can approve the installation (role requirement not documented, likely owner/admin/manager). Customers see the unreviewed-app warning until the listing is approved."
+    },
+    "testing": "Any Klaviyo account (including your own or a trial) works for dev; example apps exist on GitHub (Pet Party Planner, Node Express). Test accounts do not count toward the 5 installs required for listing.",
+    "steps": [
+      {
+        "do": "As owner/admin/manager open klaviyo.com/manage-apps and click Create app; name it",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Set scopes (keep accounts:read; least permissive set) and redirect URLs; Save; copy client ID and secret (secret shown once)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement PKCE: new verifier (43-128 chars) and S256 challenge per request, store keyed by state; redirect to /oauth/authorize",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exchange code at https://a.klaviyo.com/oauth/token with Basic auth; refresh about hourly and treat invalid_grant as uninstall",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Share the install URL with first customers; accept the warning screen",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "After 5 active installs, complete the registration form, security form and listing fields (logo SVG, 4-8 images, user guide, privacy policy), add a test-instructions Google Doc, submit",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Scopes are listed in the app settings and requested as a space-separated list; accounts:read is mandatory. Klaviyo requires the least permissive scope set and rejects apps requesting excess scopes in review.",
+    "blockers": [
+      "PKCE is required; omit the verifier and the token exchange fails.",
+      "Chicken-and-egg: Marketplace needs 5 live installs, so early customers see an unreviewed warning; brief them in advance.",
+      "Token requests via www.klaviyo.com are blocked (since 2025-03-31); use a.klaviyo.com.",
+      "Refresh token unused for 90 days is revoked; schedule periodic refreshes."
+    ],
+    "agentCan": "Implement PKCE OAuth and refresh, draft listing text, scope justification and the testing-instructions doc, run test calls.",
+    "humanMust": "Create the app in the UI, complete the registration and security forms and accept terms, produce the logo and screenshots, submit and respond to Klaviyo reviewers.",
+    "confidence": "High",
+    "uncertain": "Marketplace review timeline, customer role required to install, and whether Klaviyo plan tier affects app creation were not documented.",
+    "sources": [
+      "https://developers.klaviyo.com/en/docs/set_up_oauth",
+      "https://developers.klaviyo.com/en/docs/create_a_public_oauth_app",
+      "https://developers.klaviyo.com/en/docs/submit_your_app_for_review"
+    ]
+  },
+  {
+    "n": 37,
+    "id": "systeme-io",
+    "name": "systeme.io",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "systeme.io",
+    "authModel": "API key / token only",
+    "authDetail": "Public API authenticated with a per-account API key (generally sent in an X-API-Key header, from general knowledge, unverified here). No OAuth app model was found. The developer docs at developer.systeme.io could not be fetched (blocked by robots rules), so details are unconfirmed.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://systeme.io",
+      "path": "Customer logs in -> Settings -> Public API keys (exact menu name unverified; the site footer links a 'Public API' help article)"
+    },
+    "access": "Self-serve",
+    "productionGate": "None known. There is no developer app registration, review, or partner approval documented; each customer creates a key and pastes it into your app. If you want OAuth or a native integration, ask systeme.io support or partnerships (no program found).",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review)",
+    "cost": "Free to build; API access may depend on the customer's plan (not confirmed)",
+    "roles": {
+      "team": "Any developer with a systeme.io account on which to create a test key; use a company-owned test account.",
+      "console": "none documented.",
+      "customer": "The account owner (or a user permitted to see Settings) creates the API key and pastes it into your app; revoking the key cuts access."
+    },
+    "testing": "Create your own systeme.io account (free plan likely) and a test key; run read calls (for example list contacts) and write calls on dummy contacts.",
+    "steps": [
+      {
+        "do": "Customer opens systeme.io -> Settings -> Public API keys, creates a key, and copies it",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Build a connect screen where the customer pastes the key; store it encrypted and never log it",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate immediately with a cheap read call (list contacts, limit 1) sending the key header; show a clear error on 401",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Document in-app how to create and revoke the key and which plan is required",
+        "who": "Design",
+        "agent": true
+      },
+      {
+        "do": "Check the Public API docs for webhooks or polling, then choose sync method; rate-limit client calls",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Email systeme.io support to ask whether an OAuth or partner integration is planned",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "No scopes known: an API key presumably grants account-wide access to contacts, tags and similar resources. Ask customers to use a dedicated key so it can be revoked independently.",
+    "blockers": [
+      "A shared key gives full account access; store encrypted and offer easy key rotation.",
+      "API availability by plan is unconfirmed; tell customers which plan is required once verified.",
+      "Without OAuth, you cannot offer one-click connect or per-scope consent.",
+      "Docs could not be fetched here; read the live API reference before building."
+    ],
+    "agentCan": "Write the key-validation and API client code, draft the customer instructions, run test calls with a test key.",
+    "humanMust": "Customer creates and pastes the key; a human contacts systeme.io about OAuth or a partner path.",
+    "confidence": "Low",
+    "uncertain": "Only the systeme.io homepage was fetched (it lists a Public API); developer.systeme.io was blocked by robots rules and not worked around; help center and pricing fetches hit the hourly limit. Key location, header name, plan requirements, rate limits and webhooks are unverified.",
+    "sources": [
+      "https://systeme.io/"
+    ]
+  },
+  {
+    "n": 38,
+    "id": "pinterest",
+    "name": "Pinterest",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "developers.pinterest.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code at https://www.pinterest.com/oauth/; token endpoint https://api.pinterest.com/v5/oauth/token with Basic auth. Access tokens last 30 days; only continuous refresh tokens are supported (60-day expiry, refreshable indefinitely; apps created before 2025-09-25 must send continuous_refresh=true). PKCE not documented. Sandbox host api-sandbox.pinterest.com.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.pinterest.com/apps/",
+      "path": "Pinterest business account -> developers.pinterest.com -> My apps -> Connect app -> request Trial access; later Manage -> Configure -> Redirect URIs; My apps -> Upgrade for Standard access"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Two reviews. Trial access is reviewed by Pinterest before you get an app ID and secret; Trial apps have daily rate limits and Pins and Boards they create are visible only to the creator (sandbox). Standard access (higher per-minute limits, recommended for production) requires an Upgrade request with a demo video showing the OAuth flow, an API action and that no sensitive data is stored; Pinterest asks even for a single-user app.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-3 days (Trial approval email)",
+    "timeToProduction": "about 1-3 weeks (Trial review plus Standard review; Pinterest says allow a few days before following up)",
+    "cost": "Free",
+    "roles": {
+      "team": "A Pinterest business account administers the app, with a verified email and accepted Developer Terms of Service under My apps. Use a company-owned business account.",
+      "console": "none documented in the pages read.",
+      "customer": "The Pinterest account owner who authorizes in the OAuth dialog; for ads:read, access to the relevant ad account is likely required."
+    },
+    "testing": "After Trial approval you get product-limited test tokens (24-hour expiry) and a Sandbox that does not affect production. Trial output is visible only to its creator.",
+    "steps": [
+      {
+        "do": "Log in with a company business account, verify email and accept the Developer Terms of Service under My apps",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Connect app: complete the request form (name without the word Pinterest, use case, privacy policy link) and submit for Trial",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "After approval, copy app ID and secret; add redirect URIs under Manage -> Configure -> Redirect URIs (exact match)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement OAuth with Basic-auth token exchange; refresh before 60 days; use the sandbox for test calls",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Record a demo video showing the OAuth flow and one API action (Postman or terminal is accepted)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "My apps -> Upgrade on the app card: verify details, upload the video, submit; watch email",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Examples: boards:read (and boards:read_secret), pins:write (and pins:write_secret), ads:read. Apps registered on or after 2026-09-14 may get 403 PINNER_DATA_ACCESS_DENIED when requesting boards or Pins without user authorization. Scope-specific review gates were not documented beyond the Standard upgrade.",
+    "blockers": [
+      "Trial denial for an inaccessible privacy policy or vague app description; publish a working policy and a specific use case.",
+      "Standard denial when the demo does not show authentication, uses non-OAuth methods like credentials or cookies, or lacks a live Pinterest integration.",
+      "Trial-created Pins are visible only to the creator, so production behavior cannot be validated until Standard.",
+      "Refresh tokens expire after 60 days unused; refresh regularly or users must re-authorize."
+    ],
+    "agentCan": "Write the OAuth and refresh code, draft the use-case and privacy-policy text, script the demo flow, run sandbox test calls.",
+    "humanMust": "Sign in and accept developer terms, submit the Trial and Upgrade requests, record the demo video, handle appeals through the Help Center.",
+    "confidence": "High",
+    "uncertain": "Exact review durations are not published beyond 'a few days'; scope list and per-scope requirements were not read in full; PKCE not mentioned.",
+    "sources": [
+      "https://developers.pinterest.com/docs/getting-started/set-up-app/",
+      "https://developers.pinterest.com/docs/key-concepts/access-tiers/",
+      "https://developers.pinterest.com/docs/getting-started/authentication-and-scopes/",
+      "https://developers.pinterest.com/docs/getting-started/apply-for-standard-access/"
+    ]
+  },
+  {
+    "n": 39,
+    "id": "threads",
+    "name": "Threads (Meta)",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "developers.facebook.com/docs/threads",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Meta app with the Threads use case; authorization window code lasts 1 hour and is exchanged for a short-lived token (1 hour), then a long-lived token (60 days) that can be refreshed. Permission grants last 90 days for public profiles and are extended by refreshing; private profiles cannot extend an expired grant and must re-grant. Authorize and token hosts (threads.net/oauth/authorize, graph.threads.net) are from general knowledge, since the token page failed to fetch.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.facebook.com/apps/",
+      "path": "My Apps -> Create App -> Threads use case; use the separate Threads app ID and secret shown in the app (not the main app ID/secret); App roles for testers; App Review -> Permissions and Features"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Users without a role on the app can grant permissions only after each permission passes App Review and the app is published. Business Verification is likely also required for Advanced Access (Meta states Advanced Access requires it), though the Threads page did not say so.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours (tester invite accepted in Threads)",
+    "timeToProduction": "unknown; likely 2-6 weeks including Business Verification and App Review",
+    "cost": "Free",
+    "roles": {
+      "team": "A developer who is Administrator on the Meta app; an Admin of the company Business to complete Business Verification (likely). Use a company-owned Business portfolio.",
+      "console": "App Dashboard -> App roles -> Roles -> Add People; for Threads testers, send an invitation from App roles and the user accepts it in their Threads account settings.",
+      "customer": "The Threads account owner (any account holder) authorizes in the OAuth window; no admin approval is documented. Private-profile users must re-grant after expiry."
+    },
+    "testing": "Threads Testers (invited via App roles, accepted in Threads settings) can grant permissions any time before review. Media for publishing must be at a publicly reachable URL at each attempt.",
+    "steps": [
+      {
+        "do": "Create a Meta app with the Threads use case; note the Threads app ID and secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "App roles: invite test Threads accounts; each accepts in Threads account settings",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Configure redirect URIs; build the authorization window redirect and code exchange; swap short-lived for 60-day tokens and refresh before expiry",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Build and test threads_basic plus publish, replies and insights calls with testers",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Start Business Verification (Business Admin) if Advanced Access requires it",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "App Review: request each permission with a screencast and test instructions; publish the app",
+        "who": "Developer",
+        "agent": false
+      }
+    ],
+    "scopes": "threads_basic (required for all endpoints), threads_content_publish, threads_manage_replies (POST replies), threads_read_replies (GET replies), threads_manage_insights. Each needs App Review for non-role users.",
+    "blockers": [
+      "Using the main app ID and secret instead of the Threads-specific ones breaks OAuth.",
+      "App Review fails if Meta cannot access or test the flow; provide test accounts and a full screencast.",
+      "Grants from private profiles cannot be extended once expired; prompt for re-authorization.",
+      "Publishing needs publicly reachable media URLs at each attempt."
+    ],
+    "agentCan": "Write OAuth, token refresh and publish-flow code, draft permission justifications and screencast scripts, run test calls with tester accounts.",
+    "humanMust": "Meta developer login and 2FA, Business Verification, accept platform terms, record screencasts, submit App Review, tester acceptance in Threads.",
+    "confidence": "Medium",
+    "uncertain": "Business Verification applicability to Threads, App Review turnaround, rate limits and endpoint hosts were not confirmed because the access-token page failed to fetch and search budget ran out.",
+    "sources": [
+      "https://developers.facebook.com/docs/threads/get-started",
+      "https://developers.facebook.com/docs/development/release/business-verification",
+      "https://developers.facebook.com/docs/resp-plat-initiatives/individual-processes/app-review"
+    ]
+  },
+  {
+    "n": 40,
+    "id": "sendgrid",
+    "name": "SendGrid",
+    "category": "Marketing, Ads, Email & Social",
+    "website": "sendgrid.com",
+    "authModel": "API key / token only",
+    "authDetail": "v3 APIs use an API key as Authorization: Bearer <key>; SMTP uses username 'apikey' with the key as password. No customer-facing OAuth was found in the docs read. Parent accounts can act for Subusers with the On-Behalf-Of header; customer accounts exist only for formal Twilio SendGrid resellers.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://app.sendgrid.com/settings/api_keys",
+      "path": "Customer's SendGrid console -> Settings -> API Keys -> Create API Key -> choose permissions -> Create & View"
+    },
+    "access": "Self-serve",
+    "productionGate": "None for the API-key path. A customer account-provisioning or reseller route (Account Provisioning API, 'customer accounts' under On-Behalf-Of) requires a formal reseller partnership with Twilio SendGrid, which was not documented in detail here. Sending mail also requires sender authentication in practice (not confirmed in the pages read).",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review) on the API-key path; reseller partnership timeline unknown",
+    "cost": "Free to integrate; the customer needs their own SendGrid plan",
+    "roles": {
+      "team": "A developer with a SendGrid account for a test key; for the partner route, a business contact negotiating a reseller agreement with Twilio SendGrid.",
+      "console": "Teammates are managed in the SendGrid console; a key cannot have greater permissions than its creator, so use an admin to create keys.",
+      "customer": "The account owner or an admin teammate creates the key and pastes it into your app. Subuser access requires the Pro or Premier plan."
+    },
+    "testing": "Use your own SendGrid account and a restricted test key; limits apply per plan. Accounts are limited to 100 API keys.",
+    "steps": [
+      {
+        "do": "Customer opens Settings -> API Keys -> Create API Key, names it for your app, picks Restricted/Custom Access with only the needed scopes",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Customer clicks Create & View and copies the key (shown only once) into your connect screen",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store the key encrypted per customer; never log it or commit it",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with GET https://api.sendgrid.com/v3/scopes using Bearer auth and compare returned scopes to what you need",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Use api.eu.sendgrid.com for EU regional subusers; use the On-Behalf-Of header only if you are the parent account (it does not work with Mail Send)",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If you need one-click onboarding, contact Twilio SendGrid about partner or reseller provisioning",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Key permission levels: Full Access, Custom/Restricted Access (pick endpoints and read/write levels), Billing Access, and Email Address Validation Access. Billing-related calls need a separate key. Ask customers for a restricted key with mail.send and only the other scopes you use.",
+    "blockers": [
+      "A key cannot exceed its creator's permissions, so a non-admin teammate may be unable to grant what you need.",
+      "The key is shown only once; a lost key requires creating a new one.",
+      "On-Behalf-Of does not support Mail Send and needs the parent account's key; it is not a way to access an unrelated customer's account.",
+      "No OAuth means no consent screen or scoped revocation outside the key itself."
+    ],
+    "agentCan": "Write the key storage and validation code, draft customer setup instructions with the exact scopes, run test calls and sample sends.",
+    "humanMust": "Customer creates and pastes the key; a human negotiates any reseller or partner agreement and handles legal acceptance.",
+    "confidence": "Medium",
+    "uncertain": "The Account Provisioning API page failed to fetch and no OAuth or technology-partner program was found; the 2FA requirement, current free-plan status and sender-authentication rules were not confirmed. Search and fetch budgets ran out before community sources were checked.",
+    "sources": [
+      "https://www.twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/authentication",
+      "https://www.twilio.com/docs/sendgrid/ui/account-and-settings/api-keys",
+      "https://www.twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/on-behalf-of",
+      "https://www.twilio.com/docs/sendgrid/for-developers/partners"
+    ]
+  }
+]

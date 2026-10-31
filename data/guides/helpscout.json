@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "helpscout",
+  "name": "Help Scout",
+  "category": "Support & Helpdesk",
+  "website": "helpscout.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 18,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: create an app under My apps with an HTTPS redirect URL and run the authorization-code flow, about 1-3 days. No review is documented; Help Scout asks public integrations to follow brand guidelines.",
+  "needGuide": "Short one: create the app, add the redirect URL, ship.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code flow (and client credentials). Code exchanged at https://api.helpscout.net/v2/oauth2/token returns an access token (about 2 days, expires_in 172800) and a refresh token. Refresh with grant_type=refresh_token. Expired tokens return HTTP 401. No scopes are documented.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review documented)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None found for the OAuth app itself. The developer landing page says public integrations should follow brand guidelines and notify Help Scout so they can promote it. No review or partner agreement is documented.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No OAuth scopes documented; access likely follows the authorizing user's permissions.",
+    "summary": "No OAuth scopes documented in the fetched page; access likely follows the authorizing user's permissions.",
+    "table": []
+  },
+  "cost": "Free to register; the connecting account needs an active Help Scout plan (API plan gating not verified)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: An active, invited Help Scout user in a company-owned account; credentials must belong to an active user. Required role to create apps is not stated.",
+    "Where you register: Your Profile → My apps → Create My App; set the Redirect URL",
+    "Cost: Free to register; the connecting account needs an active Help Scout plan (API plan gating not verified)"
+  ],
+  "registerAt": {
+    "url": "https://developer.helpscout.com/mailbox-api/overview/authentication/",
+    "path": "Your Profile → My apps → Create My App; set the Redirect URL"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in to a company-owned Help Scout account → Your Profile → My apps → Create My App",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Enter app name and the HTTPS Redirect URL; copy application ID and secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement the authorize redirect with state; exchange the code at /v2/oauth2/token with grant_type=authorization_code",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store refresh tokens and refresh on 401 using grant_type=refresh_token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a Help Scout trial mailbox: list conversations and send a note",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Optional: follow brand guidelines and notify Help Scout of the public integration",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "An active, invited Help Scout user in a company-owned account; credentials must belong to an active user. Required role to create apps is not stated.",
+    "console": "none documented",
+    "customer": "A logged-in Help Scout user approves the authorization. Whether admin is required is not stated (likely the data permissions follow that user).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a Help Scout trial account to create the app and authorize with a test user.",
+    "No sandbox documented."
+  ],
+  "blockers": [
+    {
+      "problem": "Credentials must be tied to an active invited user",
+      "fix": "Use a service user, not an individual who may leave."
+    },
+    {
+      "problem": "Access tokens expire after about 2 days",
+      "fix": "Refresh on 401."
+    },
+    {
+      "problem": "Redirect URL is mandatory for authorization code apps",
+      "fix": "Register staging and production separately or reuse one app carefully."
+    },
+    {
+      "problem": "Rate limits unknown here",
+      "fix": "Check the Rate limiting page before launch."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and refresh code, run test API calls, and draft the public-integration notice and listing copy.",
+    "humanMust": "Sign in to create the app, supply credentials, and contact Help Scout about public promotion."
+  },
+  "uncertain": [
+    "Role required to create apps; any scope model; whether an App Directory review exists; API plan gating; rate limits.",
+    "Help Scout developer sub-pages for apps returned fetch errors."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.helpscout.com/mailbox-api/overview/authentication/",
+      "label": "developer.helpscout.com/mailbox-api/overview/authentication"
+    },
+    {
+      "url": "https://developer.helpscout.com/",
+      "label": "developer.helpscout.com"
+    }
+  ]
+}

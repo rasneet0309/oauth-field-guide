@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "apify",
+  "name": "Apify",
+  "category": "Data, SEO & Scraping",
+  "website": "apify.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 55,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "Likely a conversation with Apify is needed to get OAuth credentials, which is an inference. The token route has no gate: users create a scoped token and paste it, and you send the integration-platform headers.",
+  "needGuide": "Yes — email integrations@apify.com about OAuth, and use token paste in the meantime.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "API tokens are the main method (Authorization header, optional expiry, 24-hour overlap on rotation, scopes limited to specific resources). The integrator guide says users can authorize an integration via OAuth 2.0 without sharing credentials, but no self-serve client registration is documented. The hosted MCP server (https://mcp.apify.com) offers browser OAuth sign-in or a Bearer token.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min with a token; OAuth timing unknown",
+    "timeToProduction": "1-3 days with the token route; unknown for OAuth",
+    "firstShort": "30–60 min (token)",
+    "prodShort": "1–3 days token; OAuth unknown",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Likely a conversation with Apify (integrations@apify.com) to get OAuth client credentials; this is an inference because the docs do not describe a self-serve registration or review. The token route has no gate: users create a personal or scoped token and paste it. Send x-apify-integration-platform (and x-apify-integration-app-id) headers on every request.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Tokens are account-level or resource-specific; OAuth scopes aren't documented.",
+    "summary": "Token scopes are account-level or resource-specific. Full-permission Actors are excluded from MCP search and run. OAuth scopes are not documented.",
+    "table": []
+  },
+  "cost": "Free plan available; pay-per-use for compute and per-Actor pricing; end users pay on their own accounts",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Apify account owner creates tokens; use a company-owned account for the integration. Contact Apify about OAuth.",
+    "Where you register: No OAuth client console found; email integrations@apify.com for OAuth credentials. For tokens: Apify Console, API & Integrations page",
+    "Cost: Free plan available; pay-per-use for compute and per-Actor pricing; end users pay on their own accounts"
+  ],
+  "registerAt": {
+    "url": "https://docs.apify.com/platform/integrations/integrate",
+    "path": "No OAuth client console found; email integrations@apify.com for OAuth credentials. For tokens: Apify Console, API & Integrations page"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Decide between token paste, MCP OAuth, or a custom OAuth integration; email integrations@apify.com for the last",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create a scoped token in Console, API & Integrations, restricted to the Actors you need",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Build the client with the Apify API or JS/Python clients; add the x-apify-integration-platform header",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Connect to https://mcp.apify.com via OAuth in a test MCP client; confirm which tools appear",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Add a connect flow: users paste a scoped token (or complete OAuth) and you validate with a test call",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Document Actor costs and add a per-user usage guard",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Apify account owner creates tokens; use a company-owned account for the integration. Contact Apify about OAuth.",
+    "console": "none documented in the pages read",
+    "customer": "A user who owns the Apify account (or has token access) approves OAuth or creates a token. Scoped tokens can be limited to run one Actor; unscoped tokens are needed to create or modify Actors.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Apify free account with scoped tokens.",
+    "For OAuth, the mcp.apify.com browser sign-in can be exercised from any MCP client; a Developer-tier OAuth app and test mode were not documented."
+  ],
+  "blockers": [
+    {
+      "problem": "OAuth for custom apps is not self-serve in the docs",
+      "fix": "Use scoped tokens or ask Apify."
+    },
+    {
+      "problem": "Scoped tokens cannot create or modify Actors",
+      "fix": "Use an unscoped token for that."
+    },
+    {
+      "problem": "Actor costs are borne by the user's account",
+      "fix": "Surface expected cost before running."
+    },
+    {
+      "problem": "Hosted MCP needs authentication for any run or storage access",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the API client and token validation, configure the MCP connection, create the scoped-token instructions for users, and draft the OAuth request email.",
+    "humanMust": "Apify account owner creates accounts and tokens, and a person must contact Apify for OAuth credentials and accept terms."
+  },
+  "uncertain": [
+    "Whether Apify issues third-party OAuth client credentials at all and on what terms; OAuth scopes; dynamic client registration for MCP.",
+    "The OAuth docs page and the MCP OAuth metadata URL could not be fetched (fetch and search limits were reached)."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.apify.com/platform/integrations/integrate",
+      "label": "docs.apify.com/platform/integrations/integrate"
+    },
+    {
+      "url": "https://docs.apify.com/platform/integrations/api",
+      "label": "docs.apify.com/platform/integrations/api"
+    },
+    {
+      "url": "https://docs.apify.com/platform/integrations/mcp",
+      "label": "docs.apify.com/platform/integrations/mcp"
+    },
+    {
+      "url": "https://docs.apify.com/platform/integrations",
+      "label": "docs.apify.com/platform/integrations"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "schema": 3,
+  "id": "cloudflare",
+  "name": "Cloudflare",
+  "category": "Developer, Infra & Data",
+  "website": "cloudflare.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 64,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "self",
+  "verdict": "Self-serve, but new OAuth clients are private to your own account until you make them public by verifying your domain with a DNS TXT record (up to 2 days, permanent). No manual review is documented.",
+  "needGuide": "Short one, but do the DNS TXT verification to make the client public, and note that it cannot be undone.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Third-party OAuth clients are supported on Free, Pro, Business and Enterprise plans, authorization code flow only (no client credentials, implicit, password or device). Server apps use a client secret (client_secret_basic/post, PKCE optional); browser/mobile/CLI apps use PKCE S256 with auth method none. Endpoints: https://dash.cloudflare.com/oauth2/auth and /oauth2/token, plus /oauth2/revoke and /oauth2/userinfo. Token lifetimes not confirmed. API tokens (user or account-owned, cfut_ prefix) are the alternative.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (DNS verification window is up to 2 days; no manual review documented)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "New clients are private: only members of the owning account can authorize them. To let any customer connect, make it public by adding name, logo, client URL and scopes and verifying the client URL domain with a DNS TXT record (cloudflare_oauth_client_publisher=...). Cloudflare checks for up to two days. Making a client public is permanent. No separate approval form is described.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Scopes mirror API token permissions; you mark which are required or optional, and users choose read-only or full access.",
+    "summary": "Scope names match Cloudflare API token permission names; list them from /client/v4/oauth/scopes. At least one scope is required, scopes are required by default and a subset can be marked optional so users can decline. Users can also choose Read only or Full access. No scope triggers extra review.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Needs Super Administrator, Administrator or OAuth Client Write on the owning Cloudflare account (or an API token with OAuth Clients Write). Use a company-owned account.",
+    "Where you register: Dashboard → select account → Manage Account → OAuth clients → Create client (name, response type, grant type, auth method, redirect URLs) → Continue → pick scopes → Create client",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://developers.cloudflare.com/fundamentals/oauth/create-an-oauth-client/",
+    "path": "Dashboard → select account → Manage Account → OAuth clients → Create client (name, response type, grant type, auth method, redirect URLs) → Continue → pick scopes → Create client"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Confirm you hold Administrator or OAuth Client Write on a company-owned Cloudflare account",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Manage Account → OAuth clients → Create client: set grant type authorization_code, token auth method, redirect URLs, then select scopes (mark optional ones)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Save the client ID and secret (shown once; two secrets allowed for rotation)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorize/token against dash.cloudflare.com/oauth2 with state and PKCE S256; store refresh data encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test as a non-owner member, including declining optional scopes",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "To go public: add name, logo, client URL, publish the DNS TXT verification record, then PATCH visibility",
+          "who": "Developer",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Needs Super Administrator, Administrator or OAuth Client Write on the owning Cloudflare account (or an API token with OAuth Clients Write). Use a company-owned account.",
+    "console": "none documented beyond account roles; add the OAuth Client Write role to a member via Manage Account → Members (likely).",
+    "customer": "The authorizing user picks which account(s) to grant and the permissions. Account administrators can block new authorizations at Manage Account → Members → Settings → Public OAuth App access (existing authorizations stay). Users see a shield icon: amber means unverified domain.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Private clients work for members of your own account, so test with a separate member login before going public.",
+    "Create it via dashboard or POST /client/v4/accounts/{account_id}/oauth_clients.",
+    "A second test account to simulate an outside customer is advisable (likely)."
+  ],
+  "blockers": [
+    {
+      "problem": "Private client only authorizes your own account's members",
+      "fix": "Complete domain verification before customer rollout."
+    },
+    {
+      "problem": "Customer admin disabled Public OAuth App access",
+      "fix": "Ask them to re-enable it for new authorizations."
+    },
+    {
+      "problem": "Public status is permanent",
+      "fix": "Finalize client name, logo and URL first."
+    },
+    {
+      "problem": "Verification TXT record can time out after two days",
+      "fix": "Restart with a PATCH."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Create and configure the client through the API (given a token), write the OAuth code, draft consent-screen copy, run test calls, and monitor the DNS verification.",
+    "humanMust": "Log in with 2FA to create the token or client, add the DNS TXT record (or approve it), and have a customer admin approve authorization."
+  },
+  "uncertain": [
+    "Access/refresh token lifetimes, which customer roles may authorize, and the docs' publication date were not confirmed; this feature looks new, so check for changes.",
+    "Community sources not consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.cloudflare.com/fundamentals/oauth/",
+      "label": "developers.cloudflare.com/fundamentals/oauth"
+    },
+    {
+      "url": "https://developers.cloudflare.com/fundamentals/oauth/create-an-oauth-client/",
+      "label": "developers.cloudflare.com/fundamentals/oauth/create-an-oauth-client"
+    },
+    {
+      "url": "https://developers.cloudflare.com/fundamentals/oauth/integrate-with-cloudflare/",
+      "label": "developers.cloudflare.com/fundamentals/oauth/integrate-with-cloudflare"
+    },
+    {
+      "url": "https://developers.cloudflare.com/fundamentals/oauth/authorizing-an-application/",
+      "label": "developers.cloudflare.com/fundamentals/oauth/authorizing-an-application"
+    },
+    {
+      "url": "https://developers.cloudflare.com/fundamentals/api/get-started/create-token/",
+      "label": "developers.cloudflare.com/fundamentals/api/get-started/create-token"
+    }
+  ]
+}

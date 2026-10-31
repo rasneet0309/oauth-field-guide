@@ -1,0 +1,140 @@
+{
+  "schema": 3,
+  "id": "freshdesk",
+  "name": "Freshdesk",
+  "category": "Support & Helpdesk",
+  "website": "freshdesk.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 13,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth for third parties was found. Each customer pastes a Freshdesk API key and account domain, ideally from a dedicated agent, in about 1-3 days; a Marketplace app is a separate, reviewed route.",
+  "needGuide": "No — just collect the account domain and API key (Profile settings → View API Key).",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Freshdesk REST API v2 documents only personal API key via HTTP Basic (key as username, dummy password X). No OAuth for the REST API appears in the official API docs. Freshworks Developer Platform (FDK) apps run inside Freshdesk and can use OAuth to call third-party services, which is different from OAuth into Freshdesk.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (API-key paste); Marketplace app route unknown",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for API keys: each customer pastes their own key. The alternative is a Freshworks Marketplace app (FDK), which goes through Marketplace review; review length and criteria were not found.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes: the key carries the creating user's role permissions.",
+    "summary": "No scopes: the key carries the creating user's role permissions. Use a least-privilege agent role.",
+    "table": []
+  },
+  "cost": "Free; API call limits depend on plan (current table 3,000-5,000/hr; trials 50/min)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Freshdesk trial or paid account to get a key; for the Marketplace route, a Freshworks developer account.",
+    "Where you register: Customer: Freshdesk → profile (avatar) → Profile settings → View API Key (not re-verified). Marketplace route: developers.freshworks.com → build with FDK → submit in developer portal.",
+    "Cost: Free; API call limits depend on plan (current table 3,000-5,000/hr; trials 50/min)"
+  ],
+  "registerAt": {
+    "url": "https://developers.freshdesk.com/api/#authentication",
+    "path": "Customer: Freshdesk → profile (avatar) → Profile settings → View API Key (not re-verified). Marketplace route: developers.freshworks.com → build with FDK → submit in developer portal."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Show a connect form asking for Freshdesk domain and API key, with instructions to use a dedicated agent",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Customer copies key from Profile settings → View API Key",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Validate with GET /api/v2/tickets?per_page=1 using Basic auth apikey:X over HTTPS",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Encrypt the key at rest, handle 401/429 with Retry-After and rate-limit headers",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Optional: build FDK Marketplace app (fdk create, fdk run, fdk validate, fdk pack) and upload in the developer portal for review",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Freshdesk trial or paid account to get a key; for the Marketplace route, a Freshworks developer account.",
+    "console": "none documented",
+    "customer": "A Freshdesk agent/admin who creates the key for a dedicated integration user. The key inherits that user's permissions; the account domain (yourcompany.freshdesk.com) is also needed.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a Freshdesk trial account (50 API calls/min).",
+    "FDK apps: fdk run, then append ?dev=true to the account URL; fdk validate and fdk pack need 50%+ local coverage."
+  ],
+  "blockers": [
+    {
+      "problem": "API key is per user and dies if the user is deactivated",
+      "fix": "Use a dedicated integration agent."
+    },
+    {
+      "problem": "Rate limits are account-wide and shared with the customer's own automations",
+      "fix": "Back off on 429."
+    },
+    {
+      "problem": "No OAuth: customers must trust you with a long-lived key",
+      "fix": "Document storage and revocation."
+    },
+    {
+      "problem": "401 despite right key",
+      "fix": "Base64-encode apikey:X for the Authorization header."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the key-entry flow, validation call and retry logic, draft customer instructions, and scaffold an FDK app.",
+    "humanMust": "Customer admin supplies the key; you sign up for a Freshworks developer account and handle Marketplace submission and legal terms."
+  },
+  "uncertain": [
+    "Whether Freshworks offers any OAuth into Freshdesk for third parties (not found in fetched docs; several Freshworks doc pages failed to load); Marketplace review timeline; exact key location steps."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.freshdesk.com/api/#authentication",
+      "label": "developers.freshdesk.com/api"
+    },
+    {
+      "url": "https://developers.freshworks.com/docs/app-sdk/",
+      "label": "developers.freshworks.com/docs/app-sdk"
+    },
+    {
+      "url": "https://developers.freshworks.com/docs/app-sdk/v3.0/support_ticket/app-development-process/",
+      "label": "developers.freshworks.com/docs/app-sdk/v3.0/support_ticket/app-develop…"
+    }
+  ]
+}

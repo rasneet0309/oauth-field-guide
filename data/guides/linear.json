@@ -1,0 +1,159 @@
+{
+  "schema": 3,
+  "id": "linear",
+  "name": "Linear",
+  "category": "Productivity & PM",
+  "website": "linear.app",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 73,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: create an OAuth app in Settings → Administration → API, with no mandatory review, in about 1-3 days. Agent installs need a workspace admin, and a Third-Party App Approvals feature may gate your app.",
+  "needGuide": "Short one, but expect a workspace admin to install actor=app agents.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code with optional PKCE (S256 or plain; client_secret becomes optional with PKCE). Access tokens last 24 hours; refresh tokens rotate (30-minute replay grace) and all apps were migrated to refresh tokens on 2026-04-01. actor=app installs the app as its own user (agent). Client-credentials grant (30-day app tokens) is available if enabled on the app.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review); directory listing timeline unknown",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days unlisted",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No mandatory review to let other workspaces authorize. An actor=app install needs a workspace admin. Listing in Linear's Integration Directory is by submission (process not retrieved). Linear also has a 'Third-Party App Approvals' admin feature (page not retrieved), so customer admins may gate your app.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "read by default plus a few narrow write scopes; customer and initiative scopes are separate opt-ins.",
+    "summary": "read (default), write, issues:create, comments:create, timeSchedule:write, admin (not allowed with actor=app), app:assignable, app:mentionable, customer:read/write, initiative:read/write. Request only narrow scopes. Customer and initiative scopes are separate opt-ins.",
+    "table": []
+  },
+  "cost": "Free (agent development is free; installed agents are not billable users)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A workspace admin must create the OAuth app. Linear recommends a dedicated workspace for managing the app because every admin in that workspace can see it and its secrets.",
+    "Where you register: Settings → Administration → API → OAuth applications → Create new (admin permission needed to see the page)",
+    "Cost: Free (agent development is free; installed agents are not billable users)"
+  ],
+  "registerAt": {
+    "url": "https://linear.app/settings/api/applications/new",
+    "path": "Settings → Administration → API → OAuth applications → Create new (admin permission needed to see the page)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a dedicated Linear workspace owned by a company account to host the app",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Open Settings → Administration → API and create an OAuth application with callback URLs, name and icon",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Enable webhooks (Agent session events, Permission changes) if building an agent; enable client credentials only for internal automation",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorize URL with actor=app, scope list (read, write, app:assignable, app:mentionable) and PKCE; exchange the code and store the refresh token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Record the per-workspace app ID (viewer { id }) next to the stored token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Install into a second test workspace as its admin and verify delegation, mentions and revoke handling",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Submit to the Integration Directory if you want public listing",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A workspace admin must create the OAuth app. Linear recommends a dedicated workspace for managing the app because every admin in that workspace can see it and its secrets.",
+    "console": "No per-app collaborators documented; access is every admin of the owning workspace.",
+    "customer": "A workspace admin must install an actor=app agent (workspace-scoped). Admins can later change or revoke the app's team access; admins can also disable member API-key creation. Possible approval gate via Third-Party App Approvals (unconfirmed).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a free dedicated Linear workspace, make the OAuth app there, and install it with actor=app into the same or a second test workspace.",
+    "Agents must emit a 'thought' activity within 10 seconds of a session starting."
+  ],
+  "blockers": [
+    {
+      "problem": "Only admins can install actor=app",
+      "fix": "Give prospects an admin-ready install link and explanation."
+    },
+    {
+      "problem": "Admin scope cannot combine with actor=app",
+      "fix": "Use narrower scopes or a separate user-actor flow."
+    },
+    {
+      "problem": "Refresh tokens rotate",
+      "fix": "Use the 30-minute replay grace after network errors and store the newest token."
+    },
+    {
+      "problem": "Customer admins may restrict third-party apps via approvals or team-access limits",
+      "fix": "Document required team access."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Cannot create the app in the UI, but can write the OAuth/refresh code, webhook handlers, agent-session logic, directory submission copy, and an admin install guide, and run test GraphQL calls.",
+    "humanMust": "Admin sign-in to create the app, secrets handling, any directory submission contact, and customer-admin approval of installs."
+  },
+  "uncertain": [
+    "Whether Linear OAuth apps have a public/private toggle, the Third-Party App Approvals behavior, and the Integration Directory submission process were not confirmed (pages failed to fetch).",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://linear.app/developers/oauth-2-0-authentication",
+      "label": "linear.app/developers/oauth-2-0-authentication"
+    },
+    {
+      "url": "https://linear.app/developers/agents",
+      "label": "linear.app/developers/agents"
+    },
+    {
+      "url": "https://linear.app/developers/oauth-actor-authorization",
+      "label": "linear.app/developers/oauth-actor-authorization"
+    },
+    {
+      "url": "https://linear.app/docs/api-and-webhooks",
+      "label": "linear.app/docs/api-and-webhooks"
+    },
+    {
+      "url": "https://linear.app/developers",
+      "label": "linear.app/developers"
+    }
+  ]
+}

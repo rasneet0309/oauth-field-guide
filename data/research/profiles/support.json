@@ -1,0 +1,735 @@
+[
+  {
+    "n": 11,
+    "id": "zendesk",
+    "name": "Zendesk",
+    "category": "Support & Helpdesk",
+    "website": "zendesk.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Authorization code (+ optional PKCE), refresh_token and client_credentials grants; password grant deprecated. Endpoints are per subdomain (https://{subdomain}.zendesk.com/oauth/authorizations/new and /oauth/tokens). Code valid 120 s; refresh tokens rotate (old pair invalidated), default 30 days (7-90). Clients created on or after 2026-04-30 default to 30-minute access tokens.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://apps.zendesk.com",
+      "path": "Local client: Admin Center → Apps and integrations → APIs → OAuth clients → Add OAuth client (identifier must start with zdg-). Global client: Marketplace portal (apps.zendesk.com) → Global OAuth → Request new OAuth."
+    },
+    "access": "Application/approval required",
+    "productionGate": "Apps serving multiple Zendesk customers with server-side API calls must use a global OAuth client. Zendesk does not let developers create these; you build against a local client, then Zendesk reviews and converts it. Marketplace listing is separate. Per-customer local clients work technically but are not allowed for Marketplace apps (credential-sharing is prohibited).",
+    "difficulty": "Hard",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown; likely several weeks (global client review plus Marketplace review, no SLA documented)",
+    "cost": "Free to build and list; sponsored test account is free; payment setup only if the app is paid",
+    "roles": {
+      "team": "Admin (or agent with Manage APIs permission) on the test subdomain to create the client; a company-owned Marketplace portal login with a registered organization and profile.",
+      "console": "Marketplace org/profile: none documented for collaborators. Local clients: admins and agents with Manage APIs can create, update, delete and regenerate the secret. Only Zendesk's Marketplace Operations Team can edit a global client afterwards.",
+      "customer": "Zendesk user who authorizes at /oauth/authorizations/new; the token inherits that user's role and the client's allowed scopes. Plan must be Suite or Support Team/Professional/Enterprise (OAuth clients per help article). Install of Marketplace apps likely needs an admin."
+    },
+    "testing": "Request a sponsored test account (Marketplace docs). The global-client request requires a subdomain with the d3v- prefix. Build with a local client first. Sell uses a different mechanism (Multi-User Application).",
+    "steps": [
+      {
+        "do": "Request a sponsored Zendesk test account (subdomain prefix d3v-) via the Marketplace developer docs",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create local OAuth client: Admin Center → Apps and integrations → APIs → OAuth clients; identifier zdg-yourapp, fill every field, confidential kind, redirect URIs, scopes",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code flow with PKCE per customer subdomain; store rotating refresh tokens and handle 401 by refresh",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test end-to-end against the sponsored account with narrow scopes (e.g. tickets:read, tickets:write)",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Save the client secret and identifier, then apps.zendesk.com → Global OAuth → Request new OAuth with d3v- subdomain and the matching zdg- id",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Wait for approval email/ticket; update production config; contact Zendesk Support (Option 2, mention global oauth) for later scope changes",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Register organization, create Marketplace profile, and submit listing with data-access disclosure",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "Broad scopes (read, write) or resource scopes like tickets:read. Client allowed_scopes caps requests (400 invalid_scope otherwise). Zendesk may set allowed scopes on approval; request only what is needed.",
+    "blockers": [
+      "Global client cannot be self-created: request it only when the app is finished, with the production zdg- identifier already in use.",
+      "You lose access to the local client admin page after conversion: copy secret and identifier first.",
+      "Authorization URL is per subdomain: collect the customer subdomain before redirecting.",
+      "Refresh tokens rotate: persist the new pair atomically or the connection breaks."
+    ],
+    "agentCan": "Write the OAuth/PKCE code and refresh handling, run test API calls, draft the global-OAuth request justification, scope rationale and Marketplace listing copy, and call the OAuth clients API.",
+    "humanMust": "Sign in to the Marketplace portal, submit the global OAuth form, register the organization, accept partner/legal terms, and handle any payment setup.",
+    "confidence": "High",
+    "uncertain": "Review duration for global clients and Marketplace listings; exact admin role for global-client submission; whether a global client strictly requires a Marketplace listing (docs say only to request it when the app is ready). Zendesk OAuth clients reference pages for global clients returned fetch errors.",
+    "sources": [
+      "https://developer.zendesk.com/documentation/marketplace/building-a-marketplace-app/set-up-a-global-oauth-client/",
+      "https://developer.zendesk.com/documentation/marketplace/",
+      "https://developer.zendesk.com/api-reference/ticketing/oauth/grant_type_tokens/",
+      "https://developer.zendesk.com/api-reference/ticketing/oauth/oauth_clients/",
+      "https://support.zendesk.com/hc/en-us/articles/4408845965210-Using-OAuth-authentication-with-your-application"
+    ]
+  },
+  {
+    "n": 12,
+    "id": "intercom",
+    "name": "Intercom",
+    "category": "Support & Helpdesk",
+    "website": "intercom.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code flow with client_secret and a state parameter (PKCE not documented). Authorization endpoint is regional (US/EU/AU); code exchanged at https://api.intercom.io/auth/eagle/token for a Bearer access token. Token lifetime and refresh not covered in the fetched docs (tokens likely non-expiring).",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.intercom.com",
+      "path": "Developer Hub → Your apps → New App → Configure → Authentication → tick Use OAuth; add HTTPS redirect URLs and scopes"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Mandatory Intercom review for any public app (listed or unlisted) before customers can install. Review takes up to 7 business days. Submit an app description, App Partner Program form, and an end-to-end video of OAuth install, features and uninstall. App Store listing is optional after approval.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 weeks incl. video, forms and review (up to 7 business days)",
+    "cost": "Free (development workspaces are free); reviewer needs test credentials if the app needs a paid plan",
+    "roles": {
+      "team": "An Intercom teammate account that can open Developer Hub; public apps must be built in a separate free development workspace.",
+      "console": "None documented for app collaborators; creators/submitters receive review notifications.",
+      "customer": "A workspace teammate who installs the app via OAuth consent. Specific permission level not documented in fetched pages (likely admin-level)."
+    },
+    "testing": "Free development workspaces: US-only, capped at 20 users/leads, no outbound email or push, cannot be converted to production. During review the app stays private to your team.",
+    "steps": [
+      {
+        "do": "Create a free development workspace, then Developer Hub → New App",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Authentication page: tick Use OAuth, add HTTPS redirect URLs (staging + production), choose minimal scopes",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorize redirect with random state; POST code, client_id, client_secret to /auth/eagle/token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Verify with GET /me and test install and uninstall in the dev workspace",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Complete App Listing and App Partner Program form in Test and publish",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Record video showing OAuth install with full client_id and state visible, all features, and uninstall",
+        "who": "Design",
+        "agent": false
+      },
+      {
+        "do": "Submit for Review and answer feedback in the Messenger conversation",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Pick scopes in Developer Hub; reviewers compare them to actual functionality and may ask you to trim and resubmit. Webhook topics are tied to scopes. Canvas Kit apps get some scopes automatically.",
+    "blockers": [
+      "Customers cannot install until approval: plan the video and forms up front.",
+      "Over-requested scopes cause resubmission: map each scope to a visible feature.",
+      "EU/AU workspaces: dev workspaces are US-only, so use regional auth endpoints and test carefully.",
+      "Approved apps need re-approval for changes: keep a private staging app alongside the public one."
+    ],
+    "agentCan": "Write the OAuth code and regional endpoint handling, draft listing copy, scope justifications and video script, and run test API calls.",
+    "humanMust": "Create the workspace/app in the console, record the demo video, submit the review, communicate via the Intercom Messenger, and accept partner terms.",
+    "confidence": "High",
+    "uncertain": "Token expiry/refresh behavior; customer-side permission needed to install; App Store guideline details (guidelines and listing pages were not fetched).",
+    "sources": [
+      "https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth",
+      "https://developers.intercom.com/docs/publish-to-the-app-store/review-publish-your-app.md",
+      "https://developers.intercom.com/docs/build-an-integration/getting-started",
+      "https://developers.intercom.com/docs/build-an-integration/learn-more/authentication",
+      "https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/installing-uninstalling-apps.md"
+    ]
+  },
+  {
+    "n": 13,
+    "id": "freshdesk",
+    "name": "Freshdesk",
+    "category": "Support & Helpdesk",
+    "website": "freshdesk.com",
+    "authModel": "API key / token only",
+    "authDetail": "Freshdesk REST API v2 documents only personal API key via HTTP Basic (key as username, dummy password X). No OAuth for the REST API appears in the official API docs. Freshworks Developer Platform (FDK) apps run inside Freshdesk and can use OAuth to call third-party services, which is different from OAuth into Freshdesk.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://developers.freshdesk.com/api/#authentication",
+      "path": "Customer: Freshdesk → profile (avatar) → Profile settings → View API Key (not re-verified). Marketplace route: developers.freshworks.com → build with FDK → submit in developer portal."
+    },
+    "access": "Not offered",
+    "productionGate": "None for API keys: each customer pastes their own key. The alternative is a Freshworks Marketplace app (FDK), which goes through Marketplace review; review length and criteria were not found.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (API-key paste); Marketplace app route unknown",
+    "cost": "Free; API call limits depend on plan (current table 3,000-5,000/hr; trials 50/min)",
+    "roles": {
+      "team": "A Freshdesk trial or paid account to get a key; for the Marketplace route, a Freshworks developer account.",
+      "console": "none documented",
+      "customer": "A Freshdesk agent/admin who creates the key for a dedicated integration user. The key inherits that user's permissions; the account domain (yourcompany.freshdesk.com) is also needed."
+    },
+    "testing": "Use a Freshdesk trial account (50 API calls/min). FDK apps: fdk run, then append ?dev=true to the account URL; fdk validate and fdk pack need 50%+ local coverage.",
+    "steps": [
+      {
+        "do": "Show a connect form asking for Freshdesk domain and API key, with instructions to use a dedicated agent",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Customer copies key from Profile settings → View API Key",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Validate with GET /api/v2/tickets?per_page=1 using Basic auth apikey:X over HTTPS",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Encrypt the key at rest, handle 401/429 with Retry-After and rate-limit headers",
+        "who": "Security",
+        "agent": true
+      },
+      {
+        "do": "Optional: build FDK Marketplace app (fdk create, fdk run, fdk validate, fdk pack) and upload in the developer portal for review",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No scopes: the key carries the creating user's role permissions. Use a least-privilege agent role.",
+    "blockers": [
+      "API key is per user and dies if the user is deactivated: use a dedicated integration agent.",
+      "Rate limits are account-wide and shared with the customer's own automations: back off on 429.",
+      "No OAuth: customers must trust you with a long-lived key, so document storage and revocation.",
+      "401 despite right key: Base64-encode apikey:X for the Authorization header."
+    ],
+    "agentCan": "Write the key-entry flow, validation call and retry logic, draft customer instructions, and scaffold an FDK app.",
+    "humanMust": "Customer admin supplies the key; you sign up for a Freshworks developer account and handle Marketplace submission and legal terms.",
+    "confidence": "Medium",
+    "uncertain": "Whether Freshworks offers any OAuth into Freshdesk for third parties (not found in fetched docs; several Freshworks doc pages failed to load); Marketplace review timeline; exact key location steps.",
+    "sources": [
+      "https://developers.freshdesk.com/api/#authentication",
+      "https://developers.freshworks.com/docs/app-sdk/",
+      "https://developers.freshworks.com/docs/app-sdk/v3.0/support_ticket/app-development-process/"
+    ]
+  },
+  {
+    "n": 14,
+    "id": "front",
+    "name": "Front",
+    "category": "Support & Helpdesk",
+    "website": "front.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Authorization code grant only. Authorize at https://app.frontapp.com/oauth/authorize, exchange at https://app.frontapp.com/oauth/token with HTTP Basic (client id:secret). Access token lasts 60 minutes; refresh token 6 months, renewed with a new refresh token in its final 24 hours.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://dev.frontapp.com/docs/create-and-manage-apps",
+      "path": "Settings → Company → Developers → Create app (company admin only)"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Apps are private to the Front instance that created them. To reach all Front customers you publish: submit the partner form, Front tests and gives technical approval, then builds your listing. Front may refuse integrations case by case, and smaller teams may face security or legal review. OAuth is required for public apps unless Front grants an exception.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown (no timeline published)",
+    "cost": "Free to publish; you set your own pricing",
+    "roles": {
+      "team": "A Front company admin must create and manage the app; use a company-owned Front account.",
+      "console": "Collaborator sharing not documented in the fetched page.",
+      "customer": "Front admin only: end users authorizing OAuth apps must be admins (private and public). The Front MCP server is the exception."
+    },
+    "testing": "Create a private app in your own Front instance and authorize as admin. Plugin URLs can use http://localhost:3000; use ngrok for channel webhooks; dryRun=true for trigger test events. Published apps cannot be edited, so test changes in a new app.",
+    "steps": [
+      {
+        "do": "Get a Front instance and have a company admin go to Settings → Company → Developers → Create app",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Add the OAuth feature with redirect URI and scopes (exact UI labels not verified)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code flow and token refresh with Basic auth on the token endpoint",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Authorize as an admin in your own instance and run Core API test calls",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Email Front's partner team if fit is unclear, then submit the partner form with images and marketing details",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Respond to Front technical testing and any security/legal review; confirm launch",
+        "who": "Security",
+        "agent": false
+      }
+    ],
+    "scopes": "Scopes are selected on the app and listed on Front's Authentication page (not fetched). Customer admins approve them at install.",
+    "blockers": [
+      "Non-admin teammates cannot authorize: customers must involve a Front admin.",
+      "Core API needs OAuth for public apps unless Front grants an exception: ask the partner team early.",
+      "Published apps are locked: keep a separate test app and email the original publication thread for changes.",
+      "Browser extensions cannot be listed: build on Core API/Plugin SDK instead."
+    ],
+    "agentCan": "Write the OAuth and refresh code, test Core API calls, draft the partner form answers, listing copy and security questionnaire responses.",
+    "humanMust": "Admin creates the app in Front, submits the partner form, handles legal/security review, and commits to ongoing support.",
+    "confidence": "High",
+    "uncertain": "Review timeline; exact scope list; whether private apps can be installed in other companies' instances without publishing (docs say private to the creating instance); collaborator features.",
+    "sources": [
+      "https://dev.frontapp.com/docs/oauth",
+      "https://dev.frontapp.com/docs/create-and-manage-apps",
+      "https://dev.frontapp.com/docs/partnering-with-front"
+    ]
+  },
+  {
+    "n": 15,
+    "id": "pylon",
+    "name": "Pylon",
+    "category": "Support & Helpdesk",
+    "website": "usepylon.com",
+    "authModel": "API key / token only",
+    "authDetail": "Bearer API tokens created by workspace Admins. Tokens do not expire and have no scopes (access follows the assigned role). Regional hosts: api.usepylon.com (US) and api.eu.usepylon.com (EU); a wrong-region token returns 401 wrong_region_token. Optional IP allowlist (up to 20 entries). The API docs do not mention OAuth.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.usepylon.com/pylon-docs/developer/api/authentication",
+      "path": "Customer admin creates the token in Pylon settings; bots under Settings → Workspace → Users (token creation page path not verified)"
+    },
+    "access": "Not offered",
+    "productionGate": "None: each customer creates and pastes their own token. No OAuth, app review or partner program was found in the docs.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days",
+    "cost": "Requires a Pylon workspace (paid customers); no developer fee found",
+    "roles": {
+      "team": "A Pylon workspace Admin is needed to create tokens for your own testing.",
+      "console": "none documented",
+      "customer": "A workspace Admin (only Admins can create and manage tokens). Tokens can have their own identity and role, or act as a user or bot. Deactivating a user deletes every token they created."
+    },
+    "testing": "No sandbox documented; use a trial or customer-provided workspace and a low-privilege role token. Check the region prefix (pylon_api_eu_ for EU).",
+    "steps": [
+      {
+        "do": "Add a connect screen asking for API token and region (US or EU)",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Customer Admin creates a token with its own identity and a least-privilege role (or a bot token)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Pick the base URL from the token prefix; validate with a read-only API call",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store tokens encrypted; tell customers they may add your egress IPs to the 20-entry allowlist",
+        "who": "Security",
+        "agent": true
+      },
+      {
+        "do": "Ask Pylon (sales or support) whether OAuth or a partner/marketplace path is planned",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "No scopes: permissions come from the role on a token with its own identity, or from the user/bot it acts as. Older tokens without a role act as Admin.",
+    "blockers": [
+      "Wrong-region token returns 401: derive host from the token prefix or ask the customer.",
+      "Rotating a token immediately invalidates the old one: support re-entry flows.",
+      "Tokens acting as a user vanish if that user is deactivated: recommend a bot or own-identity token.",
+      "IP allowlist rejects with 401 invalid_api_token: give customers your static egress IPs."
+    ],
+    "agentCan": "Write the token-entry flow, region handling and test calls, and draft customer setup instructions.",
+    "humanMust": "A customer Admin creates the token; you contact Pylon about any OAuth/partner options.",
+    "confidence": "Medium",
+    "uncertain": "Whether Pylon offers OAuth or a partner program on request (not found); rate limit values; exact UI path for token creation; sandbox availability. The fetched docs page also contained an embedded agent instruction, which I ignored.",
+    "sources": [
+      "https://docs.usepylon.com/pylon-docs/developer/api",
+      "https://docs.usepylon.com/pylon-docs/developer/api/authentication"
+    ]
+  },
+  {
+    "n": 16,
+    "id": "liveagent",
+    "name": "LiveAgent",
+    "category": "Support & Helpdesk",
+    "website": "liveagent.com",
+    "authModel": "API key / token only",
+    "authDetail": "LiveAgent's public support examples pass an apikey parameter (query string on GET, form field on POST/DELETE). No OAuth was found, but the official developer portal could not be read (robots disallowed), so this is unconfirmed. Base URL is likely per customer (own domain).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://support.liveagent.com/061754-How-to-make-REST-API-calls-in-Postman",
+      "path": "Customer: LiveAgent admin → Configuration → System → API (likely; not confirmed in fetched pages)"
+    },
+    "access": "Not offered",
+    "productionGate": "None found for API-key use. Any OAuth or partner program is unknown.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (API-key paste); unknown if a marketplace exists",
+    "cost": "Requires a LiveAgent account on a plan with API access (likely paid; 14-day trial likely)",
+    "roles": {
+      "team": "A LiveAgent account (trial) with an administrator to generate an API key.",
+      "console": "none documented",
+      "customer": "A LiveAgent administrator who generates the key and shares the account URL (likely)."
+    },
+    "testing": "Use a LiveAgent trial account and Postman per the support article. Sandbox limits not documented.",
+    "steps": [
+      {
+        "do": "Build a connect form asking for LiveAgent account URL and API key",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Customer admin generates an API key in LiveAgent settings (verify UI path in the customer account)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Validate with a read-only call (e.g. list conversations) using the apikey; avoid putting the key in logged URLs",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store the key encrypted and give customers revocation instructions",
+        "who": "Security",
+        "agent": true
+      },
+      {
+        "do": "Email LiveAgent to ask whether OAuth or a partner integration program exists",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "No scopes documented; likely inherits the key owner's agent permissions.",
+    "blockers": [
+      "GET examples put apikey in the URL: it can leak into proxy and access logs, so prefer POST or headers if supported.",
+      "Per-customer domains: collect the exact account URL instead of assuming one host.",
+      "Docs hard to reach: developer.liveagent.com disallows automated fetches, so read it manually.",
+      "Plan limits on API access are unverified: confirm on the customer's plan."
+    ],
+    "agentCan": "Write the API-key connection flow and validation calls and draft customer setup instructions and a vendor inquiry email.",
+    "humanMust": "Customer admin creates the key; a human reads the developer portal and confirms plan requirements, and contacts LiveAgent about OAuth.",
+    "confidence": "Low",
+    "uncertain": "Almost everything: API key location, header vs query use, OAuth availability, plan gating, rate limits. developer.liveagent.com was blocked by robots rules and liveagent.com/api had no auth details.",
+    "sources": [
+      "https://support.liveagent.com/061754-How-to-make-REST-API-calls-in-Postman",
+      "https://www.liveagent.com/api/"
+    ]
+  },
+  {
+    "n": 17,
+    "id": "plain",
+    "name": "Plain",
+    "category": "Support & Helpdesk",
+    "website": "plain.com",
+    "authModel": "API key / token only",
+    "authDetail": "GraphQL API with Bearer API keys owned by machine users (Settings → Machine Users), each key with fine-grained permissions, shown once. Plain also has OAuth apps (authorization code, S256 PKCE, openid and offline_access scopes), but docs say the app works only in the workspace where it was created, so it is not a multi-tenant third-party flow.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://www.plain.com/docs/graphql/authentication.md",
+      "path": "Customer workspace: Settings → Machine Users → + Add Machine User → create API key with chosen permissions. Own-workspace OAuth: Settings → OAuth applications → Add OAuth app."
+    },
+    "access": "Not offered",
+    "productionGate": "None for API keys. No approval process, marketplace or cross-workspace OAuth is documented.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days",
+    "cost": "Requires a Plain workspace (paid plan or trial; not verified)",
+    "roles": {
+      "team": "A Plain workspace member able to create machine users and API keys (the role needed is not stated).",
+      "console": "none documented for developer-console collaborators; workspace roles are managed via custom roles and invites.",
+      "customer": "A workspace admin who creates a machine user and a least-privilege API key and shares the key with you."
+    },
+    "testing": "Use your own Plain workspace or trial with a machine user key. No separate sandbox documented.",
+    "steps": [
+      {
+        "do": "Add a connect screen asking for a Plain API key and explaining the permissions needed",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Customer admin: Settings → Machine Users → + Add Machine User, name it for your app, create an API key with only the required permissions",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Validate by calling the GraphQL API (e.g. myMachineUser) with Authorization: Bearer plainApiKey_xxx; read the permission names from any error",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store the key encrypted (shown only once) and support key rotation by adding a second key",
+        "who": "Security",
+        "agent": true
+      },
+      {
+        "do": "Ask Plain whether multi-workspace OAuth is planned or available on request",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Per-key permissions chosen at creation; error messages name missing permissions. OAuth apps expose only openid and offline_access in the docs.",
+    "blockers": [
+      "Keys display once: tell the customer to copy it before leaving the page.",
+      "Own-workspace OAuth is not usable across customers: do not build on it.",
+      "GraphQL subscriptions do not accept OAuth tokens: use machine-user API keys.",
+      "Insufficient permissions: read the error and have the customer add the named permission."
+    ],
+    "agentCan": "Write the key intake, GraphQL client and permission-checking code, and draft customer setup instructions.",
+    "humanMust": "The customer admin creates the machine user and key; you contact Plain for any OAuth or partner options.",
+    "confidence": "Medium",
+    "uncertain": "Roles needed to create machine users and keys; refresh token and default access token lifetimes; whether an OAuth app can be authorized from another workspace (docs imply not); developer.plain.com was blocked by robots rules, so I used www.plain.com docs.",
+    "sources": [
+      "https://www.plain.com/docs/graphql/authentication.md",
+      "https://www.plain.com/docs/graphql/oauth.md",
+      "https://www.plain.com/docs/api-reference/graphql/authentication",
+      "https://www.plain.com/docs/llms.txt"
+    ]
+  },
+  {
+    "n": 18,
+    "id": "helpscout",
+    "name": "Help Scout",
+    "category": "Support & Helpdesk",
+    "website": "helpscout.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code flow (and client credentials). Code exchanged at https://api.helpscout.net/v2/oauth2/token returns an access token (about 2 days, expires_in 172800) and a refresh token. Refresh with grant_type=refresh_token. Expired tokens return HTTP 401. No scopes are documented.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developer.helpscout.com/mailbox-api/overview/authentication/",
+      "path": "Your Profile → My apps → Create My App; set the Redirect URL"
+    },
+    "access": "Self-serve",
+    "productionGate": "None found for the OAuth app itself. The developer landing page says public integrations should follow brand guidelines and notify Help Scout so they can promote it. No review or partner agreement is documented.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review documented)",
+    "cost": "Free to register; the connecting account needs an active Help Scout plan (API plan gating not verified)",
+    "roles": {
+      "team": "An active, invited Help Scout user in a company-owned account; credentials must belong to an active user. Required role to create apps is not stated.",
+      "console": "none documented",
+      "customer": "A logged-in Help Scout user approves the authorization. Whether admin is required is not stated (likely the data permissions follow that user)."
+    },
+    "testing": "Use a Help Scout trial account to create the app and authorize with a test user. No sandbox documented.",
+    "steps": [
+      {
+        "do": "Sign in to a company-owned Help Scout account → Your Profile → My apps → Create My App",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Enter app name and the HTTPS Redirect URL; copy application ID and secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement the authorize redirect with state; exchange the code at /v2/oauth2/token with grant_type=authorization_code",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store refresh tokens and refresh on 401 using grant_type=refresh_token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a Help Scout trial mailbox: list conversations and send a note",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Optional: follow brand guidelines and notify Help Scout of the public integration",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "No OAuth scopes documented in the fetched page; access likely follows the authorizing user's permissions.",
+    "blockers": [
+      "Credentials must be tied to an active invited user: use a service user, not an individual who may leave.",
+      "Access tokens expire after about 2 days: refresh on 401.",
+      "Redirect URL is mandatory for authorization code apps: register staging and production separately or reuse one app carefully.",
+      "Rate limits unknown here: check the Rate limiting page before launch."
+    ],
+    "agentCan": "Write the OAuth and refresh code, run test API calls, and draft the public-integration notice and listing copy.",
+    "humanMust": "Sign in to create the app, supply credentials, and contact Help Scout about public promotion.",
+    "confidence": "Medium",
+    "uncertain": "Role required to create apps; any scope model; whether an App Directory review exists; API plan gating; rate limits. Help Scout developer sub-pages for apps returned fetch errors.",
+    "sources": [
+      "https://developer.helpscout.com/mailbox-api/overview/authentication/",
+      "https://developer.helpscout.com/"
+    ]
+  },
+  {
+    "n": 19,
+    "id": "gorgias",
+    "name": "Gorgias",
+    "category": "Support & Helpdesk",
+    "website": "gorgias.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "OAuth2 authorization code is mandatory for public apps; private apps use API key basic auth (account email plus key). Per-merchant endpoints https://{subdomain}.gorgias.com/oauth/authorize and /oauth/token (HTTP Basic client auth). Access tokens last 24 h; refresh tokens do not currently expire and need the offline scope. PKCE not yet enabled; nonce and state are required.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://partners.gorgias.com/signup",
+      "path": "Developer Portal (partners.gorgias.com) → create Draft App form → receive Client ID and Secret"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Merchants install from the in-product App Store (Settings → Integrations), which opens your App URL with an account parameter. Public apps must be approved by Gorgias's tech partnership team. No timeline is published. A sandbox account also requires a ready draft app and a manual conversion by Gorgias.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "1-3 days (sandbox needs Gorgias to convert the trial)",
+    "timeToProduction": "unknown; likely several weeks (approval has no published SLA)",
+    "cost": "Free; no partner fee found",
+    "roles": {
+      "team": "Developer Portal account plus a Gorgias trial converted to a developer account by techpartners@gorgias.com.",
+      "console": "none documented",
+      "customer": "A merchant account user who clicks Connect App and accepts the consent page (admin requirement likely, not confirmed). Merchants can uninstall or revoke the refresh token."
+    },
+    "testing": "Register at partners.gorgias.com, create a Gorgias trial, then email techpartners@gorgias.com (with a draft app ready) to convert it to a developer account; sandbox starts as a Demo account and the plan switch is manual.",
+    "steps": [
+      {
+        "do": "Register at partners.gorgias.com/signup and start the Draft App form",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create a trial at gorgias.com/signup and email techpartners@gorgias.com with the account URL to get a developer account",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Implement the App URL handler (reads account), authorize with state and nonce, exchange the code with Basic auth",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Choose minimal scopes and include offline for refresh; handle 24 h access tokens",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test install and uninstall in the sandbox (the demo repo github.com/gorgias/appstore-demo-app helps)",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Add screenshots, finish the Draft App form and click Submit Application",
+        "who": "Design",
+        "agent": false
+      },
+      {
+        "do": "Respond to the review result and fix requested changes",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "openid, email, profile, offline plus read/write pairs: account, users, customers, tickets, custom_fields, events, integrations, jobs, macros, rules, satisfaction_survey, tags, apps; statistics:read. write:all is deprecated. No scope was documented as needing extra approval.",
+    "blockers": [
+      "Sandbox needs a draft app first and manual conversion by Gorgias: email early.",
+      "Users must start from the App Store: build your App URL handler to read the account subdomain.",
+      "No PKCE yet: protect the client secret and use state and nonce.",
+      "write:all is being removed: use granular scopes."
+    ],
+    "agentCan": "Write the OAuth code and account-subdomain handling, draft the Draft App form, scope rationale and listing copy, and run test calls.",
+    "humanMust": "Register on the portal, email techpartners@gorgias.com, upload screenshots, submit the app, and respond to the tech partnership team.",
+    "confidence": "High",
+    "uncertain": "Review duration and criteria (Draft App form and quality-guidelines pages did not load); eligibility rules to submit; the merchant role required to install.",
+    "sources": [
+      "https://developers.gorgias.com/docs/set-up-oauth2-app-store",
+      "https://developers.gorgias.com/docs/authentication",
+      "https://developers.gorgias.com/docs/1-register-on-developer-portal.md",
+      "https://developers.gorgias.com/docs/5-submit-app-for-review.md",
+      "https://developers.gorgias.com/docs/oauth2-scopes.md"
+    ]
+  },
+  {
+    "n": 20,
+    "id": "gladly",
+    "name": "Gladly",
+    "category": "Support & Helpdesk",
+    "website": "gladly.com",
+    "authModel": "API key / token only",
+    "authDetail": "REST API uses token-based HTTP Basic auth: agent email as username, API token as password, over HTTPS. Tokens are unrestricted for that user and shown once. The fetched REST docs do not mention OAuth. Gladly also has an App Platform for integrations, not reviewed here.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://developer.gladly.com/rest/",
+      "path": "Customer: admin grants API User permission (Settings → Users), then that user goes to More settings → API Tokens → Create Token"
+    },
+    "access": "Not offered",
+    "productionGate": "None documented for API tokens. Gladly is enterprise sales-led, so customers likely coordinate with their Gladly contact. No OAuth app registration, review or partner agreement was found.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-3 days (needs a Gladly tenant)",
+    "timeToProduction": "1-2 weeks (customer admin coordination); unknown otherwise",
+    "cost": "Requires a customer Gladly contract; no developer sandbox fee found",
+    "roles": {
+      "team": "No Gladly tenant is self-serve: you need a customer or partner tenant and a user with API User permission.",
+      "console": "none documented",
+      "customer": "A Gladly Administrator grants the API User permission per agent (the agent keeps the Agent role); that user creates the token. Gladly recommends a dedicated API user for auditing."
+    },
+    "testing": "No public sandbox documented: use a customer-provided or partner test tenant with a dedicated API user.",
+    "steps": [
+      {
+        "do": "Add a connect form for Gladly organization URL, API user email and API token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Customer Administrator creates a dedicated agent and grants API User under Settings → Users",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "That user creates a token: More settings → API Tokens → Create Token; copy it once",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Validate with a read-only call using Basic auth (email:token) over HTTPS; handle rate limits",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store the token encrypted and document rotation; ask Gladly about App Platform or OAuth if needed",
+        "who": "Security",
+        "agent": true
+      }
+    ],
+    "scopes": "No scopes: a token can perform any API request for its user. Use a dedicated user, since a token cannot be restricted.",
+    "blockers": [
+      "Tokens are unrestricted: customers may balk, so document exactly which endpoints you call.",
+      "Tokens are shown once and tied to the creating user: use a dedicated API user.",
+      "No self-serve sandbox: line up a customer or partner test tenant early.",
+      "Rate-limit details were not retrieved: read the Rate Limit Handling section."
+    ],
+    "agentCan": "Write the Basic-auth client, validation calls and rate-limit handling, and draft setup instructions for the customer admin.",
+    "humanMust": "A Gladly Administrator grants permission and creates the token; a sales contact is likely needed for a test tenant or App Platform access.",
+    "confidence": "Medium",
+    "uncertain": "Whether Gladly offers OAuth or an App Platform marketplace to third parties (hub page mentions it, body not retrievable); rate limit values; the last 1,737 characters of the REST page were not read.",
+    "sources": [
+      "https://developer.gladly.com/rest/",
+      "https://developer.gladly.com/"
+    ]
+  }
+]

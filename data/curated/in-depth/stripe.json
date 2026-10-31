@@ -1,0 +1,181 @@
+{
+  "$comment": "In-depth guide restructured from the Stripe research profile (data/research/profiles/finance.json) and its headline. No new facts: phases, tiers and the scope table regroup what the research found. Tier difficulty ratings are editorial.",
+  "id": "stripe",
+  "n": 81,
+  "name": "Stripe",
+  "sub": "Stripe Apps OAuth · App Marketplace review",
+  "category": "Finance & Fintech",
+  "website": "stripe.com",
+  "path": "review",
+  "headline": "To install on arbitrary Stripe accounts your app must pass App Marketplace review, with a decision about 4 business days per round. Expect to justify every permission and likely resubmit once, so about 1–3 weeks.",
+  "needGuide": "Yes. Follow the Stripe Apps review requirements: permission justifications, a privacy policy and test credentials without 2FA.",
+  "authModel": "OAuth 2.0",
+  "authDetail": "Two OAuth paths. (1) Stripe Apps OAuth (recommended): install link marketplace.stripe.com/oauth/v2/authorize; the auth code is one-time and valid 5 minutes, exchanged at POST api.stripe.com/v1/oauth/token using the app developer's own secret key; access token 1 hour, refresh token 1 year and rolled on every refresh; the returned scope is 'stripe_apps' and real permissions come from the app manifest. (2) Legacy Connect OAuth (connect.stripe.com/oauth/authorize, scope read_only or read_write): Stripe says it 'isn't recommended for new Connect platforms'. Restricted API keys (rk_live_) are a manual per-customer fallback.",
+  "userOAuth": "yes",
+  "access": "Application/approval required",
+  "productionGate": "To let arbitrary Stripe accounts install the app you must pass App Marketplace review (decision emailed about 4 business days after submitting; resubmit after any change). Public OAuth install links do not work until the app is published; External test covers only a small number of accounts.",
+  "difficulty": "Moderate",
+  "timeToFirstTest": "1–2 hours (CLI create + external test link)",
+  "timeToProduction": "1–3 weeks (4 business days per review round, plus listing prep and likely one resubmission)",
+  "firstShort": "1–2 hours",
+  "prodShort": "1–3 weeks incl. review",
+  "cost": "No listing or review fee documented in the sources read; requires an activated Stripe account.",
+  "confidence": "High",
+  "lastChecked": "2026-10-28",
+  "registerAt": {
+    "url": "https://docs.stripe.com/stripe-apps/api-authentication/oauth",
+    "path": "Stripe CLI: stripe apps create <name>; edit stripe-app.json (stripe_api_access_type=oauth, distribution_type=public, allowed_redirect_uris); stripe apps upload; then Dashboard → Developers → Apps → your app → External test tab (test links) and Settings tab (public install links)."
+  },
+  "tiers": [
+    {
+      "label": "External test",
+      "eg": "Test-mode, live-mode and sandbox installs",
+      "difficulty": "Easy",
+      "time": "1–2 hours",
+      "note": "Test OAuth links from the External test tab. They cover only a small number of accounts."
+    },
+    {
+      "label": "Published Stripe App",
+      "eg": "Any Stripe account",
+      "difficulty": "Moderate",
+      "time": "1–3 weeks",
+      "note": "App Marketplace review, about 4 business days per round. Public install links work only after you publish."
+    },
+    {
+      "label": "Legacy Connect OAuth",
+      "eg": "Existing Connect platforms",
+      "difficulty": "N/A",
+      "time": "Not recommended",
+      "note": "No marketplace review, but Stripe says it isn't recommended for new Connect platforms."
+    }
+  ],
+  "prereqs": [
+    "An activated, company-owned Stripe account. The app is tied to it, and only one app can be published per account.",
+    "The Stripe CLI (npm install -g @stripe/cli), logged in to that account.",
+    "Dashboard access to Developers → Apps and to the test and live secret keys, which the code exchange uses.",
+    "An English listing, a privacy policy URL and a written justification for every permission.",
+    "Test credentials without 2FA for reviewers, and a business that isn't on Stripe's restricted list."
+  ],
+  "phases": [
+    {
+      "name": "Create the app",
+      "duration": "1–2 hours",
+      "steps": [
+        { "do": "Activate the company Stripe account, install the CLI (npm install -g @stripe/cli) and log in.", "who": "Owner", "agent": false },
+        {
+          "do": "Run stripe apps create <name>, then set stripe_api_access_type=oauth, distribution_type=public and HTTPS allowed_redirect_uris in stripe-app.json.",
+          "who": "Developer",
+          "agent": true
+        },
+        { "do": "Add least-privilege permissions: stripe apps grant permission \"<name>\" \"<justification>\".", "who": "Developer", "agent": true },
+        { "do": "Run stripe apps upload, open the app → External test tab and copy the test OAuth link.", "who": "Developer", "agent": true }
+      ]
+    },
+    {
+      "name": "Build and test",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Build the callback: exchange the code within 5 minutes at POST /v1/oauth/token with the matching secret key, and store the rotating refresh token encrypted.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Install through the External test links (test mode, live mode, sandbox) and exchange each code with the matching developer key, passing the link type in state.",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "App Marketplace review",
+      "duration": "About 4 business days per round",
+      "steps": [
+        {
+          "do": "Write the listing (name of 35 characters max without 'Stripe', logo, privacy URL, testing guidance, test credentials without 2FA) and an install page that uses the public OAuth link from the Settings tab.",
+          "who": "Design",
+          "agent": true
+        },
+        { "do": "Submit for review in the Dashboard (Developers → Apps) and answer reviewer feedback.", "who": "Owner", "agent": false },
+        { "do": "After the approval email, click Publish.", "who": "Owner", "agent": false }
+      ]
+    }
+  ],
+  "consoleRoles": [
+    {
+      "role": "Dashboard team member",
+      "can": "Team roles are managed in Dashboard → Settings → Team. The role needed to upload or publish apps isn't stated in the pages read.",
+      "who": "Your app owners"
+    }
+  ],
+  "roles": {
+    "team": "Owner of a company-owned, activated Stripe account (the app is tied to it and only one app can be published per account). Needs Dashboard access to Developers → Apps and API keys (the live and test secret keys are used for the code exchange) and the Stripe CLI logged in.",
+    "console": "Stripe Dashboard team members with roles; add via Dashboard → Settings → Team. The exact role needed to upload or publish apps is not stated in the pages read.",
+    "customer": "A Stripe user on the customer account who is allowed to install apps (likely an Administrator) selects the account and accepts the manifest permissions. They can uninstall at any time. Connect OAuth: the user picks or creates an account on Stripe's page."
+  },
+  "customer": [
+    "A user on the customer's Stripe account who may install apps (likely an Administrator) picks the account and accepts the manifest permissions.",
+    "Customers can uninstall the app at any time.",
+    "With legacy Connect OAuth, the user picks or creates an account on Stripe's page."
+  ],
+  "testing": "External test tab gives test-mode, live-mode and sandbox OAuth links; exchange the code with the matching developer key (pass the link type in state). Set sandbox_install_compatible=true to install into a Stripe sandbox. Reviewers will not accept real customer accounts.",
+  "scopesTable": [
+    {
+      "use": "Stripe Apps access",
+      "scope": "Manifest permissions (stripe apps grant permission)",
+      "tier": "Justified at review",
+      "note": "The token's scope is 'stripe_apps'; real permissions come from the manifest"
+    },
+    { "use": "Legacy Connect, read", "scope": "read_only", "tier": "Extension-type only", "note": "Only for Extension-type integrations" },
+    {
+      "use": "Legacy Connect, write",
+      "scope": "read_write",
+      "tier": "Not recommended for new platforms",
+      "note": "Can't connect Standard accounts controlled by another platform (since June 2021)"
+    },
+    { "use": "Manual fallback", "scope": "Restricted API key (rk_live_)", "tier": "Per resource", "note": "None, Read or Write per resource; each customer creates it" }
+  ],
+  "review": {
+    "when": "Any app that arbitrary Stripe accounts install must pass App Marketplace review. Public OAuth install links don't work until the app is published.",
+    "timeline": [
+      { "label": "Review decision", "official": "Emailed about 4 business days after you submit", "reported": "Plan for at least one resubmission" },
+      { "label": "Top rejection reasons", "official": "Test link instead of the public link, localhost redirects, hard-coded keys, test logins behind 2FA", "reported": "" }
+    ],
+    "recurring": "Resubmit for review after any change to the app."
+  },
+  "blockers": [
+    {
+      "problem": "Choosing Connect OAuth for a new platform",
+      "fix": "Stripe discourages it and the publish guide says the Connect authentication method is deprecated. Use Stripe Apps OAuth or register as an Extension."
+    },
+    {
+      "problem": "Top review failures: the External test link instead of the public Settings-tab link, localhost redirect URIs, hard-coded keys, or test logins that need 2FA",
+      "fix": "Fix all four before submitting."
+    },
+    {
+      "problem": "Code exchange fails when the test and live developer secret keys are mixed up",
+      "fix": "Pass the link type in state and pick the key accordingly."
+    },
+    { "problem": "The refresh token lapses after 1 year unused", "fix": "Refresh on a schedule and store the newest token." }
+  ],
+  "gotchas": [
+    "The authorization code is single-use and valid for 5 minutes.",
+    "Access tokens last 1 hour; refresh tokens last 1 year and roll on every refresh, so always store the newest one.",
+    "Set sandbox_install_compatible=true to install into a Stripe sandbox."
+  ],
+  "agentCan": "Run the CLI to scaffold, grant permissions and upload; write the OAuth callback and refresh logic; draft listing copy, permission justifications and testing guidance; run test installs through external test links. Stripe publishes agent skills (stripe agent setup).",
+  "humanMust": "Account activation and business verification, Dashboard login with 2FA (needed to create restricted keys), submitting the listing, accepting agreements, and a customer admin approving the install. Provide non-2FA test accounts for reviewers.",
+  "uncertain": [
+    "The External test install cap.",
+    "The exact Dashboard role needed to upload or install apps.",
+    "Whether new Connect platforms can still enable OAuth (docs say not recommended, not removed).",
+    "Marketplace fees or revenue share, and real-world review turnaround."
+  ],
+  "sources": [
+    { "url": "https://docs.stripe.com/stripe-apps/api-authentication/oauth", "label": "Stripe Apps: OAuth authentication" },
+    { "url": "https://docs.stripe.com/stripe-apps/publish-app", "label": "Stripe Apps: publish an app" },
+    { "url": "https://docs.stripe.com/connect/oauth-standard-accounts", "label": "Connect OAuth with Standard accounts" },
+    { "url": "https://docs.stripe.com/connect/oauth-changes-for-standard-platforms", "label": "Connect OAuth changes for Standard platforms" },
+    { "url": "https://docs.stripe.com/keys/restricted-api-keys", "label": "Restricted API keys" }
+  ]
+}

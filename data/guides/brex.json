@@ -1,0 +1,141 @@
+{
+  "schema": 3,
+  "id": "brex",
+  "name": "Brex",
+  "category": "Finance & Fintech",
+  "website": "developer.brex.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 88,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "OAuth client credentials need partner onboarding with Brex developer support. Without it, each customer's admin creates a user token and pastes it in, which works but is manual and tied to a user; timeline unknown.",
+  "needGuide": "Yes — contact Brex developer support to apply as a partner, and use user tokens in the meantime.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Two models. User tokens: a Brex account admin or card admin creates a token under Developer → Settings with chosen scopes, sent as a Bearer header; it expires if unused for 90 days or if its user is deactivated. Partner OAuth 2.0 (OpenID Connect compliant): authorization code (PKCE optional) for most APIs and client credentials for the onboarding API; access token 1 hour, refresh token rotated and valid 90 days; revoke at /v1/revoke.",
+    "userOAuth": "partner-only",
+    "access": "Partner program required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "15–30 min with a user token on your own Brex account; OAuth: depends on partner onboarding",
+    "timeToProduction": "unknown (partner onboarding with Brex)",
+    "firstShort": "15–30 min (token)",
+    "prodShort": "Unknown (partner onboarding)",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Partner onboarding with Brex developer support is required to get OAuth client credentials. Without it, each customer's admin creates a user token and pastes it into your app (works but manual and tied to a user).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Space-delimited scopes, and the granted set can be a subset of what you asked for.",
+    "summary": "Space-delimited scopes (for example cards, cards.readonly); the granted set may be a subset of the requested one. Per-API scope tables are in Brex's scopes guide. User tokens select scopes at creation.",
+    "table": []
+  },
+  "cost": "No fees documented; partner terms unknown",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A business or partnerships owner to request client credentials from Brex developer support; developers implement. A Brex account of your own is likely needed for testing.",
+    "Where you register: No self-serve console for OAuth: contact Brex developer support to receive a client ID and secret and supply redirect URIs. User tokens: Brex dashboard → Developer → Settings (account admin or card admin).",
+    "Cost: No fees documented; partner terms unknown"
+  ],
+  "registerAt": {
+    "url": "https://developer.brex.com/docs/partner_authentication/",
+    "path": "No self-serve console for OAuth: contact Brex developer support to receive a client ID and secret and supply redirect URIs. User tokens: Brex dashboard → Developer → Settings (account admin or card admin)."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Contact Brex developer support and apply as a developer partner; supply redirect URIs",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Receive client ID and secret; read the openid-configuration document for the live base URL",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code flow (state longer than 8 characters, optional PKCE) and the /v1/token exchange",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store refresh tokens and rotate them before the 90-day expiry",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test on staging, or with a user token against a test Brex account",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Have a customer admin approve the requested scopes and verify the integration end to end",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A business or partnerships owner to request client credentials from Brex developer support; developers implement. A Brex account of your own is likely needed for testing.",
+    "console": "none documented",
+    "customer": "A Brex user with the proper role (an admin) signs in and approves some or all requested scopes; roles without that permission cannot grant access. For user tokens, an account admin or card admin creates the token.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "The authentication page says Brex offers only a production API server (api.brex.com), while the partner OAuth page mentions a staging environment with no availability guarantee and data that may be purged.",
+    "Ask your Brex partner contact for staging access."
+  ],
+  "blockers": [
+    {
+      "problem": "No self-serve OAuth registration",
+      "fix": "Plan for partner onboarding, or use customer-created user tokens meanwhile."
+    },
+    {
+      "problem": "Refresh tokens expire every 90 days",
+      "fix": "Rotate before expiry or the user must sign in again."
+    },
+    {
+      "problem": "Redirect URIs must match exactly",
+      "fix": "State must be longer than 8 characters."
+    },
+    {
+      "problem": "Existing partners may still be on the old OAuth base URL (new one enabled 2022-11-17)",
+      "fix": "Use the openid-configuration document."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth code, refresh scheduler and revocation handling; run staging tests; draft the partner application and use-case description.",
+    "humanMust": "Brex partner application and agreement, a customer admin approving consent or creating a token, and any commercial terms."
+  },
+  "uncertain": [
+    "Partner acceptance criteria and timeline, partner fees, scope tables, whether staging is available to new partners."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.brex.com/docs/partner_authentication/",
+      "label": "developer.brex.com/docs/partner_authentication"
+    },
+    {
+      "url": "https://developer.brex.com/docs/authentication/",
+      "label": "developer.brex.com/docs/authentication"
+    }
+  ]
+}

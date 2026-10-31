@@ -1,0 +1,151 @@
+{
+  "schema": 3,
+  "id": "discord",
+  "name": "Discord",
+  "category": "Communications & Messaging",
+  "website": "discord.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 26,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: create an application and use OAuth plus a bot, with no review. Verification is required as the app grows toward 100 servers and privileged intents need approval; customers need Manage Server to add the bot.",
+  "needGuide": "Short one, but plan for verification and privileged-intent approval if you expect to pass about 100 servers.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization-code grant with refresh tokens (PKCE recommended), plus a bot authorization flow (scope=bot, no redirect) that adds a bot token user to a guild. Access token expires_in example is 604800 s (7 days). Redirect URIs must be registered. Revoking any token revokes the whole authorization.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (no review) | days to weeks if verification and intents approval are needed",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days (no review)",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "Verification is required as an app grows toward 100 servers (Discord's help center warns from 75; the API docs I fetched say 100 or more). Privileged intents (GUILD_PRESENCES, GUILD_MEMBERS, MESSAGE_CONTENT) must be approved for verified-eligible apps. Some scopes (dm_channels.read, voice, rpc.*, relationships.read) are partner-only.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "atScale": "Verification once the bot nears 100 servers; privileged intents need approval",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Common scopes are self-serve, but dm_channels.read, voice and rpc.* are approval-only and the message content intent is privileged.",
+    "summary": "Common: identify, email, guilds, guilds.members.read, connections, bot, applications.commands, webhook.incoming. Approval-only: dm_channels.read, identify.premium, voice, rpc.*, relationships.read (Social SDK). Message content intent is privileged.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Discord account can create the app; use a Team (company-owned) rather than a personal account so ownership survives staff changes.",
+    "Where you register: Developer Portal → New Application → OAuth2 → add Redirects, copy Client ID/Secret; Bot page → Reset Token and set Privileged Gateway Intents",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://discord.com/developers/applications",
+    "path": "Developer Portal → New Application → OAuth2 → add Redirects, copy Client ID/Secret; Bot page → Reset Token and set Privileged Gateway Intents"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a Team and a New Application at discord.com/developers/applications",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "OAuth2 page: add HTTPS redirect URIs; copy Client ID and Secret",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code + PKCE and refresh-token handling; check the iss parameter",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If a bot is needed, build the invite URL with scope=bot applications.commands and minimal permissions",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Enable only needed Privileged Gateway Intents on the Bot page",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Test in a dev server; watch guild count and Developer Portal notices",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Before reaching the cap, start App Verification and privileged-intent applications with use-case write-ups",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Discord account can create the app; use a Team (company-owned) rather than a personal account so ownership survives staff changes.",
+    "console": "Developer Portal Teams: create a team and invite members by username (likely; not verified), then transfer the app to the team.",
+    "customer": "To add the bot to a server the user needs Manage Server permission in that guild. For user OAuth (identify, guilds) any user can authorize.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own test server; bots in fewer than 100 servers can use limited privileged-intent toggles in the Bot page.",
+    "Apps under about 10,000 unique users can enable privileged intents without review per the gateway doc."
+  ],
+  "blockers": [
+    {
+      "problem": "Bot growth hits the verification threshold",
+      "fix": "Apply early; pending verification can block adding servers (VERIFICATION_PENDING_GUILD_LIMIT flag)."
+    },
+    {
+      "problem": "Gateway closes with 4014 if you request an intent not enabled or approved",
+      "fix": ""
+    },
+    {
+      "problem": "Self-botting or automating user accounts is prohibited",
+      "fix": "Use bot or OAuth only."
+    },
+    {
+      "problem": "Team apps limited to identify and applications.commands.update for client credentials",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write OAuth and bot code, configure slash commands via API, draft verification and intent justifications, run test calls.",
+    "humanMust": "Portal login, team setup, owner identity verification and verification submission (likely third-party ID check), accepting Developer Policy."
+  },
+  "uncertain": [
+    "Could not load Discord's verification help-center articles (fetch errors, then quota exhausted), so the 75-server notice, 100-server cap, ID-verification method and review timeline are unconfirmed; the API docs conflict on thresholds (100+ servers vs 10,000 users)."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.discord.com/developers/topics/oauth2",
+      "label": "docs.discord.com/developers/topics/oauth2"
+    },
+    {
+      "url": "https://docs.discord.com/developers/resources/application",
+      "label": "docs.discord.com/developers/resources/application"
+    },
+    {
+      "url": "https://docs.discord.com/developers/events/gateway",
+      "label": "docs.discord.com/developers/events/gateway"
+    }
+  ]
+}

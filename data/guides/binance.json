@@ -1,0 +1,149 @@
+{
+  "schema": 3,
+  "id": "binance",
+  "name": "Binance",
+  "category": "Finance & Fintech",
+  "website": "binance.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 83,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "OAuth is only for close ecosystem partners after contacting Binance's business team, likely taking months. Without it, each user creates their own API key (ideally read-only, no withdrawals) and pastes it in, workable the same day.",
+  "needGuide": "Yes — decide whether a partnership is realistic; otherwise use user-supplied API keys.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Everyday access is user-created API keys (requests signed with HMAC, RSA or Ed25519; Ed25519 preferred), with no OAuth. Binance Login (OAuth 2.0) exists: authorize at accounts.binance.com/en/oauth/authorize, token at POST accounts.binance.com/oauth/token, authorization code flow for web apps and PKCE (S256) for native apps, refresh_token grant supported; example scopes user:openId, create:apikey, read. The docs say it is 'exclusively offered to close ecosystem partners'. Binance's own MCP server uses OAuth client IDs for named AI clients, with user-chosen scopes and no withdrawal scope.",
+    "userOAuth": "partner-only",
+    "access": "Partner program required"
+  },
+  "effort": {
+    "researchRating": "Very hard",
+    "timeToFirstTest": "1–2 hours with an API key against the Spot Testnet; OAuth: unknown",
+    "timeToProduction": "unknown (partner negotiation; likely months for OAuth) | same day via user-supplied API keys",
+    "firstShort": "1–2 hrs (API key)",
+    "prodShort": "Keys same day; OAuth unknown",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "OAuth: contact Binance's business team and be accepted as a close ecosystem partner; no self-serve public listing was found. Without it, each user creates their own API key and pastes it into your app. Binance Connect 2.0 and Binance Pay technical-service-provider authorization also appear in the docs index and look partner-oriented (unread).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Per-key permission toggles (read, trading, withdrawals); the OAuth scope list wasn't available.",
+    "summary": "API keys: permission toggles per key (reading, spot/margin trading, withdrawals and others), so request read-only. OAuth: scopes passed comma-separated (user:openId, create:apikey, read); the full scope list page was empty when fetched.",
+    "table": []
+  },
+  "cost": "API keys free; partner terms unknown",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A company-owned Binance entity (business) account is needed to create an OAuth app in the Developer Center; business verification is likely required. Someone with authority for a partnership conversation.",
+    "Where you register: Binance Developer Center → sign in with a Binance entity account → create an OAuth application (client ID and secret), but only after contacting the Binance business team. API-key path: user's Binance account → API Management (likely).",
+    "Cost: API keys free; partner terms unknown"
+  ],
+  "registerAt": {
+    "url": "https://developers.binance.com/en/docs/products/login/web-integration",
+    "path": "Binance Developer Center → sign in with a Binance entity account → create an OAuth application (client ID and secret), but only after contacting the Binance business team. API-key path: user's Binance account → API Management (likely)."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Decide the path: user-supplied API keys now, Binance Login OAuth only if a partnership is realistic",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Build the key-entry screen telling users to create a read-only API key with no withdrawals and IP restriction",
+          "who": "Design",
+          "agent": true
+        },
+        {
+          "do": "Store keys encrypted; validate with a signed read call; use Ed25519 and percent-encode the payload before signing",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test against testnet.binance.vision with Testnet keys",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "If pursuing OAuth: contact the Binance business team, then create the OAuth app in the Developer Center with an entity account",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code plus PKCE and refresh handling",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A company-owned Binance entity (business) account is needed to create an OAuth app in the Developer Center; business verification is likely required. Someone with authority for a partnership conversation.",
+    "console": "none documented",
+    "customer": "The Binance user approves the consent screen (OAuth) or creates the API key themselves, ideally read-only with no withdrawal permission and an IP allowlist (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Spot Testnet at testnet.binance.vision and a Demo Mode are documented; both use separate keys.",
+    "No OAuth sandbox is documented."
+  ],
+  "blockers": [
+    {
+      "problem": "Binance Login is restricted to close ecosystem partners",
+      "fix": "Fall back to user-supplied API keys."
+    },
+    {
+      "problem": "Payload signing changed",
+      "fix": "Percent-encode before signing (effective around 2026-01-15) or requests fail with -1022 INVALID_SIGNATURE."
+    },
+    {
+      "problem": "Holding user trading keys is a high-risk liability",
+      "fix": "Require read-only keys and encrypt at rest."
+    },
+    {
+      "problem": "Regional Binance entities may have separate docs and keys",
+      "fix": "Confirm which one your users are on."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write signing and validation code, the key-entry UI and test calls, and draft the partnership outreach and use-case description.",
+    "humanMust": "Business account creation and verification, contacting and negotiating with Binance's business team, legal agreements, and each user creating their own API key with 2FA."
+  },
+  "uncertain": [
+    "Partner eligibility criteria and timeline, refresh token lifetime, the full OAuth scope list, Binance Connect 2.0 details (pages would not load), business-verification requirements, regional (Binance.US) differences."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.binance.com/en/docs/products/login/web-integration",
+      "label": "developers.binance.com/en/docs/products/login/web-integration"
+    },
+    {
+      "url": "https://developers.binance.com/en/docs/llms.txt",
+      "label": "developers.binance.com/en/docs/llms.txt"
+    },
+    {
+      "url": "https://developers.binance.com/docs/binance-spot-api-docs",
+      "label": "developers.binance.com/docs/binance-spot-api-docs"
+    },
+    {
+      "url": "https://developers.binance.com/en/docs/llms-full.txt",
+      "label": "developers.binance.com/en/docs/llms-full.txt"
+    }
+  ]
+}

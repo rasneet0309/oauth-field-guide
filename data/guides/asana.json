@@ -1,0 +1,156 @@
+{
+  "schema": 3,
+  "id": "asana",
+  "name": "Asana",
+  "category": "Productivity & PM",
+  "website": "asana.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 75,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "self",
+  "verdict": "Self-serve: set Distribution to Any workspace and users can authorize through your link with no review. App Directory listing is optional (about 1-3 weeks), and admins use your listing details to approve or block apps.",
+  "needGuide": "Short one: register scopes, set Any workspace, and fill in the listing details admins will see.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code grant; PKCE (S256) supported and required for localhost/native redirects. Access token 1 hour; refresh token is long-lived and valid while the user's authorization stands. Granular scopes in the form resource:action (read, write, delete; write does not imply read) must be registered in the console.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (any-workspace, no review); about 1-3 weeks for App Directory",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days; listing 1–3 weeks",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "Distribution set to 'Any workspace' lets users from any workspace authorize via your authorization URL; no review is stated for that. App Directory publication is optional but requires Any workspace, public status and 'Submit for review' with listing details. Initial response aims for within one week; apps with app components also get security review and QA.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (listing optional)"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "resource:action scopes; endpoints without scopes need Full permissions, and opt_fields need matching scopes or return 403.",
+    "summary": "Format resource:action (read/write/delete). Unregistered scopes return forbidden_scopes. Endpoints without scopes need 'Full permissions', which disables individual scopes. opt_fields on related objects need matching scopes or return 403. Review is not tied to specific scopes.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Asana user in the developer console; use a company-owned account. To share with Specific workspaces you must belong to those workspaces.",
+    "Where you register: Developer console (My apps) → Create new app → OAuth tab (client ID/secret, redirect URL, scopes) → Manage distribution tab → Any workspace",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://app.asana.com/0/my-apps",
+    "path": "Developer console (My apps) → Create new app → OAuth tab (client ID/secret, redirect URL, scopes) → Manage distribution tab → Any workspace"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Open the developer console (My apps) and click Create new app",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "On the OAuth tab add the HTTPS redirect URL and register the minimum granular scopes (e.g. tasks:read, tasks:write, projects:read)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code + PKCE, refresh at 1-hour expiry, and request scopes as a full set (requests are not additive)",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Fill the App listing details (icon, name without the word Asana, descriptions, company, support and privacy URLs)",
+          "who": "Design",
+          "agent": true
+        },
+        {
+          "do": "On Manage distribution choose Any workspace and share the authorization URL",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Authorize from a second workspace and test revoke and scope changes",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Optionally open Submit for review and add screencast and setup steps for the App Directory",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Asana user in the developer console; use a company-owned account. To share with Specific workspaces you must belong to those workspaces.",
+    "console": "none documented (distribution role requirements not specified)",
+    "customer": "A workspace member authorizes. The app must be available in that workspace. Admins use the app listing details (name, company, URLs) to approve or block apps, so fill the listing even without publishing.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Set distribution to Specific workspace and add workspaces you belong to; authorize from those.",
+    "Directory submission requires test account credentials in the setup instructions if login is needed.",
+    "Unpublished apps can change distribution settings at any time."
+  ],
+  "blockers": [
+    {
+      "problem": "Requested scopes are not additive",
+      "fix": "Users must re-authorize with the full set when you add scopes."
+    },
+    {
+      "problem": "Apps with Full permissions cannot request individual scopes",
+      "fix": "Pick one mode early."
+    },
+    {
+      "problem": "Directory review rejects vague setup instructions and listings that mention 'Asana' in the name",
+      "fix": "Follow the listing guidelines."
+    },
+    {
+      "problem": "Customer admins may block unlisted apps",
+      "fix": "Complete listing details and share an admin explainer."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft listing copy, setup instructions and privacy text, write OAuth/PKCE/refresh code, script test calls, and prepare the screencast script.",
+    "humanMust": "Console sign-in, supplying company information, recording the screencast, accepting directory terms, and customer admin approvals."
+  },
+  "uncertain": [
+    "Console collaborator roles, exact admin-console app management paths, and the date of the 2025 granular-scopes rollout were not confirmed.",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.asana.com/docs/oauth",
+      "label": "developers.asana.com/docs/oauth"
+    },
+    {
+      "url": "https://developers.asana.com/docs/manage-distribution",
+      "label": "developers.asana.com/docs/manage-distribution"
+    },
+    {
+      "url": "https://developers.asana.com/docs/publish-your-app",
+      "label": "developers.asana.com/docs/publish-your-app"
+    },
+    {
+      "url": "https://developers.asana.com/docs/app-listing-guidelines",
+      "label": "developers.asana.com/docs/app-listing-guidelines"
+    }
+  ]
+}

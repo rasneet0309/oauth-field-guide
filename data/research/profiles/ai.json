@@ -1,0 +1,739 @@
+[
+  {
+    "n": 91,
+    "id": "notebooklm",
+    "name": "NotebookLM",
+    "category": "AI, Research & Media",
+    "website": "cloud.google.com/gemini",
+    "authModel": "Other",
+    "authDetail": "Only NotebookLM Enterprise (Gemini Notebook Enterprise) has an API, and it is Preview (v1alpha). Docs show a Google Cloud IAM bearer token from `gcloud auth print-access-token` against {us|eu|global}-discoveryengine.googleapis.com/v1alpha/projects/PROJECT_NUMBER/locations/LOCATION/notebooks. No developer-registered OAuth app or scope list is documented. Consumer NotebookLM has no public API (per brief; not re-verified).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.cloud.google.com/gemini/enterprise/notebooklm-enterprise/docs/api-notebooks",
+      "path": "No app registration. Work happens inside a customer's Google Cloud project: set up Gemini Notebook Enterprise, assign licenses, grant the Cloud NotebookLM User IAM role."
+    },
+    "access": "Not offered",
+    "productionGate": "No third-party OAuth or partner program. Each customer needs NotebookLM Enterprise set up and licensed in their own Google Cloud project, and the API is Pre-GA ('as is', limited support). Your agent must act as an IAM principal in that project; a service account or delegated user is likely, and Google OAuth verification likely applies if you use user tokens with Cloud scopes (unconfirmed).",
+    "difficulty": "Very hard",
+    "timeToFirstTest": "unknown (needs a Google Cloud project with NotebookLM Enterprise licenses)",
+    "timeToProduction": "unknown; per-customer project setup on a Preview API",
+    "cost": "Requires paid NotebookLM Enterprise licenses plus a Google Cloud project (pricing not checked)",
+    "roles": {
+      "team": "A Google Cloud project owner/admin who can set up Gemini Notebook Enterprise, buy licenses and assign IAM roles. Use a company-owned Cloud org.",
+      "console": "Google Cloud IAM: add principals and assign the Cloud NotebookLM User role in the project. No separate developer console for NotebookLM.",
+      "customer": "Customer Google Cloud admin must enable NotebookLM Enterprise, assign licenses and grant the Cloud NotebookLM User role to whatever identity your agent uses. Org policies or IAM can block this."
+    },
+    "testing": "Use your own Google Cloud project with a trial or licensed NotebookLM Enterprise instance. Limits seen in docs: listRecentlyViewed returns up to 500 notebooks, and batchDelete returns {} even for missing IDs.",
+    "steps": [
+      {
+        "do": "Decide the integration model: the customer's own Google Cloud project hosts NotebookLM Enterprise, and your agent calls into it.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "In a test Google Cloud project, set up Gemini Notebook Enterprise and obtain licenses (see the 'set up' links on the API doc page).",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Grant the Cloud NotebookLM User IAM role to your test user or service account in IAM & Admin.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call POST .../v1alpha/projects/PROJECT_NUMBER/locations/global/notebooks with `Authorization: Bearer $(gcloud auth print-access-token)` to create a notebook.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exercise notebooks.get, listRecentlyViewed, share (PROJECT_ROLE_OWNER/WRITER/READER) and batchDelete.",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Document for customers the IAM role, license and region (us/eu/global) they must set up, and the token model you use.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Review the cross-tenant access model (service account vs delegated user) before offering it to customers.",
+        "who": "Security",
+        "agent": false
+      }
+    ],
+    "scopes": "IAM-based, not OAuth scopes. Cloud NotebookLM User role is required for sharing recipients. Share roles are PROJECT_ROLE_OWNER, WRITER, READER and NOT_SHARED. Operations: create, get, listRecentlyViewed, batchDelete, share. Sources and chat are not in the documented API surface.",
+    "blockers": [
+      "Consumer NotebookLM (notebooklm.google.com) has no API. Fix: target Enterprise customers only, or do not integrate.",
+      "API is v1alpha/Preview and may change. Fix: pin the version and monitor release notes.",
+      "Customer needs licenses, a project number and the right regional endpoint. Fix: collect PROJECT_NUMBER, LOCATION and ENDPOINT_LOCATION during onboarding.",
+      "Third-party identity customers use a different notebook URL domain (notebook.cloud.google vs notebook.cloud.google.com). Fix: build links from the customer's identity type."
+    ],
+    "agentCan": "Write the REST client, create/share/list notebooks in a test project, draft customer onboarding instructions (IAM role, licenses, region), and script gcloud setup commands.",
+    "humanMust": "Buy or enable NotebookLM Enterprise licenses, approve billing, sign in to Google Cloud, assign IAM roles, and make the cross-tenant security decision.",
+    "confidence": "Medium",
+    "uncertain": "Only the NotebookLM Enterprise API doc was read. Not confirmed: whether third-party multi-tenant OAuth or Workforce Identity access is supported, license prices, GA date, and the consumer-API claim. Only one source was fetched, so the 2-source minimum is not met.",
+    "sources": [
+      "https://docs.cloud.google.com/gemini/enterprise/notebooklm-enterprise/docs/api-notebooks"
+    ]
+  },
+  {
+    "n": 92,
+    "id": "otter-ai",
+    "name": "Otter AI",
+    "category": "AI, Research & Media",
+    "website": "help.otter.ai",
+    "authModel": "MCP OAuth",
+    "authDetail": "Unverified. Otter is understood to offer a hosted MCP server where users sign in to their own Otter account from an MCP client (likely OAuth). No Otter MCP or API article could be fetched, and the help-center homepage shows only Zapier and Slack integrations. No developer-registered OAuth app was found.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://help.otter.ai",
+      "path": "Not found. Search the help center for 'MCP' or 'API', or contact Otter support/sales for developer access."
+    },
+    "access": "Not offered",
+    "productionGate": "Unknown. No public developer-app registration, review or partner program was found. Likely path is connecting your agent as an MCP client to Otter's server, or asking Otter for partner/API access. Plan restrictions (paid or Enterprise only) are unconfirmed.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "unknown",
+    "timeToProduction": "unknown",
+    "cost": "Likely requires a paid Otter plan for MCP/API access (unconfirmed)",
+    "roles": {
+      "team": "Someone with an Otter account on a plan that includes MCP/API access, using a company-owned account.",
+      "console": "none documented",
+      "customer": "Each end user (or workspace admin on Business/Enterprise, likely) signs in to Otter and approves the MCP connection. Admin controls over MCP access are unconfirmed."
+    },
+    "testing": "Use your own Otter account and connect an MCP-capable client. Free-plan access and limits are unconfirmed.",
+    "steps": [
+      {
+        "do": "Search help.otter.ai for 'MCP server' and 'API' articles and record the server URL, plan requirement and auth method.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If an MCP server exists, add it to your agent's MCP client config and complete the browser sign-in with a test Otter account.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Verify the OAuth discovery metadata and whether dynamic client registration works for your agent's redirect URI.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If you need a first-party API or a registered OAuth app, email Otter support/sales to request access.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Test search/fetch of meeting transcripts against a test workspace.",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Document which Otter plans your customers need and what the customer admin must allow.",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Unknown. MCP tools likely expose the signed-in user's own meetings and transcripts; exact scopes unconfirmed.",
+    "blockers": [
+      "Could not confirm MCP/API availability or plan gating. Fix: read the live Otter help center and contact support before committing.",
+      "No developer-registered OAuth app was found. Fix: plan around the MCP route or request partner access.",
+      "Workspace admins may restrict integrations (likely). Fix: give customers a short admin enablement note."
+    ],
+    "agentCan": "Draft the support/sales request for API or partner access, write MCP client config, test MCP tool calls once authorized, and draft customer enablement notes.",
+    "humanMust": "Sign in with a real Otter account (2FA), accept terms, buy a plan if gated, and contact Otter sales for any partner access.",
+    "confidence": "Low",
+    "uncertain": "help.otter.ai MCP/API articles returned a client error, so MCP server existence, URL, auth method and plan gating are unconfirmed. Search budget was exhausted and the fetch limit was hit before otter.ai/mcp could be read. No usable source for MCP details.",
+    "sources": [
+      "https://help.otter.ai"
+    ]
+  },
+  {
+    "n": 93,
+    "id": "fathom",
+    "name": "Fathom",
+    "category": "AI, Research & Media",
+    "website": "fathom.video",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Two methods. API keys are per user, sent as `X-Api-Key`, with no org-level keys. OAuth apps use authorization code, token URL https://api.fathom.ai/external/v1/oauth2/token, a single scope `public_api`, and a Bearer token. Access tokens are short-lived. Refresh tokens are single-use and rotate on each refresh. PKCE is not mentioned.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://fathom.video/marketplace_applications/new",
+      "path": "Fathom marketplace applications → New: set redirect URIs and receive Client ID and Client Secret (docs say about 2 minutes)."
+    },
+    "access": "Self-serve",
+    "productionGate": "No hard gate documented. OAuth apps are 'subject to review to ensure the best experience for all users', but the docs do not say review blocks installs. Marketplace/co-marketing promotion is quarterly and invites apps with 20+ users. Production redirect URIs must be HTTPS, and multiple production URIs need separate OAuth apps.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review documented); review timing unknown",
+    "cost": "Free; API access is included on all plans",
+    "roles": {
+      "team": "Any developer with a Fathom account can register an app (eligibility not stated). Use a company-owned account because the app is tied to the registering user.",
+      "console": "none documented (no collaborator feature found)",
+      "customer": "The individual Fathom user authorizes their own account. Tokens see meetings they recorded or that were shared with them or their team; private calls stay host-only even for Admins. Admin controls blocking OAuth apps are not documented."
+    },
+    "testing": "Use your own Fathom account (API keys work on all plans) and register multiple development redirect URIs. Token endpoint limit is 60 requests per 60 seconds per OAuth app.",
+    "steps": [
+      {
+        "do": "Sign in to Fathom and open fathom.video/marketplace_applications/new.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create the app: set HTTPS redirect URIs (several allowed for dev, one per production app) and save the Client ID and Secret.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Build the authorization link with the Fathom SDK (getAuthorizationUrl / get_authorization_url, scope public_api, state).",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exchange the code at the token URL with grant_type=authorization_code, then persist tokens in a real TokenStore.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Refresh with grant_type=refresh_token, store the new refresh token each time and serialize refreshes with a lock.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call /recordings summary and transcript endpoints (OAuth cannot use include_summary or include_transcript on /meetings).",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Review Fathom brand guidelines and email help@fathom.video about listing or launch materials.",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Only `public_api` (full Fathom API access for the authorizing user). No per-resource scopes, so no scope-triggered review is documented.",
+    "blockers": [
+      "Refresh tokens are single-use, so concurrent refreshes fail with HTTP 400. Fix: lock per connection and store the new token.",
+      "OAuth apps cannot use include_summary/include_transcript on /meetings. Fix: call /recordings endpoints.",
+      "One production redirect URI per app. Fix: register separate apps per environment or domain.",
+      "Review process and timing are undocumented. Fix: email help@fathom.video before launch."
+    ],
+    "agentCan": "Write the OAuth flow with the SDK, implement locked refresh, run test calls to meetings, summary and transcript, draft launch copy and brand-compliant listing text.",
+    "humanMust": "Log in to Fathom to register the app, authorize the test account, and handle any marketplace or partner contact with Fathom.",
+    "confidence": "Medium",
+    "uncertain": "Who may register apps, whether review blocks customer installs, PKCE support, access-token lifetime, authorization endpoint URL, and MCP auth (api.fathom.ai/mcp) details were not documented in fetched pages.",
+    "sources": [
+      "https://developers.fathom.ai/oauth.md",
+      "https://developers.fathom.ai/sdks/oauth.md",
+      "https://developers.fathom.ai/faq.md",
+      "https://developers.fathom.ai/quickstart.md",
+      "https://developers.fathom.ai/llms.txt"
+    ]
+  },
+  {
+    "n": 94,
+    "id": "consensus",
+    "name": "Consensus",
+    "category": "AI, Research & Media",
+    "website": "consensus.app",
+    "authModel": "Other",
+    "authDetail": "Unverified. The Consensus homepage mentions no API, MCP or developer access. Consensus is understood to offer an MCP connector and a partner-oriented API, but no official page was reachable to confirm auth method, plans or registration.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://consensus.app",
+      "path": "Not found. No developer console located; look for an API or MCP page on consensus.app or contact the company."
+    },
+    "access": "Not offered",
+    "productionGate": "Unknown. No developer-registered OAuth app was found. Any API or MCP access is likely by request or tied to a paid plan (unconfirmed).",
+    "difficulty": "Hard",
+    "timeToFirstTest": "unknown",
+    "timeToProduction": "unknown",
+    "cost": "Unknown; likely a paid Consensus plan or a commercial API agreement",
+    "roles": {
+      "team": "An owner of a company Consensus account; if API access is by agreement, a business contact to negotiate it.",
+      "console": "none documented",
+      "customer": "Unknown. Each end user would likely sign in to their own Consensus account if an MCP/OAuth connector exists."
+    },
+    "testing": "Use a free Consensus account to test search manually. Free-tier API or MCP access is unconfirmed.",
+    "steps": [
+      {
+        "do": "Search consensus.app for API/MCP documentation and note the auth method and plan requirement.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If an MCP connector exists, connect it from your MCP client with a test account via browser sign-in.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "If none exists, email Consensus to request API or partner access and ask whether OAuth is on the roadmap.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Prototype search calls against the confirmed interface and log citations/paper metadata returned.",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Check the terms for rights to redistribute results to your customers.",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Fallback: let the user paste an API key if one is issued, stored encrypted and validated with a test call.",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Unknown.",
+    "blockers": [
+      "No confirmed public API or OAuth program. Fix: contact Consensus before building.",
+      "Terms may restrict redistributing search results. Fix: get written permission.",
+      "Brief marks this app 'OAuth requested', but OAuth availability is unverified. Fix: confirm with the vendor first."
+    ],
+    "agentCan": "Draft the outreach email, write the integration once an interface is confirmed, and run test searches.",
+    "humanMust": "Create a real account, accept terms, negotiate any API/commercial agreement, and approve spend.",
+    "confidence": "Low",
+    "uncertain": "Everything about API/MCP existence, auth and cost is unconfirmed. Web search budget was exhausted and the fetch limit was hit, so no Consensus developer docs were read.",
+    "sources": [
+      "https://consensus.app"
+    ]
+  },
+  {
+    "n": 95,
+    "id": "reducto",
+    "name": "Reducto",
+    "category": "AI, Research & Media",
+    "website": "reducto.ai",
+    "authModel": "API key / token only",
+    "authDetail": "Reducto is a document-parsing API, not a user-data app. API keys are created in Studio and sent as `Authorization: Bearer $REDUCTO_API_KEY` to https://platform.reducto.ai. The hosted MCP server (https://mcp.reducto.ai/mcp) also takes the API key as a bearer token. The local MCP server's `--login` uses a browser device-code flow only to fetch and save a key. No OAuth app registration for third parties.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://studio.reducto.ai/api-keys",
+      "path": "studio.reducto.ai → sign up → sidebar API Keys → create key, name it and copy."
+    },
+    "access": "Self-serve",
+    "productionGate": "None for OAuth because none exists. You use your own key (your customers' documents are sent to Reducto under your account). Enterprise terms, zero-retention or higher limits likely need a Reducto sales contact (unconfirmed).",
+    "difficulty": "Easy",
+    "timeToFirstTest": "under 30 min",
+    "timeToProduction": "1-3 days (no review); enterprise/data-handling terms unknown",
+    "cost": "Free signup with credits (amount not stated); usage billed in credits",
+    "roles": {
+      "team": "Anyone who can sign up at Studio. Use a company-owned account so keys are not tied to a personal email.",
+      "console": "none documented",
+      "customer": "Customers do not connect an account. If a customer wants to bring their own key, they create it in Studio and paste it into your app."
+    },
+    "testing": "Free Studio account; each parse response reports credits used in usage.credits. Rate limits not stated in the quickstart.",
+    "steps": [
+      {
+        "do": "Sign up at studio.reducto.ai with a company email.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Open API Keys in the Studio sidebar, create a key named for the environment and store it in a secrets manager.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Call POST https://platform.reducto.ai/upload and /parse with the Bearer key or via the Python/Node/Go SDK (reads REDUCTO_API_KEY).",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "For agent tooling, add the hosted MCP server with an Authorization: Bearer header, or run `uvx mcp-server-reducto`.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If supporting bring-your-own-key, add a settings field that stores the customer's key encrypted and validates it with a test parse.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Review data-processing terms and retention for customer documents.",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "None. Keys are all-or-nothing for the account; no per-scope model documented.",
+    "blockers": [
+      "No OAuth, so customers cannot connect their own account. Fix: use your own key or a BYO-key field.",
+      "Customer documents are processed under your account. Fix: cover this in your DPA and ask Reducto about retention options.",
+      "Rate limits and credit amounts are not documented in the quickstart. Fix: check the account dashboard or contact Reducto."
+    ],
+    "agentCan": "Write the parse client, configure MCP, run test parses, and build the BYO-key form and validation call.",
+    "humanMust": "Sign up, create and rotate the key, accept terms, add payment, and sign any enterprise or data-handling agreement.",
+    "confidence": "High",
+    "uncertain": "Rate limits, free credit amount, SOC2/retention options, and whether Reducto offers OAuth on request were not found.",
+    "sources": [
+      "https://docs.reducto.ai/quickstart.md",
+      "https://docs.reducto.ai/mcp-server.md",
+      "https://docs.reducto.ai"
+    ]
+  },
+  {
+    "n": 96,
+    "id": "devin",
+    "name": "Devin",
+    "category": "AI, Research & Media",
+    "website": "docs.devin.ai",
+    "authModel": "API key / token only",
+    "authDetail": "Devin API v3 uses Bearer tokens only, prefixed `cog_`: service user API keys (RBAC) and personal access tokens (PATs). Legacy v1/v2 keys (`apk_`, `apk_user_`) are deprecated. The MCP server (https://mcp.devin.ai/mcp, Streamable HTTP) takes a `cog_` key as a bearer token; no OAuth is documented anywhere. Enterprise service-user keys and PATs also need an X-Org-Id header.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.devin.ai/api-reference/authentication.md",
+      "path": "Org: Settings → Devin API → Service users tab. Enterprise: Enterprise settings → Devin API → Service users. Assign a role, copy the cog_ key (shown once)."
+    },
+    "access": "Self-serve",
+    "productionGate": "No OAuth app review. Each customer creates their own service-user key and pastes it into your app. The Enterprise API (/v3/enterprise/*) is for enterprise customers only, and on enterprise accounts PATs are disabled by default behind an admin policy that can require approval and expiry.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review); depends on customer admin",
+    "cost": "Requires a Devin account (Teams or Enterprise plan for service users, likely); API usage consumes the customer's Devin quota",
+    "roles": {
+      "team": "A Devin org admin on your side who can create service users; the page does not state which roles can provision them.",
+      "console": "Custom roles and RBAC (enterprise): assign a role to the service user in the Devin API tab; the role limits which endpoints it can call.",
+      "customer": "A customer org or enterprise admin creates a service user with a least-privilege role, and sends you the key and org ID. Enterprise admins can disable PATs and enforce SSO/IP allowlists."
+    },
+    "testing": "Use your own Devin org and a test service user. Rate limits were not found in the docs.",
+    "steps": [
+      {
+        "do": "In your Devin org go to Settings → Devin API → Service users and create a service user with a least-privilege role.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Copy the cog_ key once and store it in a secrets manager.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Call GET /v3/self on api.devin.ai with `Authorization: Bearer cog_...` to verify.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Create sessions through /v3/organizations/{org}/sessions; use create_as_user_id if the role has ImpersonateOrgSessions.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Build a customer-facing setup screen that asks for the key and org ID, stores them encrypted, validates with /v3/self and shows the minimum role needed.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Optionally configure the Devin MCP server with the key and X-Org-Id header for enterprise keys.",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "RBAC roles on the service user rather than OAuth scopes. Organization API (/v3/organizations/*) covers sessions, knowledge, playbooks and secrets. Enterprise API (/v3/enterprise/*) covers analytics, audit logs, users and billing. Impersonation needs ImpersonateOrgSessions.",
+    "blockers": [
+      "No OAuth, so users must paste keys. Fix: key-entry UI with validation and rotation guidance.",
+      "Legacy apk_ keys do not work with most MCP tools. Fix: require cog_ service-user keys.",
+      "Enterprise PATs are disabled by default. Fix: use service users, or ask the admin to change the policy.",
+      "Enterprise service-user key creation endpoints are Beta. Fix: create keys in the UI."
+    ],
+    "agentCan": "Write the key-validation and session-creation client, configure MCP, draft the customer setup guide and role recommendations, and run test sessions.",
+    "humanMust": "A Devin admin logs in to create service users and keys, pays for the plan, and approves enterprise policies.",
+    "confidence": "High",
+    "uncertain": "Which roles may create service users, rate limits, the exact plan needed for service users, and any OAuth roadmap were not documented.",
+    "sources": [
+      "https://docs.devin.ai/api-reference/authentication.md",
+      "https://docs.devin.ai/api-reference/overview.md",
+      "https://docs.devin.ai/work-with-devin/devin-mcp.md",
+      "https://docs.devin.ai/_llms/en/api.txt"
+    ]
+  },
+  {
+    "n": 97,
+    "id": "higgsfield",
+    "name": "Higgsfield",
+    "category": "AI, Research & Media",
+    "website": "higgsfield.ai/cli",
+    "authModel": "API key / token only",
+    "authDetail": "The REST API uses a project-scoped key ID and secret: `Authorization: Key <KEY_ID>:<KEY_SECRET>`, created in the Higgsfield console. The CLI (`npm i -g @higgsfield/cli`) signs in with `higgsfield auth login` in a browser and its tokens are short-lived. The MCP server (https://mcp.higgsfield.ai/mcp) says 'no API keys', so likely browser OAuth sign-in (unconfirmed). No developer-registered OAuth app is documented.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://console.higgsfield.ai",
+      "path": "Higgsfield Console (also open.higgsfield.ai) → API keys → create a key ID/secret per project; exact menu names not documented."
+    },
+    "access": "Self-serve",
+    "productionGate": "None documented. API is pay-per-generation. The page mentions business-email verification and adding a card with a $15 balance for launch pricing. Each new key starts at 20 concurrent requests.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days",
+    "cost": "API is pay-per-use (e.g. $0.04/image for one model; volume discounts). CLI/MCP spend credits from the user's Higgsfield plan.",
+    "roles": {
+      "team": "Whoever owns the Higgsfield workspace and billing, on a company account (the CLI has a `workspace` command to select the billing workspace).",
+      "console": "none documented (keys are per project and can be rotated or revoked)",
+      "customer": "For CLI/MCP use, the end user signs in with their own Higgsfield account and uses their own credits. Customer admin controls are not documented."
+    },
+    "testing": "Free-tier or credit availability is not stated. Use `higgsfield generate cost-estimate` to check cost before generating, and poll the status_url for jobs.",
+    "steps": [
+      {
+        "do": "Create a Higgsfield account with a company email and open console.higgsfield.ai.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Add billing (card and balance) and verify the business email if you want the launch discount.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create an API key ID and secret for a project and store them as HF_API_KEY_ID and HF_API_KEY_SECRET on your server.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "POST to a model endpoint such as api.higgsfield.ai/<model>/<mode> with the Key header, then poll status_url until done.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "For agent use install the CLI and run `higgsfield auth login`, or connect the MCP server from your client.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Add spend limits, cancellation via cancel_url, and per-customer cost tracking.",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No scope model documented. Keys are per project; CLI/MCP act as the signed-in user with access to their credits and generations.",
+    "blockers": [
+      "No third-party OAuth, so customers cannot connect through your app. Fix: use your own API key and bill customers, or have them use the CLI/MCP themselves.",
+      "CLI tokens are short-lived. Fix: handle 'Session expired' by re-running auth login.",
+      "Generation costs vary by model and resolution. Fix: estimate cost before each call and set spend caps."
+    ],
+    "agentCan": "Write the generation client, install and script the CLI, poll jobs, estimate costs, and draft prompts and usage docs.",
+    "humanMust": "Sign in (including browser login), add payment, verify the business email, and approve spend.",
+    "confidence": "Medium",
+    "uncertain": "Whether the MCP server uses OAuth, console menu paths, free credits, rate limits beyond 20 concurrent, and whether Higgsfield offers partner OAuth were not confirmed.",
+    "sources": [
+      "https://higgsfield.ai/cli",
+      "https://higgsfield.ai/higgsfield-api",
+      "https://docs.higgsfield.ai/docs",
+      "https://github.com/higgsfield-ai/cli",
+      "https://higgsfield.ai/mcp"
+    ]
+  },
+  {
+    "n": 98,
+    "id": "mermaid-cli",
+    "name": "Mermaid CLI",
+    "category": "AI, Research & Media",
+    "website": "github.com/mermaid-js/mermaid-cli",
+    "authModel": "No auth (local tool)",
+    "authDetail": "Local command-line tool (`mmdc`) that renders Mermaid diagrams to SVG, PNG or PDF. The README mentions no account, API key or login. Network access is only needed to install it, or if a diagram loads icon packs from a URL.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://github.com/mermaid-js/mermaid-cli",
+      "path": "No registration. Install with `npm install -g @mermaid-js/mermaid-cli`."
+    },
+    "access": "Self-serve",
+    "productionGate": "None. Runs on your own machine or server; no customer account connects. Production concerns are Chromium/Puppeteer sandboxing in containers.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "under 30 min",
+    "timeToProduction": "under 1 day",
+    "cost": "Free (open source; license not checked)",
+    "roles": {
+      "team": "Any developer who can install Node packages or run a container on the agent's host.",
+      "console": "none documented",
+      "customer": "None. No customer approval or account is needed because rendering is local."
+    },
+    "testing": "Run `mmdc -i input.mmd -o output.svg` locally. Docker and Podman images and `npx -p @mermaid-js/mermaid-cli mmdc` also work. Check output on a Linux CI image.",
+    "steps": [
+      {
+        "do": "Install Node.js, then run `npm install -g @mermaid-js/mermaid-cli` (Homebrew is no longer supported).",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Render a test file with `mmdc -i input.mmd -o output.svg` (or .png / .pdf).",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "In containers or CI, pass a puppeteer-config.json via `-p` to handle the Linux sandbox issue, or use the official Docker image.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Wrap the CLI as an agent tool: write the diagram text to a temp file, run mmdc and return the output file.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate diagram input and limit render time and file size to guard against abuse.",
+        "who": "Security",
+        "agent": true
+      }
+    ],
+    "scopes": "None. No authentication or permissions apply.",
+    "blockers": [
+      "Headless Chromium sandbox errors on Linux or Docker. Fix: use the repo's puppeteer-config.json guidance or run the Docker image.",
+      "Needs a Chromium download via Puppeteer, which can fail behind a proxy. Fix: use an already-installed Chromium as per the known-issues docs.",
+      "Rendering untrusted diagram text on a server. Fix: sandbox the process and set timeouts."
+    ],
+    "agentCan": "Install the tool, write and render Mermaid diagrams, set up the Docker or CI configuration, and wrap it as a tool.",
+    "humanMust": "Nothing beyond approving installation on the host.",
+    "confidence": "High",
+    "uncertain": "License and exact Node and Chromium version requirements were not read from the page.",
+    "sources": [
+      "https://github.com/mermaid-js/mermaid-cli"
+    ]
+  },
+  {
+    "n": 99,
+    "id": "youtube-transcript",
+    "name": "YouTube Transcript",
+    "category": "AI, Research & Media",
+    "website": "transcriptapi.com",
+    "authModel": "API key / token only",
+    "authDetail": "TranscriptAPI is a third-party hosted REST API (not a YouTube or Google product). Keys start with `sk_` and are sent as `Authorization: Bearer API_KEY`, created in the dashboard's API Keys page. No Google or YouTube Data API key is needed. OAuth applies only to its MCP server (https://transcriptapi.com/mcp) for Claude and ChatGPT, and only for that connector. The official YouTube Data API captions endpoint needs Google OAuth (scope youtube.force-ssl) and is limited to videos the user owns or can edit; this comes from the brief and prior knowledge, not a doc fetched this session.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://transcriptapi.com",
+      "path": "Sign up on transcriptapi.com (no card) → dashboard API Keys page → copy the sk_ key."
+    },
+    "access": "Self-serve",
+    "productionGate": "None. Credits and rate limits apply: 100 free credits on signup, then $5/month for 1,000 credits (200 RPM) or $54/year (300 RPM). HTTP 402 means no credits or no active plan.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "under 30 min",
+    "timeToProduction": "under 1 day",
+    "cost": "100 free credits; paid from $5/month (1,000 credits), top-ups $2.50 per 1K; 1 credit per transcript request",
+    "roles": {
+      "team": "Anyone with a company email who owns the billing; keys are account-wide.",
+      "console": "none documented",
+      "customer": "None. Customers do not connect an account because the API reads public video transcripts. For the official YouTube Data API route, the video owner or editor must grant Google OAuth consent."
+    },
+    "testing": "Use the 100 free signup credits. Free routes exist for latest-uploads RSS and handle resolution. Rate limit is per account across all keys.",
+    "steps": [
+      {
+        "do": "Sign up at transcriptapi.com and create an API key on the API Keys page.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store the key server-side and call GET /api/v2/youtube/transcript with the video URL or ID and `Authorization: Bearer sk_...`.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Handle 401 (bad key), 402 (no credits or plan) and 429 (honor Retry-After).",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Optionally connect the MCP server at https://transcriptapi.com/mcp (OAuth for Claude and ChatGPT, API key for others).",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If you must read captions for videos your user owns, add Google OAuth with youtube.force-ssl and the YouTube Data API captions endpoints (needs Google verification).",
+        "who": "Security",
+        "agent": false
+      },
+      {
+        "do": "Review terms of use for third-party transcript scraping and caching.",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "TranscriptAPI has no scopes. For the official YouTube Data API, youtube.force-ssl is a sensitive scope that likely triggers Google OAuth verification (not confirmed in this session).",
+    "blockers": [
+      "Third-party service, not official YouTube. Fix: evaluate terms and vendor risk.",
+      "Credits run out and return 402. Fix: monitor balance and set alerts.",
+      "Official YouTube captions API only works for videos the user owns or edits. Fix: use TranscriptAPI for public videos."
+    ],
+    "agentCan": "Write the transcript client, add retry and credit handling, configure the MCP server, and draft the Google OAuth consent copy if you take the official route.",
+    "humanMust": "Sign up, add payment, accept terms, and complete Google OAuth verification if using the YouTube Data API.",
+    "confidence": "Medium",
+    "uncertain": "The YouTube Data API captions details (youtube.force-ssl, owner/edit-only) were not re-verified against Google docs because the fetch limit was hit. Key-creation menu path and legal status of the scraping approach are unconfirmed.",
+    "sources": [
+      "https://transcriptapi.com",
+      "https://transcriptapi.com/docs/api/"
+    ]
+  },
+  {
+    "n": 100,
+    "id": "grain",
+    "name": "Grain",
+    "category": "AI, Research & Media",
+    "website": "grain.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Public API supports personal access tokens (PAT, scope personal, no expiry, any plan), workspace access tokens (WAT, admin-only, Business/Enterprise) and OAuth2 authorization code with PKCE (S256) for integrations that other Grain users authorize. You must request client_id and client_secret from Grain. Authorize at https://grain.com/_/public-api/oauth2/authorize; scopes are `personal` or `workspace`; tokens refresh with a refresh_token. Every request needs a Public-Api-Version header.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://developers.grain.com/authentication.html",
+      "path": "No self-serve console found. Request OAuth credentials from Grain; the docs do not say how. Register a redirect URI prefix and, for browser apps, CORS origins."
+    },
+    "access": "Application/approval required",
+    "productionGate": "OAuth credentials are issued by Grain on request, and the Grain API article says OAuth2 is required if you distribute an integration to others. The request process, review criteria and timeline are not documented. Workspace-scope tokens need a plan that includes the Workspace API.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min with a PAT; OAuth credentials need a Grain response (timing unknown)",
+    "timeToProduction": "unknown",
+    "cost": "Free for PAT on all plans; Workspace API requires Business or Enterprise; OAuth partner terms unknown",
+    "roles": {
+      "team": "A developer with a Grain account (any plan) for PAT testing; a business contact to request OAuth credentials.",
+      "console": "none documented",
+      "customer": "A Grain user signs in and confirms the OAuth connection for the `personal` scope. For `workspace` scope, a workspace admin on a Business or Enterprise plan is likely needed (inference). Admin controls on OAuth apps are not documented."
+    },
+    "testing": "Generate a PAT at Account settings → Integrations → Personal API (https://grain.com/app/settings/account/integrations/personal_api) to test endpoints before OAuth credentials arrive. Rate limit per token: bucket of 30, refill 2/sec (about 120/min).",
+    "steps": [
+      {
+        "do": "Create a PAT in Grain at Account settings → Integrations → Personal API and call the API with Authorization: Bearer plus the Public-Api-Version header.",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Contact Grain (hello@grain.com or the developer docs contact) to request an OAuth client_id and client_secret, giving your redirect URI prefix.",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code with PKCE (S256) against https://grain.com/_/public-api/oauth2/authorize with scope personal.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exchange the code at the oauth2/token endpoint, store the refresh token and refresh on expiry.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Handle 429 using Retry-After and the x-ratelimit headers; pin the Public-Api-Version.",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a real Free-plan account and a Business workspace if you need the workspace scope.",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "Two scopes: `personal` (default, same access as the user) and `workspace` (full workspace data; admin-gated, plan-gated). Which scope triggers extra review is not documented.",
+    "blockers": [
+      "OAuth credentials are not self-serve. Fix: email Grain early and develop with a PAT meanwhile.",
+      "Token lifetime and token-request parameters are only partly documented. Fix: read the Endpoints page and test.",
+      "API versions are dated and old ones sunset with reduced rate limits. Fix: pin and track the Public-Api-Version.",
+      "Workspace scope needs a Business/Enterprise admin. Fix: default to personal scope."
+    ],
+    "agentCan": "Write the PKCE flow, refresh logic and rate-limit handling, run test calls with a PAT, and draft the credential-request email and integration description.",
+    "humanMust": "Request OAuth credentials from Grain, log in to create a PAT, handle any partner agreement, and have a workspace admin approve workspace scope.",
+    "confidence": "Medium",
+    "uncertain": "How to request OAuth credentials, review criteria, access-token lifetime, and the Grain MCP URL (developers.grain.com/mcp) were not confirmed. The Endpoints page was not read.",
+    "sources": [
+      "https://developers.grain.com/authentication.html",
+      "https://developers.grain.com/overview.html",
+      "https://developers.grain.com/rate-limits.html",
+      "https://support.grain.com/en/articles/15507288-grain-api",
+      "https://support.grain.com/en/articles/14811968-grain-mcp"
+    ]
+  }
+]

@@ -1,0 +1,786 @@
+[
+  {
+    "n": 81,
+    "id": "stripe",
+    "name": "Stripe",
+    "category": "Finance & Fintech",
+    "website": "stripe.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Two OAuth paths. (1) Stripe Apps OAuth (recommended): install link marketplace.stripe.com/oauth/v2/authorize; auth code is one-time and valid 5 minutes, exchanged at POST api.stripe.com/v1/oauth/token using the app developer's own secret key; access token 1 hour, refresh token 1 year and rolled on every refresh; returned scope is 'stripe_apps' and real permissions come from the app manifest. (2) Legacy Connect OAuth (connect.stripe.com/oauth/authorize, scope read_only or read_write): Stripe says it 'isn't recommended for new Connect platforms'. Restricted API keys (rk_live_) are a manual per-customer fallback.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://docs.stripe.com/stripe-apps/api-authentication/oauth",
+      "path": "Stripe CLI: stripe apps create <name>; edit stripe-app.json (stripe_api_access_type=oauth, distribution_type=public, allowed_redirect_uris); stripe apps upload; then Dashboard → Developers → Apps → your app → External test tab (test links) and Settings tab (public install links). Legacy Connect OAuth: Dashboard → Settings → Connect → Onboarding options → OAuth."
+    },
+    "access": "Application/approval required",
+    "productionGate": "To let arbitrary Stripe accounts install the app you must pass App Marketplace review (decision emailed about 4 business days after submit; resubmit after any change). Public OAuth install links do not work until the app is published; External test covers only a small number of accounts. Requirements: activated Stripe account, one published app per account, English listing, privacy policy URL, written justification for every permission, testing guidance plus test credentials without 2FA, business not on Stripe's restricted list. Legacy Connect OAuth has no marketplace review but is discouraged for new platforms.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1–2 hours (CLI create + external test link)",
+    "timeToProduction": "1–3 weeks (4 business days per review round, plus listing prep and likely one resubmission)",
+    "cost": "No listing or review fee documented in sources read; requires an activated Stripe account",
+    "roles": {
+      "team": "Owner of a company-owned, activated Stripe account (the app is tied to it and only one app can be published per account). Needs Dashboard access to Developers → Apps and API keys (the live and test secret keys are used for the code exchange) and the Stripe CLI logged in.",
+      "console": "Stripe Dashboard team members with roles; add via Dashboard → Settings → Team. The exact role needed to upload or publish apps is not stated in the pages read.",
+      "customer": "A Stripe user on the customer account who is allowed to install apps (likely an Administrator) selects the account and accepts the manifest permissions. They can uninstall at any time. Connect OAuth: user picks or creates an account on Stripe's page."
+    },
+    "testing": "External test tab gives test-mode, live-mode and sandbox OAuth links; exchange the code with the matching developer key (pass the link type in state). Set sandbox_install_compatible=true to install into a Stripe sandbox. Reviewers will not accept real customer accounts.",
+    "steps": [
+      {
+        "do": "Activate the company Stripe account; install the CLI (npm install -g @stripe/cli) and log in",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Run stripe apps create <name>; set stripe_api_access_type=oauth, distribution_type=public and HTTPS allowed_redirect_uris in stripe-app.json",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Add least-privilege permissions: stripe apps grant permission \"<name>\" \"<justification>\"",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "stripe apps upload; open the app → External test tab and copy the test OAuth link",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Build the callback: exchange the code within 5 minutes at POST /v1/oauth/token with the matching secret key; store the rotating refresh token encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Write the listing (name max 35 chars, no 'Stripe'; logo; privacy URL; testing guidance; no-2FA test creds) and an install page using the public OAuth link from the Settings tab",
+        "who": "Design",
+        "agent": true
+      },
+      {
+        "do": "Submit for review in the Dashboard (Developers → Apps) and answer reviewer feedback",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "After the approval email, click Publish",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Stripe Apps: permissions declared in the manifest, each needing a justification; token scope is 'stripe_apps'. Connect OAuth: read_only (only for Extension-type integrations) or read_write (cannot connect to Standard accounts controlled by another platform since June 2021). Restricted keys: per-resource None/Read/Write. Which permissions draw extra review is not documented.",
+    "blockers": [
+      "Choosing Connect OAuth for a new platform: Stripe discourages it and the publish guide says the Connect authentication method is deprecated; use Stripe Apps OAuth or register as an Extension.",
+      "Submitting the External test link instead of the public Settings-tab link, localhost redirect URIs, hard-coded keys, or test logins that need 2FA are the top review failures; fix before submitting.",
+      "Code exchange fails if the test and live developer secret keys are mixed up; pass the link type in state and pick the key accordingly.",
+      "Refresh token lapses after 1 year unused; refresh on a schedule and store the newest token."
+    ],
+    "agentCan": "Run the CLI to scaffold, grant permissions and upload; write the OAuth callback and refresh logic; draft listing copy, permission justifications and testing guidance; run test installs through external test links. Stripe publishes agent skills (stripe agent setup).",
+    "humanMust": "Account activation and business verification, Dashboard login with 2FA (needed to create restricted keys), submitting the listing, accepting agreements, and a customer admin approving the install. Provide non-2FA test accounts for reviewers.",
+    "confidence": "High",
+    "uncertain": "External test install cap; the exact Dashboard role needed to upload or install apps; whether new Connect platforms can still enable OAuth (docs say not recommended, not removed); marketplace fees or rev share; real-world review turnaround.",
+    "sources": [
+      "https://docs.stripe.com/stripe-apps/api-authentication/oauth",
+      "https://docs.stripe.com/stripe-apps/publish-app",
+      "https://docs.stripe.com/connect/oauth-standard-accounts",
+      "https://docs.stripe.com/connect/oauth-changes-for-standard-platforms",
+      "https://docs.stripe.com/keys/restricted-api-keys"
+    ]
+  },
+  {
+    "n": 82,
+    "id": "plaid",
+    "name": "Plaid",
+    "category": "Finance & Fintech",
+    "website": "plaid.com",
+    "authModel": "Other",
+    "authDetail": "Plaid is a data aggregator, not an OAuth provider for you. You get a client_id plus one secret per environment. Your end user signs in to their own bank inside Plaid Link; Link returns a public_token that your server exchanges for a long-lived access_token per Item (standard Link flow: /link/token/create, then /item/public_token/exchange). Many banks (required for US, EU and UK) use bank-side OAuth redirects, which need HTTPS redirect URIs allowlisted in the Dashboard and OAuth institution registration.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://dashboard.plaid.com/",
+      "path": "Dashboard → sign up (team) → Developers → Keys for Sandbox secret; request Production via the product request form on the Dashboard homepage; Trial plan at dashboard.plaid.com/trial-plan; redirect URIs and OAuth registration under the Dashboard API settings and Compliance center."
+    },
+    "access": "Application/approval required",
+    "productionGate": "Production needs access approval: Pay-as-you-go via the Dashboard product request form; Growth or Custom via sales (EU and UK are Custom only). New US/Canada teams created on or after 2026-04-15 can use a free Trial plan with real data capped at 10 Production Items; Limited Production is deprecated. For OAuth banks, finish Compliance center registration: public application display info, company info, MSA (US/CA) and the security questionnaire (US/CA; Chase requires it, PNC requires the latest MSA, unless on Trial). Most institutions approve within hours; Schwab can take up to 5 business days after Production approval, Fidelity longer.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30–60 min (Sandbox)",
+    "timeToProduction": "Production review time is not documented; likely 1–3 weeks including MSA and security questionnaire. OAuth bank approvals: hours to 5+ business days.",
+    "cost": "Sandbox free; Trial free up to 10 Production Items; Pay-as-you-go has no minimum (per-use pricing shown on the request form); Growth and Custom need an annual commitment",
+    "roles": {
+      "team": "Dashboard account owner able to sign Plaid's MSA and fill in company info; a security contact to complete the questionnaire. Use a company email, not a personal one.",
+      "console": "Dashboard has a Teams section for membership; role names are not documented in the pages read.",
+      "customer": "The end user only needs their bank login and consent in Link. Business bank accounts may require the bank's own admin entitlement (likely, not confirmed)."
+    },
+    "testing": "Sandbox is free with unlimited test Items; login user_good / pass_good. OAuth test institutions: Platypus OAuth Bank ins_127287, EU ins_117181, App-to-App ins_132241 (iOS SDK 5.1+). Update mode via /sandbox/item/reset_login. HTTP localhost redirects allowed only in Sandbox. Institution-specific OAuth screens cannot be tested in Sandbox.",
+    "steps": [
+      {
+        "do": "Create a Dashboard team with a company email and copy Sandbox client_id and secret",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Build the backend: /link/token/create (set user.client_user_id), Link in the front end, then /item/public_token/exchange; persist access tokens",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test OAuth with the Platypus OAuth bank on every client platform (web, webview, iOS, Android)",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Fill in application display info (name, logo, privacy policy URL) and company info in the Compliance center",
+        "who": "Legal",
+        "agent": true
+      },
+      {
+        "do": "Submit the Production request form with products and use case; pick a plan",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Sign the MSA (US/CA) and complete the security questionnaire",
+        "who": "Security",
+        "agent": false
+      },
+      {
+        "do": "Add HTTPS redirect URIs to the Dashboard allowlist (no # or query strings; wildcards only in the allowlist)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Watch the Dashboard OAuth institution page for approvals, then swap in the Production secret",
+        "who": "Developer",
+        "agent": false
+      }
+    ],
+    "scopes": "No OAuth scopes: access is by Plaid product (Transactions, Auth, Identity, Balance, Investments, Liabilities, Income, Assets and others), each enabled by your Production request. Adding a product later means a new request. Production Link requires a stated use case; Sandbox does not.",
+    "blockers": [
+      "Some US banks reject apps with an empty application profile; complete display info before requesting OAuth institutions.",
+      "Redirect URIs must be HTTPS in Production, no hash routing, no query parameters; fix mismatches in the Dashboard allowlist.",
+      "Chase needs the security questionnaire and PNC the latest MSA; submit early because review takes time.",
+      "Trial caps at 10 Production Items and deleting Items does not free slots; persist every access token."
+    ],
+    "agentCan": "Write the Link token, exchange and webhook code; run Sandbox flows; draft application profile text and security questionnaire answers; generate the redirect URI list.",
+    "humanMust": "Create the Dashboard account, submit the Production form, sign the MSA, attest to the security questionnaire, set up billing, and (for end users) enter bank credentials. Sales contact needed for Growth, Custom, EU and UK.",
+    "confidence": "Medium",
+    "uncertain": "Plaid's published Production review timeline, the Dashboard team role names, and the exact Dashboard path for redirect URIs (docs page on account and Production access did not render details).",
+    "sources": [
+      "https://plaid.com/docs/link/oauth/",
+      "https://plaid.com/docs/account/billing/",
+      "https://plaid.com/docs/sandbox/",
+      "https://plaid.com/docs/quickstart/"
+    ]
+  },
+  {
+    "n": 83,
+    "id": "binance",
+    "name": "Binance",
+    "category": "Finance & Fintech",
+    "website": "binance.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Everyday access is user-created API keys (requests signed with HMAC, RSA or Ed25519; Ed25519 preferred), with no OAuth. Binance Login (OAuth 2.0) exists: authorize at accounts.binance.com/en/oauth/authorize, token at POST accounts.binance.com/oauth/token, authorization code flow for web apps and PKCE (S256) for native apps, refresh_token grant supported; example scopes user:openId, create:apikey, read. The docs say it is 'exclusively offered to close ecosystem partners'. Binance's own MCP server uses OAuth client IDs for named AI clients, with user-chosen scopes and no withdrawal scope.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://developers.binance.com/en/docs/products/login/web-integration",
+      "path": "Binance Developer Center → sign in with a Binance entity account → create an OAuth application (client ID and secret), but only after contacting the Binance business team. API-key path: user's Binance account → API Management (likely)."
+    },
+    "access": "Partner program required",
+    "productionGate": "OAuth: contact Binance's business team and be accepted as a close ecosystem partner; no self-serve public listing was found. Without it, each user creates their own API key and pastes it into your app. Binance Connect 2.0 and Binance Pay technical-service-provider authorization also appear in the docs index and look partner-oriented (unread).",
+    "difficulty": "Very hard",
+    "timeToFirstTest": "1–2 hours with an API key against the Spot Testnet; OAuth: unknown",
+    "timeToProduction": "unknown (partner negotiation; likely months for OAuth) | same day via user-supplied API keys",
+    "cost": "API keys free; partner terms unknown",
+    "roles": {
+      "team": "A company-owned Binance entity (business) account is needed to create an OAuth app in the Developer Center; business verification is likely required. Someone with authority for a partnership conversation.",
+      "console": "none documented",
+      "customer": "The Binance user approves the consent screen (OAuth) or creates the API key themselves, ideally read-only with no withdrawal permission and an IP allowlist (likely)."
+    },
+    "testing": "Spot Testnet at testnet.binance.vision and a Demo Mode are documented; both use separate keys. No OAuth sandbox is documented.",
+    "steps": [
+      {
+        "do": "Decide the path: user-supplied API keys now, Binance Login OAuth only if a partnership is realistic",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Build the key-entry screen telling users to create a read-only API key with no withdrawals and IP restriction",
+        "who": "Design",
+        "agent": true
+      },
+      {
+        "do": "Store keys encrypted; validate with a signed read call; use Ed25519 and percent-encode the payload before signing",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test against testnet.binance.vision with Testnet keys",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "If pursuing OAuth: contact the Binance business team, then create the OAuth app in the Developer Center with an entity account",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code plus PKCE and refresh handling",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "API keys: permission toggles per key (reading, spot/margin trading, withdrawals and others), so request read-only. OAuth: scopes passed comma-separated (user:openId, create:apikey, read); the full scope list page was empty when fetched.",
+    "blockers": [
+      "Binance Login is restricted to close ecosystem partners; fall back to user-supplied API keys.",
+      "Payload signing changed: percent-encode before signing (effective around 2026-01-15) or requests fail with -1022 INVALID_SIGNATURE.",
+      "Holding user trading keys is a high-risk liability; require read-only keys and encrypt at rest.",
+      "Regional Binance entities may have separate docs and keys; confirm which one your users are on."
+    ],
+    "agentCan": "Write signing and validation code, the key-entry UI and test calls, and draft the partnership outreach and use-case description.",
+    "humanMust": "Business account creation and verification, contacting and negotiating with Binance's business team, legal agreements, and each user creating their own API key with 2FA.",
+    "confidence": "Medium",
+    "uncertain": "Partner eligibility criteria and timeline, refresh token lifetime, the full OAuth scope list, Binance Connect 2.0 details (pages would not load), business-verification requirements, regional (Binance.US) differences.",
+    "sources": [
+      "https://developers.binance.com/en/docs/products/login/web-integration",
+      "https://developers.binance.com/en/docs/llms.txt",
+      "https://developers.binance.com/docs/binance-spot-api-docs",
+      "https://developers.binance.com/en/docs/llms-full.txt"
+    ]
+  },
+  {
+    "n": 84,
+    "id": "paygent-connect",
+    "name": "Paygent Connect",
+    "category": "Finance & Fintech",
+    "website": "docs.nmi.com (NMI gateway; official Paygent site not confirmed)",
+    "authModel": "API key / token only",
+    "authDetail": "No official 'Paygent Connect' developer site could be found; paygent.com redirected to a domain-for-sale page. Assuming it is built on the NMI gateway (per the task hint, unconfirmed), NMI uses security keys: public keys for client-side use and private keys for server-side, created in Settings → Security Keys of the Merchant Portal (or Partner Portal). v5 endpoints take the key in the Authorization header; Classic APIs take an api_key body field. Keys inherit the permissions of the associated user. OAuth appears only for NMI's partner Merchant Sign-Up API (access token expires after 60 minutes).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.nmi.com/docs/getting-your-api-keys.md",
+      "path": "Merchant Portal → Settings → Security Keys → Add a New Key → name, associated username, key permission → Create. Partners: same path in the Partner Portal."
+    },
+    "access": "Application/approval required",
+    "productionGate": "Each merchant needs a live gateway account (underwriting by the processor or reseller, likely) and must hand your app a key. Becoming an NMI partner (Partner Portal, Partner Code onboarding, Merchant Sign-Up API) is separate and optional. No user-facing OAuth app review exists.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30–60 min with a sandbox or test-mode account",
+    "timeToProduction": "unknown (depends on merchant account approval; likely days to weeks)",
+    "cost": "Gateway fees are charged to the merchant; developer fees unknown",
+    "roles": {
+      "team": "A company-owned gateway or partner account with permission to create security keys; separate keys per app and environment.",
+      "console": "Keys are tied to portal users, so add a dedicated user with least-privilege permission; no collaborator roles documented beyond that.",
+      "customer": "The merchant's portal administrator creates a key, assigns minimal permissions and pastes it into your app. Under a partner account, a key can also be created through the Create Merchant API Keys endpoint."
+    },
+    "testing": "NMI documents a sandbox/test mode, Testing Methods and test cards, and a Gateway Emulator; the homepage links a full-featured sandbox. Verify that your gateway reseller enables test mode.",
+    "steps": [
+      {
+        "do": "Confirm with the vendor that Paygent Connect is NMI-based and obtain the real developer docs",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Merchant admin creates a key: Merchant Portal → Settings → Security Keys → Add a New Key",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Build a credentials form that accepts the private key, stored encrypted, one key per merchant and environment",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with a Query API call or a test-mode transaction",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with sandbox keys and test cards, including declines and webhooks",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Add key rotation and revocation instructions (create new, update, test, revoke old)",
+        "who": "Security",
+        "agent": true
+      }
+    ],
+    "scopes": "Key permission types chosen when creating the key (list not documented in the pages read); public keys for client-side tokenization, private keys for server-side. Grant the minimum needed (for example query-only for reporting).",
+    "blockers": [
+      "Product identity: no official Paygent Connect docs were found; confirm the vendor and gateway before building.",
+      "Private keys give broad access; use least-privilege user permissions and never expose them client-side.",
+      "Keys inherit the creating user's rights; if that user is disabled the key may stop working (likely).",
+      "Sandbox may need enabling by the reseller."
+    ],
+    "agentCan": "Write the credentials form, validation call and transaction code against the NMI API; draft customer instructions for creating a key.",
+    "humanMust": "Merchant account application and underwriting, portal login to create keys, any partner agreement, and identifying the correct vendor contact.",
+    "confidence": "Low",
+    "uncertain": "Whether Paygent Connect actually uses NMI or has its own API; the official Paygent site and docs; permission types; partner requirements; fees. The NMI docs do not mention Paygent.",
+    "sources": [
+      "https://docs.nmi.com/",
+      "https://docs.nmi.com/reference/authentication.md",
+      "https://docs.nmi.com/docs/getting-your-api-keys.md",
+      "https://docs.nmi.com/llms.txt"
+    ]
+  },
+  {
+    "n": 85,
+    "id": "ipayx",
+    "name": "iPayX",
+    "category": "Finance & Fintech",
+    "website": "ipayx.ai",
+    "authModel": "API key / token only",
+    "authDetail": "iPayX is an FX forensic-audit service (FINTRAC-registered MSB per its site), not a system holding the user's accounts. REST: POST https://api.ipayx.ai/functions/v1/fx-audit-engine with a Bearer token. MCP server: https://mcp.ipayx.ai/mcp (streamable HTTP) with tools fx_audit, calcul_spread, score_fx, rapport_forensique and verify_integrity; MCP manifest at /.well-known/mcp.json and OpenAPI 3.1 at /.well-known/openapi.json. No OAuth documented. Bank data comes from PDF/CSV upload or from Plaid (US/Canada) on the service side.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://ipayx.ai/",
+      "path": "Site → Pricing → API plans (from $99/month) → obtain Bearer token. How keys are issued is not described in the pages read."
+    },
+    "access": "Self-serve",
+    "productionGate": "None documented; access appears to be by paid API plan. There is no per-customer approval or marketplace review because your agent calls iPayX with your own token.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "under 30 min once you have a token (MCP endpoint or one REST call)",
+    "timeToProduction": "1–3 days",
+    "cost": "API plans from $99/month; Forensic Pack from $297 (per the site)",
+    "roles": {
+      "team": "Whoever owns the iPayX account and billing (use a company account); a developer to store the Bearer token as a secret.",
+      "console": "none documented",
+      "customer": "No customer-side OAuth. If your flow uses Plaid-backed bank connection, the end user authorizes through Plaid Link; otherwise the customer's finance staff supply statements or CSV files."
+    },
+    "testing": "The site has a Demo page; whether sandbox or test tokens exist is not stated. Test through the MCP server with sample rates and statements.",
+    "steps": [
+      {
+        "do": "Choose an API plan on the Pricing page and create or request a Bearer token",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store the token in a secrets manager; never ship it to the browser",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call POST /functions/v1/fx-audit-engine with a sample rate or statement and check the score and markup percentage",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Optionally register https://mcp.ipayx.ai/mcp as an MCP server in your agent and test the five tools",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Review data-handling terms (PIPEDA/FINTRAC claims) before sending customer statements",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Add error handling and usage metering against your plan limits",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No scope model documented; one token covers the audit API and MCP tools.",
+    "blockers": [
+      "Key issuance and sandbox are not documented publicly; contact iPayX before planning a launch.",
+      "Statements contain sensitive financial data; confirm retention and sub-processors (the site names GPT-4o, DeepSeek and Twelve Data) before use.",
+      "Small vendor; check uptime and support terms (likely)."
+    ],
+    "agentCan": "Call the API or MCP tools, write wrappers and tests, and draft the vendor due-diligence questions.",
+    "humanMust": "Sign up and pay for a plan, accept terms, vendor due diligence, and handle any customer consent for uploading statements.",
+    "confidence": "Medium",
+    "uncertain": "How tokens are issued, rate limits, sandbox availability, SLA, and whether /docs exists (the docs URL returned only marketing metadata). Claims come from the vendor's own llms.txt and are unaudited.",
+    "sources": [
+      "https://ipayx.ai/llms.txt",
+      "https://ipayx.ai/docs",
+      "https://ipayx.ai/"
+    ]
+  },
+  {
+    "n": 86,
+    "id": "quickbooks",
+    "name": "QuickBooks",
+    "category": "Finance & Fintech",
+    "website": "developer.intuit.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code flow through Intuit. Access token lasts 3600 seconds; refresh tokens rotate, so always store the newest (Intuit's JS client notes older refresh tokens stop working 24 hours after a new one is issued, and responses carry x_refresh_token_expires_in). Every API call needs the company realmId returned on the callback. Sandbox base URL is sandbox-quickbooks.api.intuit.com. Reported 2025 changes to refresh token lifetime (a rolling window plus a hard cap) and the 2025 App Partner Program fee tiers were not verified.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developer.intuit.com/app/developer/dashboard",
+      "path": "developer.intuit.com → My Hub → App Dashboard → Add → QuickBooks Online and Payments → choose scopes → app Settings → Redirect URIs; credentials under Keys and credentials (development and production keys)."
+    },
+    "access": "Self-serve",
+    "productionGate": "Development keys work at once against sandbox companies. Production keys for real customer companies likely require completing app details (EULA and privacy policy URLs, host domain, launch and disconnect URLs) and Intuit's app assessment questionnaire; not verified this session. An Intuit App Store listing is optional and separately reviewed (Nango notes review applies only to App Store apps). At scale, App Partner Program tiers and metered API fees may apply (unverified).",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "unknown; likely 1–2 weeks for production keys, longer for an App Store listing",
+    "cost": "Free developer account and sandbox; possible partner-tier or metered API fees at scale (unverified)",
+    "roles": {
+      "team": "An Intuit developer account owned by a company identity (not a personal login); the owner completes the production key form and legal URLs.",
+      "console": "none documented in the pages read",
+      "customer": "A QuickBooks Online company admin (likely Master or Company Admin) approves the connection on Intuit's consent screen and picks the company; accountant firm users connect through their firm access (likely)."
+    },
+    "testing": "Create a sandbox company under My Hub → Sandbox and note its realmId; use development keys against sandbox-quickbooks.api.intuit.com. Production redirect URIs likely must be HTTPS (localhost allowed for development).",
+    "steps": [
+      {
+        "do": "Sign up at developer.intuit.com with a company identity",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "My Hub → App Dashboard → Add → QuickBooks Online and Payments; select com.intuit.quickbooks.accounting",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Add redirect URIs under Settings; copy development Client ID and Secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement auth code flow, realmId capture and rotating refresh token storage",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Create a sandbox company and run read/write test calls",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Publish EULA, privacy policy, launch and disconnect URLs",
+        "who": "Legal",
+        "agent": true
+      },
+      {
+        "do": "Complete the production keys form and app assessment questionnaire",
+        "who": "Security",
+        "agent": false
+      },
+      {
+        "do": "Switch to production keys and test with a real company",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "com.intuit.quickbooks.accounting (all accounting data, no read-only variant documented), com.intuit.quickbooks.payment, and OpenID scopes (openid, profile, email, phone, address). Which scopes trigger extra review was not confirmed.",
+    "blockers": [
+      "Refresh token rotation: persist the newest token atomically and handle concurrent refreshes, or users must reconnect.",
+      "realmId is required on every request; store it per connection.",
+      "Production keys need HTTPS URLs and legal pages first; prepare them before requesting.",
+      "Fees and partner tiers for high-volume or read-heavy apps; check the current Intuit pricing page."
+    ],
+    "agentCan": "Write the OAuth and refresh code, sandbox tests, and drafts of the EULA, privacy policy and questionnaire answers.",
+    "humanMust": "Intuit account login, accepting developer terms, submitting the production questionnaire, any partner agreement or payment, and a customer admin authorizing the connection.",
+    "confidence": "Low",
+    "uncertain": "Intuit docs are a JavaScript app that did not render, so production-key requirements, app assessment contents, refresh token lifetime changes, App Partner Program tiers and API fees were not confirmed; they come from third-party docs and background knowledge.",
+    "sources": [
+      "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0",
+      "https://github.com/intuit/oauth-jsclient",
+      "https://docs.nango.dev/integrations/all/quickbooks"
+    ]
+  },
+  {
+    "n": 87,
+    "id": "xero",
+    "name": "Xero",
+    "category": "Finance & Fintech",
+    "website": "developer.xero.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code flow (web), code with PKCE (native/SPA) and Custom Connections (client credentials, single organisation); the documented flow includes checking the tenants you are authorized for, then calling the API with the tenant. Needs the offline_access scope for refresh tokens. Token lifetimes (access about 30 minutes, single-use refresh token about 60 days) are background knowledge, not re-verified. Plans from 2 March 2026 cap connections: Starter 5 (free), Core 50, Plus 1,000, Advanced 10,000, Enterprise unlimited.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developer.xero.com/app/manage",
+      "path": "developer.xero.com → My Apps → New app → pick integration type, company URL, redirect URIs → Configuration tab → generate client secret."
+    },
+    "access": "Self-serve",
+    "productionGate": "No approval to start, but connection caps gate scale. Per the pricing page: Starter 5 connections (free), Core 50 (AUD 35/month, needs a registered credit card), Plus 1,000 (requires App Certification), Advanced 10,000 (App Certification plus initial and annual security assessment), Enterprise unlimited (App Store listing required). The Journals endpoint, XPM API and Bulk Connections need a security assessment and use-case approval. The old 25-connection uncertified cap is not mentioned on the page (likely replaced). Existing apps migrate with 30 days notice.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "same day for up to 50 organisations (Core); App Certification for Plus is unknown, likely weeks",
+    "cost": "Starter free; Core AUD 35/month; Plus AUD 245; Advanced AUD 1,445; Enterprise on application; egress overage AUD 2.40 per GB (Core to Advanced)",
+    "roles": {
+      "team": "A Xero login owning the developer app (use a company-owned account); a billing owner with a registered credit card for Core and above; a business contact for certification and security assessment.",
+      "console": "none documented in the pages read",
+      "customer": "A Xero organisation user with sufficient role (likely Standard or Advisor; read-only users probably cannot connect) approves the consent screen and picks organisations. Admins can disconnect the app from the organisation's connected apps settings (likely)."
+    },
+    "testing": "Apps start on Starter (5 connections); use Xero's Demo Company for sandbox-style testing (background knowledge). Rate limits: 1,000 calls per day per organisation on Starter, 5,000 on other plans.",
+    "steps": [
+      {
+        "do": "Log in to developer.xero.com with a company-owned Xero account",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "My Apps → New app; choose Web app (or PKCE type); add HTTPS redirect URI",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Request scopes (offline_access plus the specific accounting scopes) and implement code exchange, tenant lookup and refresh-token rotation",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a Demo Company and a second real organisation",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Watch connection counts in the developer dashboard; upgrade to Core (credit card) before reaching 5 connections",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "For more than 50 customers, apply for App Certification (and security assessment for Advanced)",
+        "who": "Security",
+        "agent": false
+      },
+      {
+        "do": "Optionally list on the Xero App Store",
+        "who": "Design",
+        "agent": true
+      }
+    ],
+    "scopes": "Scopes are additive. Categories: offline_access, openid/profile/email, Accounting (transactions, contacts, settings, reports, attachments, journals), Payroll AU/UK/NZ, Files, Assets, Projects, Bank feeds, Finance, Practice Manager, eInvoicing. Journals, XPM and Bulk Connections need a security assessment. Granular-scope requirements for newer apps were not confirmed.",
+    "blockers": [
+      "Hard connection caps (5 on Starter, 50 on Core): the sixth or fifty-first customer fails to connect; upgrade the plan or certify.",
+      "Single-use refresh tokens (background knowledge): store the new token atomically or users must reconnect.",
+      "Daily per-organisation limit of 1,000 calls on Starter; batch and cache.",
+      "Certification and security assessment lead times are undocumented; start early."
+    ],
+    "agentCan": "Write the OAuth and tenant-handling code, run Demo Company tests, draft certification and security assessment answers and App Store listing copy.",
+    "humanMust": "Xero login, adding a credit card and accepting developer terms, certification and security assessment submissions, and customers authorizing their organisations.",
+    "confidence": "Medium",
+    "uncertain": "Token lifetimes, PKCE and Custom Connection pricing, granular-scope changes, certification checklist and timeline (those pages rendered only headings or binary data). Pricing is in AUD and effective 2 March 2026; check for later changes.",
+    "sources": [
+      "https://developer.xero.com/pricing",
+      "https://developer.xero.com/documentation/guides/oauth2/overview/",
+      "https://developer.xero.com/documentation/guides/oauth2/auth-flow/",
+      "https://developer.xero.com/documentation/guides/oauth2/limits/",
+      "https://developer.xero.com/documentation/guides/oauth2/scopes/"
+    ]
+  },
+  {
+    "n": 88,
+    "id": "brex",
+    "name": "Brex",
+    "category": "Finance & Fintech",
+    "website": "developer.brex.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Two models. User tokens: a Brex account admin or card admin creates a token under Developer → Settings with chosen scopes, sent as a Bearer header; it expires if unused for 90 days or if its user is deactivated. Partner OAuth 2.0 (OpenID Connect compliant): authorization code (PKCE optional) for most APIs and client credentials for the onboarding API; access token 1 hour, refresh token rotated and valid 90 days; revoke at /v1/revoke.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://developer.brex.com/docs/partner_authentication/",
+      "path": "No self-serve console for OAuth: contact Brex developer support to receive a client ID and secret and supply redirect URIs. User tokens: Brex dashboard → Developer → Settings (account admin or card admin)."
+    },
+    "access": "Partner program required",
+    "productionGate": "Partner onboarding with Brex developer support is required to get OAuth client credentials. Without it, each customer's admin creates a user token and pastes it into your app (works but manual and tied to a user).",
+    "difficulty": "Hard",
+    "timeToFirstTest": "15–30 min with a user token on your own Brex account; OAuth: depends on partner onboarding",
+    "timeToProduction": "unknown (partner onboarding with Brex)",
+    "cost": "No fees documented; partner terms unknown",
+    "roles": {
+      "team": "A business or partnerships owner to request client credentials from Brex developer support; developers implement. A Brex account of your own is likely needed for testing.",
+      "console": "none documented",
+      "customer": "A Brex user with the proper role (an admin) signs in and approves some or all requested scopes; roles without that permission cannot grant access. For user tokens, an account admin or card admin creates the token."
+    },
+    "testing": "The authentication page says Brex offers only a production API server (api.brex.com), while the partner OAuth page mentions a staging environment with no availability guarantee and data that may be purged. Ask your Brex partner contact for staging access.",
+    "steps": [
+      {
+        "do": "Contact Brex developer support and apply as a developer partner; supply redirect URIs",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Receive client ID and secret; read the openid-configuration document for the live base URL",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code flow (state longer than 8 characters, optional PKCE) and the /v1/token exchange",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store refresh tokens and rotate them before the 90-day expiry",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test on staging, or with a user token against a test Brex account",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Have a customer admin approve the requested scopes and verify the integration end to end",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Space-delimited scopes (for example cards, cards.readonly); the granted set may be a subset of the requested one. Per-API scope tables are in Brex's scopes guide. User tokens select scopes at creation.",
+    "blockers": [
+      "No self-serve OAuth registration; plan for partner onboarding, or use customer-created user tokens meanwhile.",
+      "Refresh tokens expire every 90 days; rotate before expiry or the user must sign in again.",
+      "Redirect URIs must match exactly; state must be longer than 8 characters.",
+      "Existing partners may still be on the old OAuth base URL (new one enabled 2022-11-17); use the openid-configuration document."
+    ],
+    "agentCan": "Write the OAuth code, refresh scheduler and revocation handling; run staging tests; draft the partner application and use-case description.",
+    "humanMust": "Brex partner application and agreement, a customer admin approving consent or creating a token, and any commercial terms.",
+    "confidence": "Medium",
+    "uncertain": "Partner acceptance criteria and timeline, partner fees, scope tables, whether staging is available to new partners.",
+    "sources": [
+      "https://developer.brex.com/docs/partner_authentication/",
+      "https://developer.brex.com/docs/authentication/"
+    ]
+  },
+  {
+    "n": 89,
+    "id": "ramp",
+    "name": "Ramp",
+    "category": "Finance & Fintech",
+    "website": "docs.ramp.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "OAuth 2.0 with client credentials for internal server-to-server use (token about 10 days, no refresh token) and authorization code for third-party apps acting for other businesses (access token default 1 hour; code valid 10 minutes; refresh grant must be enabled; HTTPS redirect URIs; state recommended). Token endpoint POST /developer/v1/token with Basic auth. A refresh returns a new access token but not a new refresh token and does not extend the refresh token's expiry.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://docs.ramp.com/developer-api/v1/authorization",
+      "path": "Ramp Developer Console (reached from the Ramp dashboard; exact menu path not in the docs read) → create app → client ID and secret → enable Authorization Code and Refresh Token grants → add redirect URIs. Sandbox and production each need their own app."
+    },
+    "access": "Application/approval required",
+    "productionGate": "Partner Integration process: Build, then Apply for Production Access (Ramp reviews your integration flows; 'approval is required before production access'), then Beta Testing, then optional Public Listing on the Ramp Integrations page. Expect to supply SOC 2 Type II, ISO 27001, PCI or a recent third-party pen test (full report), a public security policy URL, a monitored security contact and written data-handling descriptions; early-stage companies may substitute a recent pen test. The cards:read_vault scope needs extra security review. A Technology Partnerships Application exists.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "30–60 min in sandbox after getting sandbox access",
+    "timeToProduction": "unknown (no review times documented); likely several weeks",
+    "cost": "Free; Ramp takes no fee and partners bill customers directly",
+    "roles": {
+      "team": "A developer with access to the Ramp Developer Console in your own Ramp account (likely an Admin); a partnerships owner for the application; Security and Legal for the attestations.",
+      "console": "none documented",
+      "customer": "A Ramp Admin or Business Owner (users holding the Developer API authorization permission) must authorize; others see 'Business not authorized to use this application'."
+    },
+    "testing": "Sandbox at demo.ramp.com (UI) and demo-api.ramp.com (API) with no real money; press Cmd+J for demo actions (mark bills or reimbursements paid, add transactions), which need Admin, Business Owner or AP Clerk roles. Request sandbox access through Ramp's form; rate limits not documented.",
+    "steps": [
+      {
+        "do": "Request sandbox access and create a sandbox app in the Developer Console",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Enable Authorization Code and Refresh Token grants; register HTTPS redirect URIs",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement the flow with read-only scopes first (transactions:read, bills:read, cards:read, users:read, business:read) and store refresh tokens",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Handle refresh-token expiry by restarting the authorization flow",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Prepare security evidence: SOC 2 or pen test report, security policy URL, security contact, data-handling write-up",
+        "who": "Security",
+        "agent": true
+      },
+      {
+        "do": "Submit the Technology Partnerships Application and Production Access request via a Developer API support ticket",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create a separate production app, then complete Ramp's beta test with a pilot customer admin",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "resource:permission pattern (transactions:read, bills:read, cards:read, users:read, business:read); start read-only and add write scopes as needed. cards:read_vault requires additional security review.",
+    "blockers": [
+      "Production access needs Ramp approval; apply early with security evidence ready.",
+      "Refreshing does not extend or replace the refresh token, so users must re-authorize when it expires; build a reconnect flow.",
+      "The Refresh Token grant must be enabled on the app, and sandbox and production need separate apps.",
+      "Non-admin customer users get 'Business not authorized'; ask an Admin or Business Owner to authorize."
+    ],
+    "agentCan": "Write the OAuth and token handling, run sandbox tests, draft the partnership application, security write-ups and listing assets. Ramp documents a CLI auth flow for agents and a request page for adding redirect URIs to the Ramp MCP.",
+    "humanMust": "Developer Console login, partner application and agreement, security attestations and reports, a customer Admin or Business Owner authorizing, and any support-ticket back and forth with Ramp.",
+    "confidence": "Medium",
+    "uncertain": "Developer Console menu path and who may create apps, review timelines, partnership application criteria, PKCE support, sandbox rate limits (several Ramp guide pages were empty).",
+    "sources": [
+      "https://docs.ramp.com/llms-guides/authorization.txt",
+      "https://docs.ramp.com/llms-guides/build-with-ramp.txt",
+      "https://docs.ramp.com/llms-guides/sandbox.txt",
+      "https://docs.ramp.com/llms.txt"
+    ]
+  },
+  {
+    "n": 90,
+    "id": "pitchbook",
+    "name": "PitchBook",
+    "category": "Finance & Fintech",
+    "website": "pitchbook.com",
+    "authModel": "API key / token only",
+    "authDetail": "No public OAuth app registration or developer portal could be confirmed. Programmatic access is likely a paid add-on to an enterprise subscription (data API or data feeds), provisioned by PitchBook sales or account management with credentials issued to the licensed customer. These details are from background knowledge; none of the pitchbook.com pages tried returned developer content.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://pitchbook.com/",
+      "path": "No self-serve console found. The customer's licensed user asks their PitchBook account manager for API access; credentials are issued by PitchBook."
+    },
+    "access": "Application/approval required",
+    "productionGate": "The customer (or you, as the licensee) must hold a PitchBook subscription with API entitlement. License terms on redistribution, caching and AI or LLM use likely apply and need review. There is no marketplace or OAuth review to pass.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "unknown (needs a paid subscription and API entitlement first)",
+    "timeToProduction": "unknown",
+    "cost": "Requires a paid PitchBook subscription plus API entitlement (enterprise pricing, amount unknown)",
+    "roles": {
+      "team": "A procurement or business owner who can contract with PitchBook; a developer to store the credentials as secrets.",
+      "console": "none documented",
+      "customer": "The customer's PitchBook admin or licensed user requests API credentials through their account manager; the agent uses credentials the customer supplies."
+    },
+    "testing": "No sandbox known; ask PitchBook for a trial or test credentials during contracting.",
+    "steps": [
+      {
+        "do": "Confirm with PitchBook sales whether your intended use (customer-facing AI agent) is permitted by the license",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Ask for API access and documentation under the subscription",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Receive credentials and store them encrypted, one set per licensed customer",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Build a credentials form for customers to paste their own API credentials",
+        "who": "Design",
+        "agent": true
+      },
+      {
+        "do": "Validate with a test query and enforce query and caching limits from the contract",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Add monitoring for quota use and credential expiry",
+        "who": "Security",
+        "agent": true
+      }
+    ],
+    "scopes": "No scope model confirmed; access is governed by the licence entitlement (datasets and entities the subscription covers).",
+    "blockers": [
+      "No self-serve access; every customer needs their own license and entitlement, so plan the sales process.",
+      "License restrictions on redistribution, caching and AI use can block agent features; get them in writing.",
+      "Cost and quotas are opaque until contracting."
+    ],
+    "agentCan": "Draft the licensing questions, build the credential intake and query code once docs and keys are provided, and write tests.",
+    "humanMust": "Contract and payment with PitchBook, sales conversations, licence review, and issuance of credentials by PitchBook or the customer's admin.",
+    "confidence": "Low",
+    "uncertain": "Everything: the PitchBook API product name, auth method, entitlement process, pricing, sandbox and AI-use terms. Fetches of pitchbook.com product pages failed or showed no developer links, so this profile is an inference.",
+    "sources": [
+      "https://pitchbook.com/",
+      "https://pitchbook.com/products/api"
+    ]
+  }
+]

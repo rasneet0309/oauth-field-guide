@@ -1,0 +1,147 @@
+{
+  "schema": 3,
+  "id": "amazon-selling-partner",
+  "name": "Amazon Selling Partner API",
+  "category": "Ecommerce",
+  "website": "developer-docs.amazon.com/sp-api",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 49,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "You must register as an SP-API developer: Amazon reviews your profile and security questionnaire and approves each role, and public apps must list in the Selling Partner Appstore. No SLA; plan weeks, longer for restricted roles.",
+  "needGuide": "Yes — get your developer profile and roles approved before any customer can authorize.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Login with Amazon (LWA) OAuth 2.0: sellers authorize a public app from your website or the Selling Partner Appstore, you exchange the returned code for a refresh token, then LWA access tokens call the API. Reauthorization is needed annually or when roles are added. Private apps self-authorize in Seller/Vendor Central. Restricted data (PII) needs a Restricted Data Token. AWS IAM/SigV4 was dropped in 2023 (from the brief; not re-verified).",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Very hard",
+    "timeToFirstTest": "1-2 days (self-authorized private app) once the developer profile is approved",
+    "timeToProduction": "unknown (docs give no SLA); plan weeks, longer with restricted roles",
+    "firstShort": "1–2 days",
+    "prodShort": "Unknown; plan weeks",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "You must register as an SP-API developer (profile reviewed by Amazon, security-control questionnaire, AUP/DPP/Solution Provider Portal Agreement). Roles are approved by Amazon, with restricted roles/PII needing extra justification. Public developers must list their app in the Selling Partner Appstore. Public and private apps have authorization limits.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Roles that expose personal data need Restricted Data Tokens plus Data Protection Policy controls and approval.",
+    "summary": "Access is by roles (for example Product Listing, Orders, Reports, Inventory), each mapped to API operations. Roles that expose PII need Restricted Data Tokens and extra Data Protection Policy controls and approval.",
+    "table": []
+  },
+  "cost": "Needs a Professional selling account (monthly fee). Amazon reportedly introduced SP-API developer fees in 2026; not verified, so confirm in the Solution Provider Portal.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A primary account user of the company's Seller Central (individual seller accounts are not eligible for private seller apps) must complete developer registration; the technical/security owner answers the security questions.",
+    "Where you register: Primary-account user in Seller Central (Professional account) → Apps & Services → Develop Apps (Solution Provider Portal) → developer profile → request roles → register application. Exact menu names not re-verified.",
+    "Cost: Needs a Professional selling account (monthly fee). Amazon reportedly introduced SP-API developer fees in 2026; not verified, so confirm in the Solution Provider Portal."
+  ],
+  "registerAt": {
+    "url": "https://developer-docs.amazon/sp-api/docs/sp-api-registration-overview",
+    "path": "Primary-account user in Seller Central (Professional account) → Apps & Services → Develop Apps (Solution Provider Portal) → developer profile → request roles → register application. Exact menu names not re-verified."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Upgrade or create a company Professional seller account and log in as the primary account user",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Read the Acceptable Use Policy, Data Protection Policy and Solution Provider Portal Agreement and answer security-control questions",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Submit the developer profile (under 500 words, original text), choose the minimum roles and wait for approval",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Register the app (public) with OAuth login URI and redirect URI, then build the authorize/reauthorize flow and LWA token exchange",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Self-authorize a draft or private app and run test calls; add Restricted Data Token handling if using PII roles",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Build the website guideline-compliant landing page and Appstore listing; submit the app for Appstore listing",
+          "who": "Legal",
+          "agent": true
+        },
+        {
+          "do": "Support seller reauthorization every year and on role changes",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A primary account user of the company's Seller Central (individual seller accounts are not eligible for private seller apps) must complete developer registration; the technical/security owner answers the security questions.",
+    "console": "none documented on fetched pages; developer profile and app status live in the Solution Provider Portal.",
+    "customer": "The seller's primary account user (or a user with Manage Your Apps permission) authorizes via your login URI or the Appstore and re-authorizes yearly. Appstore authorization does not apply to vendors.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Private apps can be self-authorized on your own seller or vendor account; a sandbox endpoint exists for mock responses (not re-verified); draft public apps can be authorized for testing within authorization limits (not retrieved)."
+  ],
+  "blockers": [
+    {
+      "problem": "Developer registration is gated on the primary account user",
+      "fix": "Use a company login, not an employee's."
+    },
+    {
+      "problem": "Adding a role later forces every seller to reauthorize",
+      "fix": "Choose roles up front."
+    },
+    {
+      "problem": "Restricted (PII) roles require extra review and security controls",
+      "fix": "Skip them unless the agent needs buyer data."
+    },
+    {
+      "problem": "Vendor accounts cannot use Appstore authorization",
+      "fix": "They need a separate private or manual process."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the developer profile, DPP security answers, Appstore copy and role justifications; write LWA/OAuth code, RDT handling and test calls.",
+    "humanMust": "Primary account holder logs in (2FA), accepts agreements, submits the profile and Appstore listing; the seller clicks authorize; payment of seller plan fees."
+  },
+  "uncertain": [
+    "Approval timelines, restricted-role criteria, authorization limits for draft apps, Appstore review steps, and the 2026 developer fee were not confirmed.",
+    "The developer-docs.amazon.com host redirected to developer-docs.amazon (as supplied by the fetch tool).",
+    "Menu names are from background knowledge."
+  ],
+  "sources": [
+    {
+      "url": "https://developer-docs.amazon/sp-api/docs/sp-api-registration-overview",
+      "label": "developer-docs.amazon/sp-api/docs/sp-api-registration-overview"
+    },
+    {
+      "url": "https://developer-docs.amazon/sp-api/docs/authorizing-selling-partner-api-applications",
+      "label": "developer-docs.amazon/sp-api/docs/authorizing-selling-partner-api-appl…"
+    }
+  ]
+}

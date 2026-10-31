@@ -1,0 +1,134 @@
+{
+  "schema": 3,
+  "id": "consensus",
+  "name": "Consensus",
+  "category": "AI, Research & Media",
+  "website": "consensus.app",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 94,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "none",
+  "verdict": "No developer OAuth app or documented API was found; access is likely by request or tied to a paid plan, unconfirmed. Everything about this app is unverified, low confidence.",
+  "needGuide": "No — nothing is documented; email Consensus to ask about API, MCP or partner access.",
+  "auth": {
+    "model": "Other",
+    "detail": "Unverified. The Consensus homepage mentions no API, MCP or developer access. Consensus is understood to offer an MCP connector and a partner-oriented API, but no official page was reachable to confirm auth method, plans or registration.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "unknown",
+    "timeToProduction": "unknown",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown",
+    "difficulty": "N/A",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Unknown. No developer-registered OAuth app was found. Any API or MCP access is likely by request or tied to a paid plan (unconfirmed).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": null,
+    "kind": "No connector path"
+  },
+  "scopes": {
+    "complexity": "N/A",
+    "why": "No connector path for third-party apps is documented.",
+    "summary": "Unknown.",
+    "table": []
+  },
+  "cost": "Unknown; likely a paid Consensus plan or a commercial API agreement",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: An owner of a company Consensus account; if API access is by agreement, a business contact to negotiate it.",
+    "Where you register: Not found. No developer console located; look for an API or MCP page on consensus.app or contact the company.",
+    "Cost: Unknown; likely a paid Consensus plan or a commercial API agreement"
+  ],
+  "registerAt": {
+    "url": "https://consensus.app",
+    "path": "Not found. No developer console located; look for an API or MCP page on consensus.app or contact the company."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Search consensus.app for API/MCP documentation and note the auth method and plan requirement.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If an MCP connector exists, connect it from your MCP client with a test account via browser sign-in.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "If none exists, email Consensus to request API or partner access and ask whether OAuth is on the roadmap.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Prototype search calls against the confirmed interface and log citations/paper metadata returned.",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Check the terms for rights to redistribute results to your customers.",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Fallback: let the user paste an API key if one is issued, stored encrypted and validated with a test call.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "An owner of a company Consensus account; if API access is by agreement, a business contact to negotiate it.",
+    "console": "none documented",
+    "customer": "Unknown. Each end user would likely sign in to their own Consensus account if an MCP/OAuth connector exists.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a free Consensus account to test search manually.",
+    "Free-tier API or MCP access is unconfirmed."
+  ],
+  "blockers": [
+    {
+      "problem": "No confirmed public API or OAuth program",
+      "fix": "Contact Consensus before building."
+    },
+    {
+      "problem": "Terms may restrict redistributing search results",
+      "fix": "Get written permission."
+    },
+    {
+      "problem": "Brief marks this app 'OAuth requested', but OAuth availability is unverified",
+      "fix": "Confirm with the vendor first."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the outreach email, write the integration once an interface is confirmed, and run test searches.",
+    "humanMust": "Create a real account, accept terms, negotiate any API/commercial agreement, and approve spend."
+  },
+  "uncertain": [
+    "Everything about API/MCP existence, auth and cost is unconfirmed.",
+    "Web search budget was exhausted and the fetch limit was hit, so no Consensus developer docs were read."
+  ],
+  "sources": [
+    {
+      "url": "https://consensus.app",
+      "label": "consensus.app"
+    }
+  ]
+}

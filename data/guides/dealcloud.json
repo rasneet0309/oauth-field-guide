@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "dealcloud",
+  "name": "DealCloud (Intapp)",
+  "category": "CRM & Sales",
+  "website": "api.docs.dealcloud.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 10,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "key",
+  "verdict": "No third-party OAuth app is known; each customer's DealCloud admin creates API credentials (client ID and secret) for their own tenant and sends them to you. Likely days to weeks per customer; low confidence.",
+  "needGuide": "No — just collect tenant hostname, client ID and secret from each customer admin, but you need a test tenant first.",
+  "auth": {
+    "model": "Client credentials only",
+    "detail": "Likely: OAuth 2.0 client-credentials grant against each customer's own DealCloud site (tenant-specific host), using a client ID and secret issued by that customer's admin; short-lived bearer tokens. There is no third-party registered app with authorization-code flow that I know of. Unverified this session.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "needs a tenant; 1+ hour once credentials exist",
+    "timeToProduction": "unknown; per-customer onboarding, likely days to weeks each",
+    "firstShort": "Needs a tenant",
+    "prodShort": "Unknown (per customer)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "No central app approval: each customer admin issues credentials for their own tenant, so every customer needs an admin step. Intapp may offer partner or marketplace routes for a named integration (unverified).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Likely a small scope set; real permissions come from the service user's role in the tenant (unverified).",
+    "summary": "Likely a limited scope set (for example data access) with real permissions determined by the service user's role in the tenant. Unverified.",
+    "table": []
+  },
+  "cost": "Requires a DealCloud (Intapp) customer tenant; no public sandbox or free tier known",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A solutions or integration engineer who can obtain a sandbox or customer tenant via Intapp or a customer sponsor.",
+    "Where you register: Per customer: a DealCloud admin creates API credentials in the tenant's Admin settings (Programmatic Access / API Keys, path from memory), mapped to a service user.",
+    "Cost: Requires a DealCloud (Intapp) customer tenant; no public sandbox or free tier known"
+  ],
+  "registerAt": {
+    "url": "https://api.docs.dealcloud.com",
+    "path": "Per customer: a DealCloud admin creates API credentials in the tenant's Admin settings (Programmatic Access / API Keys, path from memory), mapped to a service user."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Obtain a DealCloud test or sandbox tenant through Intapp or a pilot customer",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Customer admin creates API credentials in the tenant and shares client ID, secret and the site hostname",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Build a connect form: tenant hostname, client ID, client secret; store encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Request tokens with the client-credentials grant against the tenant token endpoint; refresh on expiry",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with a test call, then map customer-specific entries and fields via the schema endpoints",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Ask Intapp about a partner or marketplace route if you want a branded integration",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A solutions or integration engineer who can obtain a sandbox or customer tenant via Intapp or a customer sponsor.",
+    "console": "none documented",
+    "customer": "A DealCloud admin must create the API credentials and choose the service user and permissions; customer IT may also need to allow-list your IPs.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Needs a DealCloud tenant, ideally a customer's sandbox or Intapp partner environment (likely).",
+    "No open signup."
+  ],
+  "blockers": [
+    {
+      "problem": "Heavily customized schemas per customer",
+      "fix": "Discover entries and fields dynamically."
+    },
+    {
+      "problem": "Customer IP allow-listing",
+      "fix": "Publish your static egress IPs."
+    },
+    {
+      "problem": "No self-serve test tenant",
+      "fix": "Arrange a pilot customer early."
+    },
+    {
+      "problem": "Service-user permissions limit data",
+      "fix": "Document least-privilege setup."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the client-credentials client, schema discovery and sync code, draft the customer admin setup guide and test script.",
+    "humanMust": "A customer DealCloud admin must issue credentials; a human negotiates tenant access and any Intapp partner agreement."
+  },
+  "uncertain": [
+    "The DealCloud API docs were not fetched (hourly fetch limit hit).",
+    "Token endpoint, lifetime, scopes, admin path and any partner program are from prior knowledge."
+  ],
+  "sources": [
+    {
+      "url": "https://api.docs.dealcloud.com",
+      "label": "api.docs.dealcloud.com"
+    },
+    {
+      "url": "https://www.intapp.com/dealcloud/",
+      "label": "intapp.com/dealcloud"
+    }
+  ]
+}

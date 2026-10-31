@@ -1,0 +1,154 @@
+{
+  "schema": 3,
+  "id": "grain",
+  "name": "Grain",
+  "category": "AI, Research & Media",
+  "website": "grain.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 100,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "Grain issues OAuth credentials on request and requires OAuth2 if you distribute an integration to others, with no documented process or timeline. A personal access token works meanwhile for early testing.",
+  "needGuide": "Yes — contact Grain to request an OAuth client first, and use a PAT while you wait.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Public API supports personal access tokens (PAT, scope personal, no expiry, any plan), workspace access tokens (WAT, admin-only, Business/Enterprise) and OAuth2 authorization code with PKCE (S256) for integrations that other Grain users authorize. You must request client_id and client_secret from Grain. Authorize at https://grain.com/_/public-api/oauth2/authorize; scopes are `personal` or `workspace`; tokens refresh with a refresh_token. Every request needs a Public-Api-Version header.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min with a PAT; OAuth credentials need a Grain response (timing unknown)",
+    "timeToProduction": "unknown",
+    "firstShort": "30–60 min (PAT)",
+    "prodShort": "Unknown (partner)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "OAuth credentials are issued by Grain on request, and the Grain API article says OAuth2 is required if you distribute an integration to others. The request process, review criteria and timeline are not documented. Workspace-scope tokens need a plan that includes the Workspace API.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Two scopes: personal (default) and workspace (admin- and plan-gated).",
+    "summary": "Two scopes: `personal` (default, same access as the user) and `workspace` (full workspace data; admin-gated, plan-gated). Which scope triggers extra review is not documented.",
+    "table": []
+  },
+  "cost": "Free for PAT on all plans; Workspace API requires Business or Enterprise; OAuth partner terms unknown",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A developer with a Grain account (any plan) for PAT testing; a business contact to request OAuth credentials.",
+    "Where you register: No self-serve console found. Request OAuth credentials from Grain; the docs do not say how. Register a redirect URI prefix and, for browser apps, CORS origins.",
+    "Cost: Free for PAT on all plans; Workspace API requires Business or Enterprise; OAuth partner terms unknown"
+  ],
+  "registerAt": {
+    "url": "https://developers.grain.com/authentication.html",
+    "path": "No self-serve console found. Request OAuth credentials from Grain; the docs do not say how. Register a redirect URI prefix and, for browser apps, CORS origins."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a PAT in Grain at Account settings → Integrations → Personal API and call the API with Authorization: Bearer plus the Public-Api-Version header.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Contact Grain (hello@grain.com or the developer docs contact) to request an OAuth client_id and client_secret, giving your redirect URI prefix.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code with PKCE (S256) against https://grain.com/_/public-api/oauth2/authorize with scope personal.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange the code at the oauth2/token endpoint, store the refresh token and refresh on expiry.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle 429 using Retry-After and the x-ratelimit headers; pin the Public-Api-Version.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a real Free-plan account and a Business workspace if you need the workspace scope.",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A developer with a Grain account (any plan) for PAT testing; a business contact to request OAuth credentials.",
+    "console": "none documented",
+    "customer": "A Grain user signs in and confirms the OAuth connection for the `personal` scope. For `workspace` scope, a workspace admin on a Business or Enterprise plan is likely needed (inference). Admin controls on OAuth apps are not documented.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Generate a PAT at Account settings → Integrations → Personal API (https://grain.com/app/settings/account/integrations/personal_api) to test endpoints before OAuth credentials arrive.",
+    "Rate limit per token: bucket of 30, refill 2/sec (about 120/min)."
+  ],
+  "blockers": [
+    {
+      "problem": "OAuth credentials are not self-serve",
+      "fix": "Email Grain early and develop with a PAT meanwhile."
+    },
+    {
+      "problem": "Token lifetime and token-request parameters are only partly documented",
+      "fix": "Read the Endpoints page and test."
+    },
+    {
+      "problem": "API versions are dated and old ones sunset with reduced rate limits",
+      "fix": "Pin and track the Public-Api-Version."
+    },
+    {
+      "problem": "Workspace scope needs a Business/Enterprise admin",
+      "fix": "Default to personal scope."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the PKCE flow, refresh logic and rate-limit handling, run test calls with a PAT, and draft the credential-request email and integration description.",
+    "humanMust": "Request OAuth credentials from Grain, log in to create a PAT, handle any partner agreement, and have a workspace admin approve workspace scope."
+  },
+  "uncertain": [
+    "How to request OAuth credentials, review criteria, access-token lifetime, and the Grain MCP URL (developers.grain.com/mcp) were not confirmed.",
+    "The Endpoints page was not read."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.grain.com/authentication.html",
+      "label": "developers.grain.com/authentication.html"
+    },
+    {
+      "url": "https://developers.grain.com/overview.html",
+      "label": "developers.grain.com/overview.html"
+    },
+    {
+      "url": "https://developers.grain.com/rate-limits.html",
+      "label": "developers.grain.com/rate-limits.html"
+    },
+    {
+      "url": "https://support.grain.com/en/articles/15507288-grain-api",
+      "label": "support.grain.com/en/articles/15507288-grain-api"
+    },
+    {
+      "url": "https://support.grain.com/en/articles/14811968-grain-mcp",
+      "label": "support.grain.com/en/articles/14811968-grain-mcp"
+    }
+  ]
+}

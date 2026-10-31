@@ -1,0 +1,154 @@
+{
+  "schema": 3,
+  "id": "clay",
+  "name": "Clay",
+  "category": "Data, SEO & Scraping",
+  "website": "clay.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 60,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth exists: use your own API key from a service user, since the developer platform is on all plans and API use consumes Clay credits. Customers would paste their own key; same day.",
+  "needGuide": "No — just create an API key under API and CLI; note the Tables API is Enterprise only.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Public API (https://api.clay.com/public/v0) with a personal API key in the clay-api-key header, tied to a Clay user and that user's workspace access. Keys are shown only once. A clay CLI and an agent plugin exist. No OAuth documented. Outbound webhooks: signed HMAC-SHA256 POST (X-Clay-Signature) when a routine run finishes.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "Same day; Enterprise features need sales",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day",
+    "difficulty": "Easy",
+    "prodDays": 0.5
+  },
+  "approval": {
+    "gate": "None for OAuth because none exists. The developer platform is on all plans including free and trial, and API use consumes the same credits as in-product actions. Table reads with filters, joins or paging beyond 100 rows need the Enterprise API table sync.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes documented; access equals the key owner's workspace permissions.",
+    "summary": "No scopes documented. Access equals the key owner's workspace permissions.",
+    "table": []
+  },
+  "cost": "Included on all plans; consumes Clay credits and actions; Tables API is Enterprise only",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Clay user with workspace access can create a key, which acts with that user's permissions (specific roles not documented). Use a dedicated service-user account rather than a personal one so keys survive staff changes (likely sensible; not documented).",
+    "Where you register: Clay app, then API and CLI, then API keys (or run clay api-keys create --name <name>)",
+    "Cost: Included on all plans; consumes Clay credits and actions; Tables API is Enterprise only"
+  ],
+  "registerAt": {
+    "url": "https://developers.clay.com/public-api/authentication.md",
+    "path": "Clay app, then API and CLI, then API keys (or run clay api-keys create --name <name>)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create or choose a company Clay workspace and a dedicated service user",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create an API key in the app under API and CLI, then API keys, and store it as a secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Call GET /public/v0/me with the clay-api-key header to validate the key and workspace",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Run a routine or search and register an outbound webhook with clay webhooks create <url>; save the signing secret",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Verify X-Clay-Signature with constant-time HMAC-SHA256 and fall back to polling run results",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "For Tables, contact Clay about the Enterprise plan",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Clay user with workspace access can create a key, which acts with that user's permissions (specific roles not documented). Use a dedicated service-user account rather than a personal one so keys survive staff changes (likely sensible; not documented).",
+    "console": "none documented",
+    "customer": "None. Customers cannot connect via OAuth; they would paste their own API key, which acts as their user.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a free or trial workspace; call GET /me to confirm the user and workspace, and the credits endpoint to check balance without consuming credits.",
+    "Rate limits are per workspace (HTTP 429 with Retry-After)."
+  ],
+  "blockers": [
+    {
+      "problem": "Keys are tied to a user",
+      "fix": "If that user leaves, the key may break. Use a service account."
+    },
+    {
+      "problem": "Tables API is Enterprise only and read-only",
+      "fix": "Plan for it or use routines."
+    },
+    {
+      "problem": "Each call spends credits",
+      "fix": "Budget and use the credit-balance endpoint."
+    },
+    {
+      "problem": "Webhook delivery is not guaranteed",
+      "fix": "Always keep polling."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Install the Clay CLI or plugin, write the API client and webhook verifier, create routines, and run test calls.",
+    "humanMust": "Own the Clay workspace and plan, create or approve the API key, and negotiate Enterprise if Tables are needed."
+  },
+  "uncertain": [
+    "Who can create keys (roles), whether inbound webhooks into tables exist and their plan limits (not covered in the pages read), numeric rate limits, and any OAuth plans.",
+    "The Public API docs appear new; older Clay guidance may differ."
+  ],
+  "sources": [
+    {
+      "url": "https://university.clay.com/docs/using-clay-as-an-api",
+      "label": "university.clay.com/docs/using-clay-as-an-api"
+    },
+    {
+      "url": "https://developers.clay.com/public-api/authentication.md",
+      "label": "developers.clay.com/public-api/authentication.md"
+    },
+    {
+      "url": "https://developers.clay.com/public-api/webhooks.md",
+      "label": "developers.clay.com/public-api/webhooks.md"
+    },
+    {
+      "url": "https://developers.clay.com/public-api/rate-limits.md",
+      "label": "developers.clay.com/public-api/rate-limits.md"
+    },
+    {
+      "url": "https://developers.clay.com/llms.txt",
+      "label": "developers.clay.com/llms.txt"
+    }
+  ]
+}

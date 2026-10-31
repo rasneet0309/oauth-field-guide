@@ -1,0 +1,159 @@
+{
+  "schema": 3,
+  "id": "ecwid",
+  "name": "Ecwid",
+  "category": "Ecommerce",
+  "website": "api-docs.ecwid.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 47,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "Your app idea must be approved, then you pass App Market validation with a guide and screencast and sign a partner contract with revenue share. Ecwid billing is mandatory for some models; total time unknown.",
+  "needGuide": "Yes — submit the app idea and sign the partner contract before building for outside stores.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Public apps use OAuth with client_id/client_secret issued after Ecwid approves your app idea; the token endpoint for public apps was changed from GET to POST in March 2025 and Store ID became required for external-app authentication in September 2025. Private (custom) apps are auto-created per account, use access tokens instead of an OAuth flow, and work only on the owner's store.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min with the auto-created custom app and a paid-plan test store",
+    "timeToProduction": "1-2 business days per submission step per the FAQ (ambiguous whether idea or validation); total unknown",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (partner approval)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "App idea must be approved, then you build a dev version and pass App Market validation (guide plus a recorded screencast) before publication. You must sign a partner contract with revenue share, and Ecwid's billing is mandatory for supported monetization models. Changes to published apps need Ecwid approval.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Access scopes chosen in app settings (catalog, orders, customers…); exact names not confirmed.",
+    "summary": "Apps request access scopes in app settings (catalog, orders, customers, store profile, etc.; exact names not confirmed). Custom apps default to products, categories, store profile read and orders. Apps that make little use of Ecwid APIs may be refused.",
+    "table": []
+  },
+  "cost": "Free to list; revenue share under the partner contract; developer needs a PayPal or bank account that accepts USD. API access needs a paid store plan (free upgrade for test stores on request).",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A registered individual entrepreneur or corporate entity; AI-based apps require a registered corporate entity (not an individual). Company-owned Ecwid account.",
+    "Where you register: Submit the app idea form (description, merchant value, billing type, regions/platforms). After approval you get a dev app and a free Premium test store in the Ecwid admin app dashboard.",
+    "Cost: Free to list; revenue share under the partner contract; developer needs a PayPal or bank account that accepts USD. API access needs a paid store plan (free upgrade for test stores on request)."
+  ],
+  "registerAt": {
+    "url": "https://portal.ecwid.com/en-us/app-market-request",
+    "path": "Submit the app idea form (description, merchant value, billing type, regions/platforms). After approval you get a dev app and a free Premium test store in the Ecwid admin app dashboard."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Submit the app idea at portal.ecwid.com app-market-request with value, billing type and regions",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Prove entity status (entrepreneur or corporation) and set up a USD-capable payout account; sign the partner agreement",
+          "who": "Legal",
+          "agent": false
+        },
+        {
+          "do": "Choose Native or External app type and read app settings for client_id and secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement OAuth for public apps (POST to token endpoint; include Store ID) and store tokens per store",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test in the free Premium test store with the dev app",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Record the validation screencast and complete App Validation",
+          "who": "Design",
+          "agent": false
+        },
+        {
+          "do": "Wire up Ecwid billing if charging, then publish to the App Market",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A registered individual entrepreneur or corporate entity; AI-based apps require a registered corporate entity (not an individual). Company-owned Ecwid account.",
+    "console": "none documented beyond the app dashboard; extra staging apps/stores available on request from API support.",
+    "customer": "The store owner or admin installs from the Ecwid App Market and accepts permissions. The store must be on a paid plan for API access.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Ecwid provides a free Premium-plan test store and a dev app after idea approval; staging apps on request.",
+    "Rate limits apply."
+  ],
+  "blockers": [
+    {
+      "problem": "AI-based apps need a corporate entity",
+      "fix": "Sole-proprietor developers can be declined."
+    },
+    {
+      "problem": "Free-plan stores cannot use the API, which shrinks who can connect",
+      "fix": ""
+    },
+    {
+      "problem": "Public OAuth details changed in 2025 (POST token request, Store ID required)",
+      "fix": "Older tutorials may be stale."
+    },
+    {
+      "problem": "Excluded categories (unauthorized payment apps, POS integrations) are rejected at the idea stage",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the app idea submission and listing copy, write OAuth and token storage code, and script the screencast.",
+    "humanMust": "Submit via the portal, sign the partner contract, prove entity status, record the validation screencast, and handle billing setup."
+  },
+  "uncertain": [
+    "The OAuth authorization URL, scope names, token lifetime and the App Validation guide were not retrieved (fetch limit reached).",
+    "The FAQ's 1-2 business-day review time could refer to the idea submission rather than validation."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.ecwid.com/launch-apps/faq-about-public-applications.md",
+      "label": "docs.ecwid.com/launch-apps/faq-about-public-applications.md"
+    },
+    {
+      "url": "https://docs.ecwid.com/launch-apps/steps-to-go-live-with-a-public-app.md",
+      "label": "docs.ecwid.com/launch-apps/steps-to-go-live-with-a-public-app.md"
+    },
+    {
+      "url": "https://docs.ecwid.com/develop-apps/private-and-public-ecwid-apps.md",
+      "label": "docs.ecwid.com/develop-apps/private-and-public-ecwid-apps.md"
+    },
+    {
+      "url": "https://docs.ecwid.com/get-started/set-up-your-dev-environment-in-ecwid.md",
+      "label": "docs.ecwid.com/get-started/set-up-your-dev-environment-in-ecwid.md"
+    },
+    {
+      "url": "https://docs.ecwid.com/llms.txt",
+      "label": "docs.ecwid.com/llms.txt"
+    }
+  ]
+}

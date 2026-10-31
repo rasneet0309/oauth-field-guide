@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "bright-data",
+  "name": "Bright Data",
+  "category": "Data, SEO & Scraping",
+  "website": "brightdata.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 57,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth, and customers do not connect accounts: you use your own API key. Some products appear to need identity verification (KYC), inferred from the docs; same day, or 1-3 days if KYC applies.",
+  "needGuide": "No — create an API key in Account settings, and check whether KYC applies to the products you need.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "API key as Authorization: Bearer <token>, or proxy-style username brd-customer-[ACCOUNT_ID]-zone-[ZONE] with a per-zone password. Keys have permission levels (Admin, Finance, Ops, Limit, User), optional expiry, and are shown only once. Agent API keys authenticate the MCP server. No OAuth documented. The MCP quickstart page shows https://mcp.brightdata.com/sse?token=<API_TOKEN>; that page may be dated.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days if KYC review applies; otherwise same day",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day to 1–3 days (KYC)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No OAuth gate. Some products (residential network, Web Unlocker) appear to require identity verification (KYC): the docs say access without KYC requires an SSL certificate, so expect verification for full access. This is inferred from that note. Customers do not connect accounts.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No OAuth scopes; permissions follow the user role and the key.",
+    "summary": "No OAuth scopes; permission is per user role (Admin, Finance, Ops, Limit, User) and per key.",
+    "table": []
+  },
+  "cost": "Pay-as-you-go from about $1 per 1,000 requests for Unlocker, Crawl and SERP APIs; Residential from $2.50/GB; MCP free tier is 5,000 requests per month per account",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Only account admins can generate API keys; each user can have one key and total keys cannot exceed the number of account users. Use a company-owned admin account.",
+    "Where you register: Control panel, then Account settings, then Add API key; choose user, permissions and expiration, then save",
+    "Cost: Pay-as-you-go from about $1 per 1,000 requests for Unlocker, Crawl and SERP APIs; Residential from $2.50/GB; MCP free tier is 5,000 requests per month per account"
+  ],
+  "registerAt": {
+    "url": "https://docs.brightdata.com/api-reference/authentication",
+    "path": "Control panel, then Account settings, then Add API key; choose user, permissions and expiration, then save"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a company account and complete any KYC prompts",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Add an API key in Account settings with limited permissions and an expiry",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Store the key (shown once) in a secrets manager; refresh creates a new key and revokes the old one",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Call the chosen product (Unlocker, SERP or Scraper API) with Bearer auth",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Create a separate Agent API key for MCP use and test the remote server",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Add per-job cost caps and a compliance review of scraping targets",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Only account admins can generate API keys; each user can have one key and total keys cannot exceed the number of account users. Use a company-owned admin account.",
+    "console": "Add users under account settings and assign Admin, Finance, Ops, Limit or User permissions.",
+    "customer": "None. Customers do not connect accounts; if they bring their own Bright Data account they paste a key you store encrypted.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use the free tier (5,000 MCP requests a month shared across team users) and several products' free tiers.",
+    "No sandbox is documented."
+  ],
+  "blockers": [
+    {
+      "problem": "Only admins can create keys and the key is shown once",
+      "fix": "Lost keys must be refreshed."
+    },
+    {
+      "problem": "Key count is capped by user count",
+      "fix": "Add a user before adding another key."
+    },
+    {
+      "problem": "KYC verification may be required for residential and unlocker products",
+      "fix": ""
+    },
+    {
+      "problem": "Scraping targets' ToS and data-protection law apply",
+      "fix": "Get legal sign-off."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the API clients, configure the MCP server, run test calls and add cost controls.",
+    "humanMust": "Create the account, pass any KYC, pay, create and store keys as admin, and approve legal use cases."
+  },
+  "uncertain": [
+    "Exact KYC rules by product, whether the remote MCP supports OAuth, and the current remote MCP URL (the page showed an older SSE form).",
+    "Further docs could not be fetched because the fetch limit was hit."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.brightdata.com/api-reference/authentication",
+      "label": "docs.brightdata.com/api-reference/authentication"
+    },
+    {
+      "url": "https://docs.brightdata.com/mcp-server/overview",
+      "label": "docs.brightdata.com/mcp-server/overview"
+    },
+    {
+      "url": "https://docs.brightdata.com/mcp-server/quickstart/remote",
+      "label": "docs.brightdata.com/mcp-server/quickstart/remote"
+    },
+    {
+      "url": "https://brightdata.com/pricing",
+      "label": "brightdata.com/pricing"
+    }
+  ]
+}

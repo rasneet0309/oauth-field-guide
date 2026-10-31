@@ -1,0 +1,146 @@
+{
+  "schema": 3,
+  "id": "firecrawl",
+  "name": "Firecrawl",
+  "category": "Data, SEO & Scraping",
+  "website": "firecrawl.dev",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 56,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No OAuth app exists. Each customer pastes an API key from their Firecrawl dashboard; you store it encrypted and validate it with one test call, or you can call Firecrawl with your own key.",
+  "needGuide": "No — just collect an API key (API Keys page), or use your own key.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Authorization: Bearer fc-... API key. Basic keyless use exists with per-IP daily caps. The hosted MCP server has three modes: keyless (Search, Scrape, Parse), OAuth sign-in at https://mcp.firecrawl.dev/v2/mcp-oauth where the user approves a team, or an API key at https://mcp.firecrawl.dev/v2/mcp. No developer-registered OAuth is documented.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "5-10 min",
+    "timeToProduction": "Same day",
+    "firstShort": "5–10 min",
+    "prodShort": "Same day",
+    "difficulty": "Easy",
+    "prodDays": 0.5
+  },
+  "approval": {
+    "gate": "None. Firecrawl is a service you call with your own key; a customer-facing connect step is only needed if customers should use their own team. Production needs a paid plan once free credits (1,000) or rate limits are exceeded.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes: a key has the team's full API access.",
+    "summary": "No scopes; a key has the team's full API access. MCP OAuth and API key reach the same tools on the team's plan.",
+    "table": []
+  },
+  "cost": "Free plan with 1,000 credits; paid tiers Hobby, Standard, Growth, Scale; Enterprise",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any team member with dashboard access creates keys; use a company-owned team. Rate limits are per team and shared across all keys.",
+    "Where you register: Create a free account, then open the API Keys page of the dashboard",
+    "Cost: Free plan with 1,000 credits; paid tiers Hobby, Standard, Growth, Scale; Enterprise"
+  ],
+  "registerAt": {
+    "url": "https://www.firecrawl.dev/app/api-keys",
+    "path": "Create a free account, then open the API Keys page of the dashboard"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a company Firecrawl account and team",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create an API key on the API Keys page; store it as a server secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Call /scrape with Authorization: Bearer using the official SDK",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "If using MCP, point the client at mcp.firecrawl.dev/v2/mcp-oauth and test sign-in and revoke",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Upgrade to a plan sized to expected concurrency and add 429 backoff",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "For customer-owned accounts, add an API key paste field and validate with a cheap call",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any team member with dashboard access creates keys; use a company-owned team. Rate limits are per team and shared across all keys.",
+    "console": "none documented (team roles not covered in the pages read)",
+    "customer": "For the MCP OAuth path the user signs in to Firecrawl and approves a team; connections can be reviewed and revoked in MCP settings. Otherwise customers paste their own key.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use the free account or the keyless mode.",
+    "Free plan limits: 2 concurrent browsers, 10 scrapes/min, 2 crawls/min; exceeding returns HTTP 429."
+  ],
+  "blockers": [
+    {
+      "problem": "Rate limits are per team and shared across all keys",
+      "fix": "New keys do not add capacity."
+    },
+    {
+      "problem": "Keyless mode is capped per IP per day",
+      "fix": "Do not rely on it in production."
+    },
+    {
+      "problem": "No third-party OAuth app registration documented",
+      "fix": "Use pasted keys or the MCP OAuth path."
+    },
+    {
+      "problem": "Scraped targets can block or have ToS limits",
+      "fix": "Plan fallbacks."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the SDK calls, 429 handling and the MCP configuration, run test scrapes, and add key validation.",
+    "humanMust": "Create the account, choose and pay for a plan, and approve MCP OAuth sign-in as a user."
+  },
+  "uncertain": [
+    "Whether Firecrawl will register OAuth apps for third parties, team role details, and numeric keyless limits.",
+    "Fetching was cut off before some pages could be checked."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.firecrawl.dev/introduction",
+      "label": "docs.firecrawl.dev/introduction"
+    },
+    {
+      "url": "https://docs.firecrawl.dev/mcp-server",
+      "label": "docs.firecrawl.dev/mcp-server"
+    },
+    {
+      "url": "https://docs.firecrawl.dev/rate-limits",
+      "label": "docs.firecrawl.dev/rate-limits"
+    }
+  ]
+}

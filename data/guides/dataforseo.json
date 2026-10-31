@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "dataforseo",
+  "name": "DataForSEO",
+  "category": "Data, SEO & Scraping",
+  "website": "dataforseo.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 51,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No OAuth and no customer connection: it is a data vendor your product calls server-side with its own credentials after a $50 minimum top-up. A customer who wants their own account pastes their API login and password.",
+  "needGuide": "No — just keep your own API login and password server-side, and collect a customer's only if they bring their own account.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "HTTP Basic auth only: Base64 of the API login and API password (separate from the account password) in the Authorization header; credentials cannot be passed as URL parameters. No OAuth and no token exchange. The sandbox uses the same credentials.",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "10-20 min",
+    "timeToProduction": "Same day after the $50 top-up",
+    "firstShort": "10–20 min",
+    "prodShort": "Same day after $50 top-up",
+    "difficulty": "Easy",
+    "prodDays": 0.5
+  },
+  "approval": {
+    "gate": "No OAuth exists, so no approval gate. Your own production use only needs a funded account: $50 minimum top-up, pay-as-you-go, funds do not expire. No partner program or app review is documented. DataForSEO is a data vendor your product pays for, not an account your customers connect, so call it server-side with your own credentials.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes: the credentials reach every API the funded balance pays for.",
+    "summary": "No scopes. The credentials grant access to every API the funded balance can pay for. Per-key limits or sub-accounts were not confirmed.",
+    "table": []
+  },
+  "cost": "Pay-as-you-go, $50 minimum top-up; $1 trial credit for new accounts; sandbox free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Whoever signs up owns the API credentials; use a company-owned login rather than a personal one. Team roles were not documented in the pages read.",
+    "Where you register: Sign up at app.dataforseo.com/register, then open the API Access page to see your API login and password",
+    "Cost: Pay-as-you-go, $50 minimum top-up; $1 trial credit for new accounts; sandbox free"
+  ],
+  "registerAt": {
+    "url": "https://app.dataforseo.com/api-access",
+    "path": "Sign up at app.dataforseo.com/register, then open the API Access page to see your API login and password"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Register at app.dataforseo.com/register using a company email",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Open app.dataforseo.com/api-access and copy the API login and password into your secrets manager",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Build requests against https://sandbox.dataforseo.com/v3 using Basic auth (Base64 of login:password)",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Verify task_post with pingback_url and postback_url handlers against the sandbox",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Add the $50 minimum top-up to the account",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Switch the base URL to api.dataforseo.com and run a small live smoke test; set spend alerts in your app",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Whoever signs up owns the API credentials; use a company-owned login rather than a personal one. Team roles were not documented in the pages read.",
+    "console": "none documented",
+    "customer": "None for the normal case. If a customer wants to use their own DataForSEO account, they paste their API login and password into your app; store them encrypted.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Swap api.dataforseo.com/v3 for sandbox.dataforseo.com/v3 with the same login and password.",
+    "It is free for any registered user, returns dummy data in the production response shape, supports pingback_url and postback_url, and has the same rate limits (10,000 calls/min).",
+    "The $1 trial credit covers a few live calls (Playground, MCP, templates)."
+  ],
+  "blockers": [
+    {
+      "problem": "The API password differs from the account password",
+      "fix": "401 errors usually mean the wrong one. Copy both from the API Access page."
+    },
+    {
+      "problem": "No scoped credentials",
+      "fix": "A leak can drain the balance. Keep calls server-side and avoid large balances or auto top-up."
+    },
+    {
+      "problem": "Sandbox data is dummy",
+      "fix": "It cannot validate result quality. Use the $1 trial credit for a few live checks."
+    },
+    {
+      "problem": "Live methods take one task per POST",
+      "fix": "Use task_post with pingback for volume."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the Basic-auth client (official PHP, C#, Java, Python and TypeScript libraries, an OpenAPI spec and a Postman collection exist), run sandbox test calls, and add retry and cost-tracking logic.",
+    "humanMust": "Create the account, accept the terms, pay the top-up, and retrieve the credentials from the console."
+  },
+  "uncertain": [
+    "Sub-account or per-key spend limits, any partner or reseller program, MCP server auth details, and terms for reselling data to third parties were not confirmed."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.dataforseo.com/v3/auth/",
+      "label": "docs.dataforseo.com/v3/auth"
+    },
+    {
+      "url": "https://docs.dataforseo.com/v3/appendix/sandbox/",
+      "label": "docs.dataforseo.com/v3/appendix/sandbox"
+    },
+    {
+      "url": "https://dataforseo.com/pricing",
+      "label": "dataforseo.com/pricing"
+    },
+    {
+      "url": "https://docs.dataforseo.com/v3/",
+      "label": "docs.dataforseo.com/v3"
+    }
+  ]
+}

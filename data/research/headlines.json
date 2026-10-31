@@ -1,0 +1,584 @@
+{
+  "salesforce": {
+    "headline": "Self-serve, but build it as an External Client App and ship it in a package each customer's admin installs. No Salesforce review unless you list on AgentExchange; unlisted is roughly 1-3 weeks.",
+    "needGuide": "Yes — new Connected Apps are blocked since Spring '26, so follow the External Client App and packaging steps.",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 weeks unlisted"
+  },
+  "hubspot": {
+    "headline": "Self-serve: build a project-based app and customers can install it with an unverified banner, no approval needed. Marketplace listing is optional and needs 3 live installs first; unlisted takes about 1-3 days.",
+    "needGuide": "Yes — use the 2025.2 or 2026.03 project platform (legacy public apps can't be created) and keep tier-dependent scopes optional.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days; listing 3–10 wks"
+  },
+  "pipedrive": {
+    "headline": "Self-serve: a private app, once made live, can be installed by any Pipedrive company through its install link, with no review. Public Marketplace listing is optional and takes up to about 21 business days.",
+    "needGuide": "Short one: create a private app, set the callback URL and scopes, make it live.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (private app)"
+  },
+  "attio": {
+    "headline": "Self-serve OAuth app, with no approval for other workspaces documented (likely none, unconfirmed). Only admins can grant workspace-level tokens, and the optional App Store listing has a code review of unknown length.",
+    "needGuide": "Short one: register the app, add redirect URIs, and plan for the admin-only workspace token rule.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days unlisted"
+  },
+  "twenty": {
+    "headline": "No OAuth app is known, so each customer's workspace admin likely creates an API key and pastes it in with their base URL (cloud or self-hosted). Low confidence and unverified; likely 1-3 days, no review.",
+    "needGuide": "No — just collect each customer's API key and base URL (Settings → APIs & Webhooks), after confirming Twenty still has no OAuth.",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days (unverified)"
+  },
+  "podio": {
+    "headline": "Likely self-serve: register an API key and run the authorization-code flow against any Podio user's account, with no marketplace review known. Low confidence, recalled from memory, not verified; likely 1-3 days.",
+    "needGuide": "Short one, but confirm the registration steps and token details in current docs first.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)"
+  },
+  "zoho-crm": {
+    "headline": "Likely self-serve: register a Server-based client in the Zoho API Console, with no approval to connect. The catch is data centers, so send each customer to their own region's accounts server and api_domain; low confidence.",
+    "needGuide": "Yes — data centers and per-user refresh-token limits trip people up, so follow a region-aware flow.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)"
+  },
+  "close": {
+    "headline": "Self-serve to build and test inside your own Close organization, but other organizations can connect only after Close reviews the app: click Make Public and submit it. No review timeline is published.",
+    "needGuide": "Yes: the build is short, but Close's review decides when customers outside your organization can connect.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown"
+  },
+  "copper": {
+    "headline": "OAuth is likely offered only to integration partners, so apply to Copper's partner program for client credentials before customers can connect. Until then use per-user API keys; timeline unknown, low confidence.",
+    "needGuide": "Yes — apply to Copper's partner program first, and ship API-key onboarding in the meantime.",
+    "firstShort": "30–60 min (key)",
+    "prodShort": "Unknown (partner approval)"
+  },
+  "dealcloud": {
+    "headline": "No third-party OAuth app is known; each customer's DealCloud admin creates API credentials (client ID and secret) for their own tenant and sends them to you. Likely days to weeks per customer; low confidence.",
+    "needGuide": "No — just collect tenant hostname, client ID and secret from each customer admin, but you need a test tenant first.",
+    "firstShort": "Needs a tenant",
+    "prodShort": "Unknown (per customer)"
+  },
+  "zendesk": {
+    "headline": "Zendesk does not let you create the global OAuth client that multi-customer apps need; you build on a local client, then Zendesk reviews and converts it. No review SLA is documented, likely several weeks.",
+    "needGuide": "Yes — request a sponsored d3v- test account, build on a local client, and ask for global-client conversion only when the app is finished.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely weeks)"
+  },
+  "intercom": {
+    "headline": "Self-serve to build, but Intercom must review every public app before any customer can install, even unlisted ones. Review takes up to 7 business days; budget 1-3 weeks with the video and forms.",
+    "needGuide": "Yes — prepare the OAuth install, features and uninstall video plus the App Partner Program form before you submit.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 weeks incl. review"
+  },
+  "freshdesk": {
+    "headline": "No OAuth for third parties was found. Each customer pastes a Freshdesk API key and account domain, ideally from a dedicated agent, in about 1-3 days; a Marketplace app is a separate, reviewed route.",
+    "needGuide": "No — just collect the account domain and API key (Profile settings → View API Key).",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days"
+  },
+  "front": {
+    "headline": "Apps are private to the Front instance that built them. To reach other customers you submit the partner form, Front tests and approves, and OAuth is required unless Front grants an exception; no published timeline.",
+    "needGuide": "Yes — build the app as an admin, then go through Front's partner submission and technical approval to publish.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (no timeline)"
+  },
+  "pylon": {
+    "headline": "No OAuth. Each customer's workspace Admin creates an API token and pastes it into your app along with their region (US or EU); no review, about 1-3 days.",
+    "needGuide": "No — just collect an Admin-created API token and the region.",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days"
+  },
+  "liveagent": {
+    "headline": "No OAuth or review was found. Each customer's admin likely generates an API key and shares their account URL, though most details are unconfirmed (low confidence); likely 1-3 days.",
+    "needGuide": "No — just collect the account URL and API key, but verify where the key lives in a test account first.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unconfirmed)"
+  },
+  "plain": {
+    "headline": "No OAuth or approval is documented. Each customer admin creates a machine user and a least-privilege API key and shares it with you, about 1-3 days.",
+    "needGuide": "No — just collect an API key from a machine user (Settings → Machine Users).",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days"
+  },
+  "helpscout": {
+    "headline": "Self-serve: create an app under My apps with an HTTPS redirect URL and run the authorization-code flow, about 1-3 days. No review is documented; Help Scout asks public integrations to follow brand guidelines.",
+    "needGuide": "Short one: create the app, add the redirect URL, ship.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "gorgias": {
+    "headline": "Merchants install from the Gorgias App Store, and public apps must be approved by Gorgias's tech partnership team. Even a sandbox needs Gorgias to convert a trial; no published timeline, likely several weeks.",
+    "needGuide": "Yes — register at partners.gorgias.com, fill in the Draft App form, and ask Gorgias to convert a trial into a sandbox.",
+    "firstShort": "1–3 days",
+    "prodShort": "Unknown (likely weeks)"
+  },
+  "gladly": {
+    "headline": "No OAuth app was found. Each customer's Gladly Administrator sets up an API user and token that you collect with their organization URL, so plan about 1-2 weeks of customer admin coordination.",
+    "needGuide": "No — just collect the organization URL, API user email and API token, but you need a Gladly tenant to test.",
+    "firstShort": "1–3 days",
+    "prodShort": "1–2 weeks (customer admin)"
+  },
+  "twilio": {
+    "headline": "No OAuth app was confirmed. Either each customer's admin pastes a Twilio API key (Account SID, key SID, secret) or you create a subaccount per customer; 1-3 days, though number registration may add more (unverified).",
+    "needGuide": "No — just collect the Account SID, API key SID and secret, though messaging number registration may be a separate step.",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days, registration extra"
+  },
+  "zoho-cliq": {
+    "headline": "Self-serve: register a Server-based client in the Zoho API Console, with no review documented, in about 1-3 days. Use the accounts domain that matches each customer's data center.",
+    "needGuide": "Short one, plus a data-center check: register the client, add redirect URIs, route each customer to their own accounts domain.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "lark": {
+    "headline": "Custom apps work only inside the creating tenant and need a tenant admin to approve each release, so reaching other companies likely needs a store app with Lark review. Lark and Feishu are separate platforms; low confidence.",
+    "needGuide": "Yes — decide Lark or Feishu per customer region first, then plan for store-app review.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely weeks)"
+  },
+  "pumble": {
+    "headline": "Likely needs a CAKE.com Marketplace listing to reach other workspaces; submission and review steps are unconfirmed. A workspace admin installs and then each member authorizes; low confidence, timeline unknown.",
+    "needGuide": "Yes — confirm the Marketplace publishing process with Pumble before building for outside workspaces.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown"
+  },
+  "discord": {
+    "headline": "Self-serve: create an application and use OAuth plus a bot, with no review. Verification is required as the app grows toward 100 servers and privileged intents need approval; customers need Manage Server to add the bot.",
+    "needGuide": "Short one, but plan for verification and privileged-intent approval if you expect to pass about 100 servers.",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days (no review)"
+  },
+  "telegram": {
+    "headline": "No OAuth: you create one bot with @BotFather and use its token, with no review. Customers press Start in a DM or a group admin adds the bot, about 1-3 days.",
+    "needGuide": "No — create a bot with @BotFather, store the token, and link users with a /start deep link.",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days"
+  },
+  "whatsapp-business": {
+    "headline": "Build as a Meta Tech Provider with Embedded Signup: business verification first, then App Review for Advanced access on two permissions with a screencast each. Onboarding is capped at 10 new customers a week at first.",
+    "needGuide": "Yes — follow the Tech Provider path: business verification, then App Review with screencasts for both permissions.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 weeks incl. review"
+  },
+  "aircall": {
+    "headline": "OAuth credentials come only after you sign up as a Technology Partner and email Aircall, and the docs say marketplace listing is required for OAuth. Customer Company Admins install; likely 2-6 weeks, unconfirmed.",
+    "needGuide": "Yes — sign up as a Technology Partner and request credentials first; nothing works for customers until then.",
+    "firstShort": "30–60 min (key)",
+    "prodShort": "Unknown (likely 2–6 weeks)"
+  },
+  "vonage": {
+    "headline": "No OAuth: each customer admin pastes their Vonage API key and secret, or an Application ID plus private key, with no review in 1-3 days. Sender or number registration may add time (unverified).",
+    "needGuide": "No — just collect the API key and secret, or the Application ID and private key.",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days (+ sender reg.)"
+  },
+  "google-ads": {
+    "headline": "Self-serve to build, but production needs a higher Google Ads API access level. Standard, the realistic one for many customers, needs a manual audit of about 10 business days, and OAuth verification likely adds time.",
+    "needGuide": "Yes — plan the API access-level upgrade (Explorer, Basic, Standard) and check whether OAuth consent-screen verification applies.",
+    "firstShort": "1–2 hours",
+    "prodShort": "Likely 2–5 weeks incl. review"
+  },
+  "meta-ads": {
+    "headline": "Managing other people's ad accounts needs Advanced Access through App Review, which requires Business Verification. Full Marketing API access also needs 500 successful calls in 15 days; likely 3-8 weeks, unconfirmed.",
+    "needGuide": "Yes — start Business Verification early, then App Review, and plan for the Full access activity requirement.",
+    "firstShort": "1–2 hours",
+    "prodShort": "Likely 3–8 weeks incl. review"
+  },
+  "linkedin-ads": {
+    "headline": "Development tier needs access approval, and serving many customers needs the Standard tier through a support ticket with a demo video. LinkedIn picks partners at its discretion, with no published timeline (6-12+ weeks is an inference).",
+    "needGuide": "Yes — apply for Advertising API access and plan the Standard-tier video request; nothing scales until approved.",
+    "firstShort": "Days to weeks",
+    "prodShort": "Unknown (likely 6–12+ weeks)"
+  },
+  "gohighlevel": {
+    "headline": "Self-serve: a Private app needs no review but is unlisted, and whether unrelated customers can install it at scale is unconfirmed. Public Marketplace listing needs review and a demo video.",
+    "needGuide": "Yes — choose the app type and install scope (sub-account or agency) carefully, then decide whether to list.",
+    "firstShort": "1–2 hours",
+    "prodShort": "Unknown (private likely days)"
+  },
+  "mailchimp": {
+    "headline": "Self-serve: register an app and run OAuth, with no review documented, in about 1-3 days. Marketplace listing is optional and goes through the Integration Partner Program.",
+    "needGuide": "Short one: register the app, redirect users to authorize, exchange the code.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "klaviyo": {
+    "headline": "Self-serve: share your installation URL and customers can connect in about 1-3 days, though they see a warning that Klaviyo has not reviewed the app. Marketplace listing is optional and needs 5 active installs plus review.",
+    "needGuide": "Short one: create the app, implement PKCE, share the install link; listing is optional.",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days unlisted"
+  },
+  "systeme-io": {
+    "headline": "No developer app registration or OAuth was found. Each customer creates a Public API key in Settings and pastes it in, likely 1-3 days; details are largely unverified (low confidence).",
+    "needGuide": "No — just collect each customer's Public API key (Settings → Public API keys).",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)"
+  },
+  "pinterest": {
+    "headline": "Two reviews: Pinterest approves Trial access before you get an app ID, then a Standard access upgrade with an OAuth demo video is needed for production. About 1-3 weeks in total.",
+    "needGuide": "Yes — request Trial access first, then record the OAuth demo video for the Standard upgrade.",
+    "firstShort": "1–3 days",
+    "prodShort": "1–3 weeks incl. review"
+  },
+  "threads": {
+    "headline": "Only people with a role on your Meta app can connect until each permission passes App Review and the app is published. Business Verification is likely also needed; likely 2-6 weeks, unconfirmed.",
+    "needGuide": "Yes — plan Meta App Review for each permission and check whether Business Verification applies.",
+    "firstShort": "1–2 hours",
+    "prodShort": "Likely 2–6 weeks incl. review"
+  },
+  "sendgrid": {
+    "headline": "No OAuth app was found. Each customer's owner or admin creates a restricted API key and pastes it in, about 1-3 days; reseller or provisioning routes need a formal Twilio SendGrid partnership.",
+    "needGuide": "No — just collect a restricted API key from each customer (Settings → API Keys).",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "shopify": {
+    "headline": "Custom distribution covers only one store or one Plus organization, so serving arbitrary merchants needs public App Store review, a registration fee, the billing API and compliance webhooks. Duration is not stated; plan several weeks.",
+    "needGuide": "Yes — public distribution has a long checklist: App Store review, compliance webhooks, billing API and protected customer data access.",
+    "firstShort": "1–2 hours",
+    "prodShort": "Several weeks incl. review"
+  },
+  "woocommerce": {
+    "headline": "No central OAuth app: each merchant approves your connection on their own store through the wc-auth flow, which hands you REST API keys. No review, about 1-3 days, plus host or firewall quirks.",
+    "needGuide": "Short one — redirect the merchant to their store's wc-auth endpoint and store the keys it returns.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "bigcommerce": {
+    "headline": "Draft apps are for testing. Reaching all merchants needs approval for the BigCommerce App Marketplace; requirements and timeline were not retrieved, likely several weeks.",
+    "needGuide": "Yes — read the marketplace requirements guide before building, since approval gates public installs.",
+    "firstShort": "1–2 hours",
+    "prodShort": "Unknown (likely weeks)"
+  },
+  "salesforce-commerce-cloud": {
+    "headline": "No self-serve multi-customer app: each customer's admins create an API client in Account Manager, allow it in Business Manager and send you client ID, secret, short code, organization ID and site ID. Days to weeks per customer.",
+    "needGuide": "Yes — write a customer setup guide, since each customer admin does the Account Manager and Business Manager steps.",
+    "firstShort": "Unknown",
+    "prodShort": "Days to weeks per customer"
+  },
+  "magento": {
+    "headline": "No central app: each merchant admin creates and activates an OAuth 1.0a integration under System → Integrations and your app receives per-store credentials. No review, 1-3 days, though host firewalls can block paths.",
+    "needGuide": "Yes — OAuth 1.0a signing and the merchant activation callback are fiddly, so follow the integration guide.",
+    "firstShort": "2–4 hours",
+    "prodShort": "1–3 days"
+  },
+  "squarespace": {
+    "headline": "Squarespace reviews every OAuth client registration before issuing credentials, with no stated timeline. A per-site API key skips approval but serves one site and needs a Commerce Advanced plan.",
+    "needGuide": "Yes — register the OAuth client first and wait for review; nothing works for customers until credentials arrive.",
+    "firstShort": "Unknown (approval)",
+    "prodShort": "Unknown (approval)"
+  },
+  "ecwid": {
+    "headline": "Your app idea must be approved, then you pass App Market validation with a guide and screencast and sign a partner contract with revenue share. Ecwid billing is mandatory for some models; total time unknown.",
+    "needGuide": "Yes — submit the app idea and sign the partner contract before building for outside stores.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (partner approval)"
+  },
+  "gumroad": {
+    "headline": "Likely self-serve: create an application in Gumroad settings and run OAuth, probably in 1-3 days. No review was found, but every detail is from background knowledge, so confidence is low.",
+    "needGuide": "Short one, but confirm the registration steps and scopes in a browser first.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)"
+  },
+  "amazon-selling-partner": {
+    "headline": "You must register as an SP-API developer: Amazon reviews your profile and security questionnaire and approves each role, and public apps must list in the Selling Partner Appstore. No SLA; plan weeks, longer for restricted roles.",
+    "needGuide": "Yes — get your developer profile and roles approved before any customer can authorize.",
+    "firstShort": "1–2 days",
+    "prodShort": "Unknown; plan weeks"
+  },
+  "fanbasis": {
+    "headline": "No connector path found: API access appears to be an Enterprise offer reached by contacting Commas. No developer docs, scopes or review process are public; low confidence.",
+    "needGuide": "No guide possible yet — email Commas to ask whether an API, keys or OAuth exist.",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown"
+  },
+  "dataforseo": {
+    "headline": "No OAuth and no customer connection: it is a data vendor your product calls server-side with its own credentials after a $50 minimum top-up. A customer who wants their own account pastes their API login and password.",
+    "needGuide": "No — just keep your own API login and password server-side, and collect a customer's only if they bring their own account.",
+    "firstShort": "10–20 min",
+    "prodShort": "Same day after $50 top-up"
+  },
+  "se-ranking": {
+    "headline": "No OAuth: each customer creates an API key in their API Dashboard and pastes it in. Embedding SE Ranking data in your own product needs sales permission, so check that before building.",
+    "needGuide": "No — just collect each customer's API key, but ask SE Ranking sales first if you embed its data.",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day; embed needs sales"
+  },
+  "ahrefs": {
+    "headline": "Mandatory application and approval, and a new product needs an Enterprise Ahrefs subscription. You submit screenshots and an unedited OAuth recording, and the app stays Inactive until Ahrefs activates it; no published timeline.",
+    "needGuide": "Yes — apply through Ahrefs Connect first; nothing works for customers until the app is active.",
+    "firstShort": "Days post-approval",
+    "prodShort": "Unknown (partner review)"
+  },
+  "mrscraper": {
+    "headline": "No OAuth and no customer connection: you call the scraping API with your own token on a paid plan. A customer who wants their own account pastes their token; same day.",
+    "needGuide": "No — just keep your own API token server-side, and collect a customer's only if they bring their own.",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day"
+  },
+  "apify": {
+    "headline": "Likely a conversation with Apify is needed to get OAuth credentials, which is an inference. The token route has no gate: users create a scoped token and paste it, and you send the integration-platform headers.",
+    "needGuide": "Yes — email integrations@apify.com about OAuth, and use token paste in the meantime.",
+    "firstShort": "30–60 min (token)",
+    "prodShort": "1–3 days token; OAuth unknown"
+  },
+  "firecrawl": {
+    "headline": "No OAuth app exists. Each customer pastes an API key from their Firecrawl dashboard; you store it encrypted and validate it with one test call, or you can call Firecrawl with your own key.",
+    "needGuide": "No — just collect an API key (API Keys page), or use your own key.",
+    "firstShort": "5–10 min",
+    "prodShort": "Same day"
+  },
+  "bright-data": {
+    "headline": "No OAuth, and customers do not connect accounts: you use your own API key. Some products appear to need identity verification (KYC), inferred from the docs; same day, or 1-3 days if KYC applies.",
+    "needGuide": "No — create an API key in Account settings, and check whether KYC applies to the products you need.",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day to 1–3 days (KYC)"
+  },
+  "sherlock": {
+    "headline": "No connector path: it is a local, no-auth CLI that checks usernames across sites, with no customer account to connect. The real gate is likely your own privacy and site-terms review.",
+    "needGuide": "No — nothing to connect; run it in a worker and do your own privacy and site-terms review.",
+    "firstShort": "5–10 min",
+    "prodShort": "Same day (self-hosted)"
+  },
+  "waterfall-io": {
+    "headline": "Keys appear to be issued by Waterfall's team after a call, so email them for access and pricing. Customers do not connect accounts; you use your own key, with usage-based pricing.",
+    "needGuide": "Yes — contact Waterfall for access and pricing first; no self-serve key was found.",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown, likely days"
+  },
+  "clay": {
+    "headline": "No OAuth exists: use your own API key from a service user, since the developer platform is on all plans and API use consumes Clay credits. Customers would paste their own key; same day.",
+    "needGuide": "No — just create an API key under API and CLI; note the Tables API is Enterprise only.",
+    "firstShort": "15–30 min",
+    "prodShort": "Same day"
+  },
+  "vercel": {
+    "headline": "Self-serve: create a connectable integration in the Integrations Console and customers install it from your link or deploy button with a Community badge. Marketplace listing is optional and needs 500+ active installs.",
+    "needGuide": "Short one, but use a company team with 2 or more owners and accept the integrations agreement.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (likely)"
+  },
+  "netlify": {
+    "headline": "Self-serve: create an OAuth app under your user settings and send users to Netlify's authorize page, likely in 1-3 days. No review is documented, though the current docs could not be fully confirmed.",
+    "needGuide": "Short one: create the OAuth app, add redirect URIs, and verify grant types against current docs.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (likely)"
+  },
+  "cloudflare": {
+    "headline": "Self-serve, but new OAuth clients are private to your own account until you make them public by verifying your domain with a DNS TXT record (up to 2 days, permanent). No manual review is documented.",
+    "needGuide": "Short one, but do the DNS TXT verification to make the client public, and note that it cannot be undone.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "supabase": {
+    "headline": "Self-serve: add an OAuth app in organization settings, with no review documented, likely in 1-3 days. Scopes are fixed at creation, so changing them forces users to re-authorize.",
+    "needGuide": "Short one, but pick scopes carefully because changing them forces re-authorization.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (likely)"
+  },
+  "neo4j": {
+    "headline": "No third-party OAuth: each customer creates Aura API client credentials (client ID and secret) in their Aura Account Settings and pastes them in. You exchange them for short-lived tokens; about 1-3 days.",
+    "needGuide": "No — just collect each customer's Aura client ID and secret, ideally from a least-privileged user.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "snowflake": {
+    "headline": "No Snowflake review, but each customer's admin must run CREATE SECURITY INTEGRATION in their own account and send you the client ID, secret and account URL. You ship in 1-3 days; onboarding is likely 15-60 minutes each.",
+    "needGuide": "Yes — give customers a copy-paste SQL template for the security integration.",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days + per-customer setup"
+  },
+  "mongodb-atlas": {
+    "headline": "No third-party app: each customer's Organization Owner creates a service account and shares its client ID and secret. They must also allow-list your egress IPs or calls return 403; about 1-3 days.",
+    "needGuide": "Yes — give customers setup steps for the service account and the IP access list.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "datadog": {
+    "headline": "You need the Datadog Partner Network, a partner developer org and a Developer Platform listing. Production credentials are issued only when you submit for publication, and until then other orgs get invalid client errors; likely 4-8+ weeks.",
+    "needGuide": "Yes — join the partner network and create a listing first; production credentials only come at submission.",
+    "firstShort": "1–2 days",
+    "prodShort": "Unknown (likely 4–8+ weeks)"
+  },
+  "sentry": {
+    "headline": "Self-serve to build, but a public integration is visible only to your own organization until you click Publish, which sends it to Sentry for review. Criteria and timeline are undocumented; likely 2-6 weeks.",
+    "needGuide": "Yes — build and test in your org, then request publication so other organizations can install.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely 2–6 weeks)"
+  },
+  "airtable": {
+    "headline": "Self-serve: register an OAuth integration at airtable.com/create/oauth, with no app review but public Terms of Service and Privacy Policy URLs required before others can authorize. Enterprise admins can block or allow-list integrations.",
+    "needGuide": "Short one: publish your ToS and privacy pages, register the integration, ship.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "linear": {
+    "headline": "Self-serve: create an OAuth app in Settings → Administration → API, with no mandatory review, in about 1-3 days. Agent installs need a workspace admin, and a Third-Party App Approvals feature may gate your app.",
+    "needGuide": "Short one, but expect a workspace admin to install actor=app agents.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days unlisted"
+  },
+  "jira": {
+    "headline": "Self-serve: enable sharing under Distribution and anyone with your authorization URL can install, with a warning that Atlassian has not reviewed the app. Since 2026-03-02 API quotas are a points pool shared across tenants.",
+    "needGuide": "Short one, but read the 2026 points-based quota rules before relying on it at scale.",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days"
+  },
+  "asana": {
+    "headline": "Self-serve: set Distribution to Any workspace and users can authorize through your link with no review. App Directory listing is optional (about 1-3 weeks), and admins use your listing details to approve or block apps.",
+    "needGuide": "Short one: register scopes, set Any workspace, and fill in the listing details admins will see.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days; listing 1–3 weeks"
+  },
+  "monday": {
+    "headline": "Self-serve: promote a version to live, accept the developer terms and share the auth link, with no review. Customers see an unvetted-app banner, and the optional marketplace listing is reviewed; personal-token apps are not eligible.",
+    "needGuide": "Short one: build the app, set scopes, share the link; skip the marketplace unless you want it.",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 days; marketplace weeks"
+  },
+  "clickup": {
+    "headline": "Self-serve: a Workspace owner or admin creates the OAuth app under Settings → Apps, and no review or partner program was found. Likely 1-3 days; admin allow-list controls are unconfirmed.",
+    "needGuide": "Short one: create the app as an owner or admin, add the redirect URL, ship.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "coda": {
+    "headline": "No developer OAuth app was confirmed: each customer generates an API token in their account settings and pastes it in, about 1-3 days. Whether OAuth or MCP exists is unconfirmed.",
+    "needGuide": "No — just collect each customer's API token (My account → API settings, path unconfirmed).",
+    "firstShort": "15–30 min",
+    "prodShort": "1–3 days"
+  },
+  "smartsheet": {
+    "headline": "Self-serve after a one-time Developer Tools registration that Smartsheet can deny, in which case you contact your Customer Success Manager. No app review is documented after that; approval time is unknown, likely days.",
+    "needGuide": "Yes — register for Developer Tools with a service-account user first, then create the app.",
+    "firstShort": "1–2 hrs after reg.",
+    "prodShort": "Unknown (likely days)"
+  },
+  "harvest": {
+    "headline": "Self-serve: create an OAuth2 application at id.getharvest.com/developers with an HTTPS redirect URL, in about 1-3 days. No review or partner program was found.",
+    "needGuide": "Short one: create the OAuth2 app, register the redirect URL, ship.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "stripe": {
+    "headline": "To install on arbitrary Stripe accounts your app must pass App Marketplace review, with a decision about 4 business days per round. Expect to justify every permission and likely resubmit once, so about 1-3 weeks.",
+    "needGuide": "Yes — follow the Stripe Apps review requirements: permission justifications, a privacy policy and test credentials without 2FA.",
+    "firstShort": "1–2 hours",
+    "prodShort": "1–3 weeks incl. review"
+  },
+  "plaid": {
+    "headline": "Sandbox works first, but Production needs access approval, and OAuth banks need Compliance center registration including an MSA and security questionnaire. Review time is undocumented; likely 1-3 weeks.",
+    "needGuide": "Yes — start Production access and Compliance center registration early, since banks gate on them.",
+    "firstShort": "30–60 min",
+    "prodShort": "Likely 1–3 weeks incl. review"
+  },
+  "binance": {
+    "headline": "OAuth is only for close ecosystem partners after contacting Binance's business team, likely taking months. Without it, each user creates their own API key (ideally read-only, no withdrawals) and pastes it in, workable the same day.",
+    "needGuide": "Yes — decide whether a partnership is realistic; otherwise use user-supplied API keys.",
+    "firstShort": "1–2 hrs (API key)",
+    "prodShort": "Keys same day; OAuth unknown"
+  },
+  "paygent-connect": {
+    "headline": "No OAuth app review exists: each merchant needs a live gateway account and a portal admin who creates a key and pastes it in. Whether Paygent uses NMI is unconfirmed, so get the real docs first (low confidence).",
+    "needGuide": "No — collect each merchant's private key, but first confirm what Paygent Connect's API actually is.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (merchant approval)"
+  },
+  "ipayx": {
+    "headline": "No customer OAuth: your agent calls iPayX with your own bearer token on a paid API plan, with no per-customer approval or review. About 1-3 days.",
+    "needGuide": "No — pick an API plan, store your token server-side and call it.",
+    "firstShort": "Under 30 min",
+    "prodShort": "1–3 days"
+  },
+  "quickbooks": {
+    "headline": "Development keys work at once on sandbox companies. Production keys likely need an app assessment and app details such as EULA and privacy URLs, likely 1-2 weeks, but Intuit's docs did not render so this is unverified.",
+    "needGuide": "Yes — expect to fill in app details and an Intuit assessment before production keys, and confirm the current steps.",
+    "firstShort": "30–60 min",
+    "prodShort": "Likely 1–2 weeks (unconfirmed)"
+  },
+  "xero": {
+    "headline": "Self-serve with no approval to start, but connection caps gate scale: 5 free, 50 on Core (AUD 35/month), 1,000 on Plus (needs App Certification), and higher tiers need a security assessment.",
+    "needGuide": "Short one to start, but check the connection-cap tiers and App Certification before you scale.",
+    "firstShort": "30–60 min",
+    "prodShort": "Same day up to 50 orgs"
+  },
+  "brex": {
+    "headline": "OAuth client credentials need partner onboarding with Brex developer support. Without it, each customer's admin creates a user token and pastes it in, which works but is manual and tied to a user; timeline unknown.",
+    "needGuide": "Yes — contact Brex developer support to apply as a partner, and use user tokens in the meantime.",
+    "firstShort": "15–30 min (token)",
+    "prodShort": "Unknown (partner onboarding)"
+  },
+  "ramp": {
+    "headline": "Ramp's Partner Integration process requires approval before production access: it reviews your flows and asks for SOC 2 Type II, ISO 27001, PCI or a recent pen test. No review times documented; likely several weeks.",
+    "needGuide": "Yes — request sandbox access, then apply for production access with your security documents ready.",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely weeks)"
+  },
+  "pitchbook": {
+    "headline": "No OAuth or marketplace review was found. A paid PitchBook subscription with API entitlement is needed and license terms on redistribution and AI use likely apply; mostly unconfirmed, low confidence.",
+    "needGuide": "Yes — ask PitchBook sales whether a customer-facing AI agent is permitted before building.",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown"
+  },
+  "notebooklm": {
+    "headline": "No third-party OAuth or partner program. Each customer needs NotebookLM Enterprise licensed in their own Google Cloud project, the API is Pre-GA, and your agent must act as an IAM principal there.",
+    "needGuide": "No — there is no supported connector path; each customer's Google Cloud admin would have to grant your agent access in their project.",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown (per-customer setup)"
+  },
+  "otter-ai": {
+    "headline": "No public developer app, review or partner path was found. The likely route is connecting as an MCP client to Otter's server or asking Otter for partner access; both are unconfirmed, low confidence.",
+    "needGuide": "No — nothing is documented yet; check Otter's help center for an MCP server or ask Otter for API access.",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown"
+  },
+  "fathom": {
+    "headline": "Self-serve: create an app at fathom.video/marketplace_applications/new and each user authorizes their own account, likely in 1-3 days. The docs say apps are subject to review but do not say it blocks installs.",
+    "needGuide": "Short one: create the app, add HTTPS redirect URIs, and build the authorization link with the Fathom SDK.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (no review stated)"
+  },
+  "consensus": {
+    "headline": "No developer OAuth app or documented API was found; access is likely by request or tied to a paid plan, unconfirmed. Everything about this app is unverified, low confidence.",
+    "needGuide": "No — nothing is documented; email Consensus to ask about API, MCP or partner access.",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown"
+  },
+  "reducto": {
+    "headline": "No OAuth: you use your own key from Studio and send customer documents under your account, about 1-3 days. A customer who wants their own account pastes their key, and enterprise terms likely need sales.",
+    "needGuide": "No — just create an API key in Studio and store it server-side.",
+    "firstShort": "Under 30 min",
+    "prodShort": "1–3 days"
+  },
+  "devin": {
+    "headline": "No OAuth: each customer org admin creates a service user with a least-privilege role and sends you the key and org ID. On enterprise accounts an admin policy can disable keys; about 1-3 days.",
+    "needGuide": "No — just collect a service-user key and org ID (Settings → Devin API → Service users).",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "higgsfield": {
+    "headline": "No OAuth was confirmed: you create an API key ID and secret in the console with billing added, in about 1-3 days. For CLI or MCP use, end users sign in with their own account and credits.",
+    "needGuide": "No — create a key in the Higgsfield console and add billing.",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days"
+  },
+  "mermaid-cli": {
+    "headline": "No connector path: it is a local rendering tool that needs no customer account or approval. Run it on your own server and handle Chromium sandboxing in containers; under a day.",
+    "needGuide": "No — just install it and run mmdc; there is nothing for customers to connect.",
+    "firstShort": "Under 30 min",
+    "prodShort": "Under 1 day"
+  },
+  "youtube-transcript": {
+    "headline": "No customer connection: call the transcript API with your own key (100 free credits, then $5/month); it reads public videos. Official YouTube captions access needs the video owner's Google OAuth consent; under a day.",
+    "needGuide": "No — sign up, create an API key and call it server-side; customers connect nothing.",
+    "firstShort": "Under 30 min",
+    "prodShort": "Under 1 day"
+  },
+  "grain": {
+    "headline": "Grain issues OAuth credentials on request and requires OAuth2 if you distribute an integration to others, with no documented process or timeline. A personal access token works meanwhile for early testing.",
+    "needGuide": "Yes — contact Grain to request an OAuth client first, and use a PAT while you wait.",
+    "firstShort": "30–60 min (PAT)",
+    "prodShort": "Unknown (partner)"
+  }
+}

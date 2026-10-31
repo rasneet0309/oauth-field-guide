@@ -1,0 +1,27 @@
+{
+  "$comment": "Where to register, for the in-depth guides whose research records keep this inside their steps. Each path is quoted from the guide's own first registration step; each URL is the console named in that step or the guide's own registration source.",
+  "google-workspace": {
+    "url": "https://support.google.com/cloud/answer/15544987",
+    "path": "Google Cloud console → Google Auth Platform → Get started (Audience: External), then Clients → Create client → Web application, in separate dev and prod projects."
+  },
+  "microsoft-365": {
+    "url": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app",
+    "path": "entra.microsoft.com → Entra ID → App registrations → New registration, with supported account types set to “Multiple Entra ID tenants”."
+  },
+  "slack": {
+    "url": "https://api.slack.com/apps",
+    "path": "api.slack.com/apps → Create New App → From a manifest, owned by your company workspace."
+  },
+  "github": {
+    "url": "https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app",
+    "path": "Org → Settings → Developer settings → GitHub Apps → New GitHub App (a GitHub App owned by your organization, not an OAuth App)."
+  },
+  "notion": {
+    "url": "https://developers.notion.com/guides/get-started/public-connections",
+    "path": "app.notion.com/developers/connections → Build → Public connections → Create new connection, with Installation scope set to Any workspace."
+  },
+  "meta": {
+    "url": "https://developers.facebook.com/documentation/development/create-an-app.md",
+    "path": "developers.facebook.com → My Apps → Create App, with the Pages, Messenger and Instagram use cases, connected to your verified business portfolio."
+  }
+}

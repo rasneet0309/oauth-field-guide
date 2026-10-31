@@ -1,0 +1,697 @@
+[
+  {
+    "n": 22,
+    "id": "twilio",
+    "name": "Twilio",
+    "category": "Communications & Messaging",
+    "website": "twilio.com",
+    "authModel": "API key / token only",
+    "authDetail": "Customers connect with an Account SID plus an API Key SID/secret (Standard or Restricted key) over HTTP Basic auth; there is no documented self-serve authorization-code flow for third-party apps. Legacy Twilio Connect apps (connect_apps / authorized_connect_apps) still appear in API payloads, but I could not confirm whether new Connect apps can be registered in 2026 (likely closed or legacy).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://www.twilio.com/docs/iam/api-keys",
+      "path": "Twilio Console → Account → API keys & tokens → Create API key (type Standard or Restricted); secret is shown once"
+    },
+    "access": "Self-serve",
+    "productionGate": "None for API keys or subaccounts. Per-product compliance (for example A2P 10DLC, toll-free or short-code registration, WhatsApp sender approval) is likely required before sending at scale; not verified this session. Connect app registration: unconfirmed.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days for the connection itself; messaging-number registration can add days to weeks (unverified)",
+    "cost": "Free to build; pay-as-you-go usage billed to whichever account owns the resources",
+    "roles": {
+      "team": "Developer needs a Twilio Console user who can create API keys on the dev account (owner/admin-level, likely). Main-type keys are Console-only.",
+      "console": "Twilio Console user roles and Organizations (Organizations page lists managed accounts, standard users and external users). Invite via Organization admin; exact role names not verified.",
+      "customer": "Customer's Twilio account owner or admin must create an API key and paste it into your app (Standard key = all resources except Accounts and Keys). Alternative: you create a subaccount under your own account per customer, so no customer admin is needed."
+    },
+    "testing": "Use a trial or your own account. Standard/Restricted keys can be revoked any time. Trial-account restrictions (verified numbers only) are likely but not verified here.",
+    "steps": [
+      {
+        "do": "Choose model: customer-owned account (paste API key) or ISV-owned subaccount per customer",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Customer-owned: have the customer's admin create a Standard or Restricted API key in Console → Account → API keys & tokens",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Build a connect form collecting Account SID (AC...), API Key SID (SK...), API secret; encrypt at rest",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with a test call, e.g. GET /2010-04-01/Accounts/{AccountSid}.json using key auth",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "ISV-owned alternative: POST /Accounts.json to create a subaccount per customer; use parent credentials for v2010 resources and subaccount keys for Studio/TaskRouter-style subdomains",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Subscribe webhook URLs per customer number and verify X-Twilio-Signature",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Document compliance registration steps (A2P/sender approvals) for customers",
+        "who": "Legal",
+        "agent": true
+      }
+    ],
+    "scopes": "No OAuth scopes. Standard keys cover all resources except Accounts and Keys; Restricted keys give fine-grained per-resource access (Console-created; via REST only with Key v1). Prefer Restricted keys for agents.",
+    "blockers": [
+      "Customers pasting master Auth Tokens: require API keys instead so access can be revoked without rotating the Auth Token.",
+      "Region-specific credentials if the account uses Twilio Regions: store region/edge with the key.",
+      "Subaccount credentials cannot reach other accounts: keep per-customer keys and do not expect cross-account access.",
+      "Connect-app OAuth is unconfirmed for new developers: contact Twilio before designing around it."
+    ],
+    "agentCan": "Write the credential-capture form, key validation, encrypted storage, subaccount provisioning code, webhook signature checks and customer-facing setup instructions.",
+    "humanMust": "Customer admin creates and shares the key (or you accept subaccount billing responsibility); complete any messaging compliance registration and Twilio account verification.",
+    "confidence": "Low",
+    "uncertain": "Could not fetch Twilio Connect or OAuth Apps docs (fetch errors, then fetch quota exhausted), so Connect-app status in 2026 and any new Twilio OAuth for third parties is unconfirmed. Console role names and trial limits not verified.",
+    "sources": [
+      "https://www.twilio.com/docs/iam/api-keys",
+      "https://www.twilio.com/docs/iam/api/subaccounts",
+      "https://www.twilio.com/docs/iam/organizations"
+    ]
+  },
+  {
+    "n": 23,
+    "id": "zoho-cliq",
+    "name": "Zoho Cliq",
+    "category": "Communications & Messaging",
+    "website": "zoho.com/cliq",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code flow against accounts.zoho.{dc}/oauth/v2/auth with response_type=code and access_type=offline; token at /oauth/v2/token. Access token lasts about 1 hour; refresh via grant_type=refresh_token; revoke at /oauth/v2/token/revoke. Header is Authorization: Zoho-oauthtoken {token}. Each data center (.com, .eu, .in, .com.au and others) has its own accounts and API domain.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://api-console.zoho.com/",
+      "path": "Zoho API Console → Add Client → Server-based Applications → enter client name, homepage/client domain, authorized redirect URIs → copy Client ID and Secret"
+    },
+    "access": "Self-serve",
+    "productionGate": "None documented for the OAuth client itself. Marketplace/extension listing for Cliq is optional (not verified). Must use the accounts domain matching each customer's data center.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review); multi-data-center handling adds testing",
+    "cost": "Free API; Cliq plan limits may apply to the customer's org (unverified)",
+    "roles": {
+      "team": "Any Zoho account owner on the developer side can register the client in the API Console; use a company-owned Zoho account, not a personal one.",
+      "console": "none documented in the Cliq docs for API Console collaborators.",
+      "customer": "The authorizing user consents to scopes (e.g. ZohoCliq.Channels.READ). Some endpoints need extra scopes such as Zoho People. A Zoho org admin can likely restrict third-party app access; not verified."
+    },
+    "testing": "Create a free Zoho/Cliq org in the data center you target and run the full code flow. Tokens are per DC, so test at least .com plus one other DC (.eu or .in).",
+    "steps": [
+      {
+        "do": "Sign in to api-console.zoho.com (or the DC-specific console) with a company-owned Zoho account",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Add Client → Server-based Applications; set redirect URI(s) and copy Client ID/Secret",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "List needed scopes (e.g. ZohoCliq.Channels.READ, messages scopes) and build the auth URL with access_type=offline&prompt=consent",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement code exchange at {accounts-domain}/oauth/v2/token and store refresh tokens encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Detect each customer's DC from the redirect/authorize response and route API calls to the matching domain",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement refresh (1-hour access tokens) and revocation on disconnect",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Run test calls against a Cliq org in two data centers",
+        "who": "QA",
+        "agent": true
+      }
+    ],
+    "scopes": "Scopes per endpoint, format ZohoCliq.<Resource>.<READ|CREATE|UPDATE|DELETE>. No scope-level review is documented. Request only what the agent needs (channel read, message post).",
+    "blockers": [
+      "Wrong data-center domain gives invalid_client or redirect errors: store the customer's DC and use matching accounts and API domains.",
+      "No refresh token returned: include access_type=offline and prompt=consent.",
+      "Doc says refresh tokens can be used a limited number of times (about 20 per the page); confirm limits and handle re-consent.",
+      "Access token must be in the Authorization header, not the query string."
+    ],
+    "agentCan": "Write the OAuth flow, DC routing, refresh logic and Cliq API calls, draft scope justification and customer setup docs, run test calls once credentials exist.",
+    "humanMust": "Sign in to the Zoho API Console and create the client; customer user (or org admin) clicks consent.",
+    "confidence": "Medium",
+    "uncertain": "Whether a single client can serve multiple DCs (a Multi-DC option likely exists in the console) or needs one client per DC; marketplace listing requirements; org-admin controls for third-party apps; exact refresh-token limit wording.",
+    "sources": [
+      "https://www.zoho.com/cliq/help/restapi/v2/"
+    ]
+  },
+  {
+    "n": 24,
+    "id": "lark",
+    "name": "Lark (Larksuite)",
+    "category": "Communications & Messaging",
+    "website": "open.larksuite.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Likely: custom (self-built) apps use app_id/app_secret to mint tenant_access_token for their own tenant; store (marketplace/ISV) apps are installed across tenants and get tenant tokens via app_ticket; user-level access uses an authorization-code flow returning user_access_token. Not verified from docs this session (site is JS-rendered).",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://open.larksuite.com/app",
+      "path": "Lark Developer Console → Create custom app (or create a store app) → Credentials & Basic Info → Permissions & Scopes → Version Management & Release"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Custom apps are limited to the creating tenant and need a tenant admin to approve each release. Serving other companies likely requires a store/ISV app with Lark review and directory listing. Lark (open.larksuite.com) and Feishu (open.feishu.cn) are separate platforms with separate tenants: an app must be registered on the one the customer uses.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown (likely several weeks for store listing review)",
+    "cost": "Free to build (likely); store listing terms unverified",
+    "roles": {
+      "team": "Developer needs a Lark account in a tenant where they can create apps (developer permission may be restricted by the tenant admin).",
+      "console": "App collaborators can be added in the Developer Console (likely, under app Collaborators); not verified.",
+      "customer": "Tenant admin must approve a custom app release and any admin-only scopes in the Lark Admin Console; admins can restrict availability scope."
+    },
+    "testing": "Create a free Lark tenant and a custom app there; release it internally with your own admin. Test store-app flows only after Lark grants a test listing (unverified).",
+    "steps": [
+      {
+        "do": "Decide Lark vs Feishu domain per customer region (open.larksuite.com vs open.feishu.cn)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create an app in the Developer Console and capture app_id/app_secret",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Select permission scopes and enable bot/web features as needed",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement tenant_access_token minting and, for user actions, the OAuth code flow to obtain user_access_token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Create a version and submit for release; internal tenant admin approves in the Admin Console",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "For external customers, apply for store (ISV) app listing and complete Lark review",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Draft app description, privacy policy and scope justifications for review",
+        "who": "Legal",
+        "agent": true
+      }
+    ],
+    "scopes": "Granular permission scopes per API (messages, contacts, docs). Sensitive scopes need tenant admin approval at release; store-app review likely scrutinizes scopes (unverified).",
+    "blockers": [
+      "Custom apps cannot be installed in other tenants: use a store app for multi-company use.",
+      "Lark vs Feishu tenants do not interoperate: build region-aware config.",
+      "Admin approval pending: customer admin must approve scopes in the Admin Console or calls return permission errors.",
+      "Docs site is JS-rendered; use official SDKs and API explorer to confirm flows."
+    ],
+    "agentCan": "Write token-minting and OAuth code, wire event subscriptions, draft listing copy and scope justifications, run test calls.",
+    "humanMust": "Create the app and complete tenant admin approvals; submit the store listing; any business verification Lark requires.",
+    "confidence": "Low",
+    "uncertain": "Both Lark doc fetches returned only page metadata, so everything here is from background knowledge, not confirmed 2026 docs. Store-app review process, timelines, fees and whether non-listed apps can be installed cross-tenant are unconfirmed.",
+    "sources": [
+      "https://open.larksuite.com/document/home/introduction-to-custom-app-development/self-built-application-development-process",
+      "https://open.larksuite.com/document/uAjLw4CM/ukTMukTMukTM/reference/auth-v3/auth/overview"
+    ]
+  },
+  {
+    "n": 25,
+    "id": "pumble",
+    "name": "Pumble",
+    "category": "Communications & Messaging",
+    "website": "pumble.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Pumble Add-ons (apps) get an app id (used as clientId in OAuth2 requests) and clientSecret; on install they receive User and Bot tokens split by user scopes and bot scopes. The SDK supports an OAuth2 redirect handler. Separately, personal API keys are generated via the API add-on. Token lifetimes not documented in what I read.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://pumble.com/help/integrations/add-pumble-apps/guide-to-pumble-integrations/",
+      "path": "Pumble → Workspace settings → Configure apps → Create app (or npx pumble-cli create after pumble-cli login)"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Likely a CAKE.com Marketplace / Pumble App Directory listing is needed to reach other workspaces (SDK docs have a Publishing to CAKE.com Marketplace page; submission and review steps not confirmed). Installing into your own workspace needs only an admin.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown",
+    "cost": "Free to build; installed-add-on cap per workspace (3 Free, 10 Pro, unlimited Business/Enterprise)",
+    "roles": {
+      "team": "Admin (or owner) of a Pumble workspace creates the add-on; use a company-owned workspace.",
+      "console": "none documented.",
+      "customer": "Only workspace admins and owners can install an add-on; afterwards each member must click Authorize to connect their own account. Guests (single- and multi-channel) cannot connect."
+    },
+    "testing": "Create a free Pumble workspace, run pumble-cli dev, install the add-on there. Free plan allows 3 add-ons.",
+    "steps": [
+      {
+        "do": "Create a company-owned Pumble workspace and become its admin",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Run npm i -g pumble-cli; pumble-cli login (email + code); pumble-cli create",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Define bot/user scopes and event subscriptions in the app setup",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Configure oauth2Config.redirect (enable, onSuccess, onError) and verify signing secret on incoming requests",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Run npm run dev; install the add-on in the test workspace and click Allow",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Prepare listing copy and request publishing to the CAKE.com Marketplace for external workspaces",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Fallback for single customers: have the customer generate a personal API key with /api-keys generate",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "User scopes (act as the user) and bot scopes (adds a bot user). Personal API keys allow send/reply/delete messages, reactions, create channels, list messages and channels; 1,000 requests/min per user. No scope-level review documented.",
+    "blockers": [
+      "Add-on limits per plan: customers on Free can have only 3 add-ons.",
+      "Members must click Authorize after admin install: build onboarding that tells them.",
+      "Bot cannot list private channel messages unless it is a channel member.",
+      "Distribution path to other workspaces is unclear: contact Pumble/CAKE.com support early."
+    ],
+    "agentCan": "Scaffold the app with pumble-cli, write handlers and OAuth redirect code, verify signatures, draft listing copy.",
+    "humanMust": "Admin login and install consent; marketplace submission and any CAKE.com agreement.",
+    "confidence": "Low",
+    "uncertain": "Whether any developer can distribute an add-on to external workspaces, review/approval process, token expiry and refresh, and the OAuth authorize URL were not documented in the pages I could fetch (several pumble.com and SDK pages failed or were thin).",
+    "sources": [
+      "https://pumble.com/help/integrations/add-pumble-apps/guide-to-pumble-integrations/",
+      "https://pumble.com/help/integrations/automation-workflow-integrations/api-keys-integration/",
+      "https://cake-com.github.io/pumble-node-sdk/getting-started",
+      "https://github.com/CAKE-com/pumble-node-sdk"
+    ]
+  },
+  {
+    "n": 26,
+    "id": "discord",
+    "name": "Discord",
+    "category": "Communications & Messaging",
+    "website": "discord.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code grant with refresh tokens (PKCE recommended), plus a bot authorization flow (scope=bot, no redirect) that adds a bot token user to a guild. Access token expires_in example is 604800 s (7 days). Redirect URIs must be registered. Revoking any token revokes the whole authorization.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://discord.com/developers/applications",
+      "path": "Developer Portal → New Application → OAuth2 → add Redirects, copy Client ID/Secret; Bot page → Reset Token and set Privileged Gateway Intents"
+    },
+    "access": "Self-serve",
+    "productionGate": "Verification is required as an app grows toward 100 servers (Discord's help center warns from 75; the API docs I fetched say 100 or more). Privileged intents (GUILD_PRESENCES, GUILD_MEMBERS, MESSAGE_CONTENT) must be approved for verified-eligible apps. Some scopes (dm_channels.read, voice, rpc.*, relationships.read) are partner-only.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (no review) | days to weeks if verification and intents approval are needed",
+    "cost": "Free",
+    "roles": {
+      "team": "Any Discord account can create the app; use a Team (company-owned) rather than a personal account so ownership survives staff changes.",
+      "console": "Developer Portal Teams: create a team and invite members by username (likely; not verified), then transfer the app to the team.",
+      "customer": "To add the bot to a server the user needs Manage Server permission in that guild. For user OAuth (identify, guilds) any user can authorize."
+    },
+    "testing": "Use your own test server; bots in fewer than 100 servers can use limited privileged-intent toggles in the Bot page. Apps under about 10,000 unique users can enable privileged intents without review per the gateway doc.",
+    "steps": [
+      {
+        "do": "Create a Team and a New Application at discord.com/developers/applications",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "OAuth2 page: add HTTPS redirect URIs; copy Client ID and Secret",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code + PKCE and refresh-token handling; check the iss parameter",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If a bot is needed, build the invite URL with scope=bot applications.commands and minimal permissions",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Enable only needed Privileged Gateway Intents on the Bot page",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Test in a dev server; watch guild count and Developer Portal notices",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Before reaching the cap, start App Verification and privileged-intent applications with use-case write-ups",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Common: identify, email, guilds, guilds.members.read, connections, bot, applications.commands, webhook.incoming. Approval-only: dm_channels.read, identify.premium, voice, rpc.*, relationships.read (Social SDK). Message content intent is privileged.",
+    "blockers": [
+      "Bot growth hits the verification threshold: apply early; pending verification can block adding servers (VERIFICATION_PENDING_GUILD_LIMIT flag).",
+      "Gateway closes with 4014 if you request an intent not enabled or approved.",
+      "Self-botting or automating user accounts is prohibited: use bot or OAuth only.",
+      "Team apps limited to identify and applications.commands.update for client credentials."
+    ],
+    "agentCan": "Write OAuth and bot code, configure slash commands via API, draft verification and intent justifications, run test calls.",
+    "humanMust": "Portal login, team setup, owner identity verification and verification submission (likely third-party ID check), accepting Developer Policy.",
+    "confidence": "Medium",
+    "uncertain": "Could not load Discord's verification help-center articles (fetch errors, then quota exhausted), so the 75-server notice, 100-server cap, ID-verification method and review timeline are unconfirmed; the API docs conflict on thresholds (100+ servers vs 10,000 users).",
+    "sources": [
+      "https://docs.discord.com/developers/topics/oauth2",
+      "https://docs.discord.com/developers/resources/application",
+      "https://docs.discord.com/developers/events/gateway"
+    ]
+  },
+  {
+    "n": 27,
+    "id": "telegram",
+    "name": "Telegram",
+    "category": "Communications & Messaging",
+    "website": "core.telegram.org",
+    "authModel": "Bot token",
+    "authDetail": "Bot API: one token per bot from @BotFather /newbot (/token to regenerate), sent as api.telegram.org/bot<token>/. Users do not authorize the bot via OAuth; they start a chat or add it to a group. Separately, Telegram Login is now OIDC (auth code + PKCE S256, scopes openid/profile/phone/telegram:bot_access) but yields identity only. MTProto user API uses api_id/api_hash and acts as a user client.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://t.me/botfather",
+      "path": "Telegram → @BotFather → /newbot (name, username ending in bot); for login: BotFather → bot → Login Widget → add Allowed URLs → copy Client ID/Secret"
+    },
+    "access": "Self-serve",
+    "productionGate": "None for Bot API or Login. api_id/api_hash is self-serve at my.telegram.org but unofficial clients are watched and risk bans; not suitable for connecting customers' accounts.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (no review)",
+    "cost": "Free",
+    "roles": {
+      "team": "A Telegram account (phone number) owns the bot in BotFather; use a company-managed account since only the owner manages tokens.",
+      "console": "none documented (BotFather is single-owner; managed bots can have a manager bot).",
+      "customer": "For group/channel use, a group admin (or channel admin) must add the bot and grant rights; end users in DMs just press Start. No workspace-admin approval exists."
+    },
+    "testing": "Create a bot in BotFather and message it from your own account; add it to a test group. Login: add localhost or staging URLs to Allowed URLs.",
+    "steps": [
+      {
+        "do": "Open @BotFather, run /newbot, choose name and username ending in bot",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store the token as a secret; rotate with /token if leaked",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Set the webhook (setWebhook) or use getUpdates; handle /start with a deep-link payload to link the Telegram user to the customer account",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Optional identity: BotFather → Login Widget → add Allowed URLs; implement OIDC code + PKCE and verify id_token via JWKS",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Tell customer admins to add the bot to groups and set privacy mode and admin rights",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Send test messages and verify webhook secret token",
+        "who": "QA",
+        "agent": true
+      }
+    ],
+    "scopes": "No scope model for bots: capabilities depend on bot settings (privacy mode, admin rights). Login scopes: openid, profile, phone (user consent), telegram:bot_access (lets the bot DM the user). Login grants no access to a user's chats.",
+    "blockers": [
+      "Users cannot connect their own account through OAuth: reading a user's own chats needs MTProto, which risks bans.",
+      "Bots cannot message a user first: the user must press Start (use deep links).",
+      "Privacy mode hides group messages from the bot: disable it or make the bot admin.",
+      "Old hash-verified Login Widget is archived: build against the OIDC flow."
+    ],
+    "agentCan": "Write bot and webhook code, OIDC login code, deep-link linking, and customer setup instructions.",
+    "humanMust": "Telegram account and phone verification; customer group admin adds the bot.",
+    "confidence": "High",
+    "uncertain": "Bot token lifetime and limits for bots in large groups; whether Telegram plans delegated user-data OAuth (none documented).",
+    "sources": [
+      "https://core.telegram.org/bots/features",
+      "https://core.telegram.org/widgets/login",
+      "https://core.telegram.org/api/obtaining_api_id"
+    ]
+  },
+  {
+    "n": 28,
+    "id": "whatsapp-business",
+    "name": "WhatsApp Business",
+    "category": "Communications & Messaging",
+    "website": "developers.facebook.com/docs/whatsapp",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Meta Embedded Signup (Facebook Login for Business): customer completes a popup, your server exchanges the code (30-second TTL) via GET /oauth/access_token for a customer-scoped business token. Tech Providers use business tokens exclusively. Token lifetime not stated in the pages read.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://developers.facebook.com/apps/",
+      "path": "Meta App Dashboard → Create app (Business type, WhatsApp use case) → Use cases → Customize → Tech Provider onboarding → Start verification → App Review; Embedded Signup Builder under WhatsApp"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Tech Provider path: verify your business (required before App Review), submit App Review for Advanced access to whatsapp_business_management and whatsapp_business_messaging (separate screencast per permission, privacy policy, app icon). Without Advanced access you cannot onboard customers. Onboarding is capped at 10 new customers per rolling 7 days until the limit is raised to 200; above that you must become a Meta Business Partner.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 weeks (business verification plus App Review, which averages about 24 hours per Meta)",
+    "cost": "Free to build; customers add a payment method in WhatsApp Manager and Meta bills them (Tech Providers have no credit line)",
+    "roles": {
+      "team": "Admin on the Meta app and a business portfolio admin to complete Business Verification; use a company-owned business portfolio.",
+      "console": "App Dashboard → App roles → Roles → Add People (Admin, Developer, Tester); in development mode only these roles see unapproved permissions.",
+      "customer": "Customer signs in with Facebook/Meta Business credentials and completes Embedded Signup (likely needs admin on their business portfolio; docs do not state the role), then adds a payment method; business verification gives them higher limits."
+    },
+    "testing": "In development mode, test with users holding Admin/Developer/Tester roles; business apps get Standard Access automatically. Test Embedded Signup with your own credentials on an HTTPS domain added to Allowed domains. Sandbox accounts are being deleted gradually.",
+    "steps": [
+      {
+        "do": "Create a Meta Business-type app with the WhatsApp use case and a business portfolio",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Complete Business Verification (name, address, phone, website, documents)",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Set app icon, privacy policy URL and category; record two screencasts (send message; create template)",
+        "who": "Design",
+        "agent": false
+      },
+      {
+        "do": "Submit App Review for Advanced access to both WhatsApp permissions with written explanations",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Implement Embedded Signup v5 (v4 min): Facebook Login for Business configuration, FB.login with config_id, response_type code",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exchange the code server-side within 30 s, call POST /<WABA_ID>/subscribed_apps, register the phone number with a 6-digit PIN",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Subscribe to the account_update webhook and have the customer add a payment method",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "whatsapp_business_management (account settings, templates) and whatsapp_business_messaging (phone numbers, send/receive) both need Advanced access via App Review; whatsapp_business_manage_events only for Marketing Messages with Conversions API. Requesting unneeded permissions causes rejection.",
+    "blockers": [
+      "Embedded Signup v2/v3 were deprecated Oct 15, 2026 and are now served as v4; v5 was released Oct 20, 2026: target v5 or v4.",
+      "Code expires in 30 seconds: exchange immediately on the server.",
+      "Drafts are not reviewed: click submit; one video per permission, no screenshots.",
+      "Accounts created via the developer app cannot be onboarded through Embedded Signup."
+    ],
+    "agentCan": "Write Embedded Signup front and back end, webhook handling, template calls, and draft App Review explanations and shot lists.",
+    "humanMust": "Business verification with documents, Meta login and 2FA, recording and submitting screencasts, customer payment method, possible Meta Business Partner agreement above 200 customers.",
+    "confidence": "Medium",
+    "uncertain": "The brief says Meta retired Access Verification around Oct 9, 2026. The Embedded Signup overview I fetched still listed Access Verification as a requirement for the 10-to-200 limit increase, while the Tech Provider and version pages never mention it: likely retired or folded into Business Verification, but unconfirmed. Business verification wait time not stated.",
+    "sources": [
+      "https://developers.facebook.com/docs/whatsapp/embedded-signup/overview",
+      "https://developers.facebook.com/documentation/business-messaging/whatsapp/solution-providers/get-started-for-tech-providers.md",
+      "https://developers.facebook.com/documentation/business-messaging/whatsapp/solution-providers/app-review",
+      "https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/onboarding-customers-as-a-tech-provider.md",
+      "https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/versions"
+    ]
+  },
+  {
+    "n": 29,
+    "id": "aircall",
+    "name": "Aircall",
+    "category": "Communications & Messaging",
+    "website": "aircall.io",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "OAuth 2.0 authorization-code for Technology Partners only: Admin starts from the Aircall Dashboard, your install_uri redirects to dashboard.aircall.io/oauth/authorize (scope=public_api); code valid 10 minutes, exchanged at POST https://api.aircall.io/v1/oauth/token. Access token is described as permanent (refresh not documented). Customers building for their own account use API ID/token Basic auth.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://aircall.io/partners/technology/signup/",
+      "path": "Aircall partner sign-up → request OAuth credentials by emailing marketplace@aircall.io with install_uri and redirect_uri → receive client_id and client_secret"
+    },
+    "access": "Partner program required",
+    "productionGate": "Technology partner account plus Aircall issuing OAuth credentials; the docs state listing on the Aircall App Marketplace is a requirement for OAuth. Customers' Company Admins must install.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min (own account with API key); days after partner approval for OAuth",
+    "timeToProduction": "unknown (likely 2-6 weeks incl. partner approval and marketplace listing)",
+    "cost": "No fee documented (not confirmed)",
+    "roles": {
+      "team": "Partner contact (company email) completes the partner sign-up; developers need an Aircall account to test.",
+      "console": "none documented.",
+      "customer": "Only Company Admins can authorize the app or install integrations; they click Authorize in the dashboard popup."
+    },
+    "testing": "Fast path: create an API key in Settings → API Keys → Add a new API key in your own Aircall company and test Basic auth. For OAuth, a test company or sandbox is not documented: ask Aircall partner team.",
+    "steps": [
+      {
+        "do": "Sign up as a Technology Partner at aircall.io/partners/technology/signup",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Email marketplace@aircall.io with app name, HTTPS install_uri and redirect_uri to request client_id and client_secret",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Implement install_uri that forwards to dashboard.aircall.io/oauth/authorize with client_id, redirect_uri, response_type=code, scope=public_api, state",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement redirect_uri: exchange the code within 10 minutes at POST https://api.aircall.io/v1/oauth/token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store the Bearer token per company; call the Public API and register webhooks",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test in Aircall's dashboard with an admin, then agree marketplace listing details with Aircall",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "Only public_api is documented. Rate limits and webhook setup apply per company; no scope-level review documented.",
+    "blockers": [
+      "OAuth credentials are not self-serve: email Aircall early.",
+      "install_uri and redirect_uri must be HTTPS, and install_uri must forward to the authorize URL.",
+      "Non-admin users cannot install: instruct customers to involve an Aircall Admin.",
+      "Token never expires per docs, so provide customer-side revocation and uninstall handling."
+    ],
+    "agentCan": "Write install and redirect handlers, token storage, API calls and webhook consumers; draft the partner application and listing copy.",
+    "humanMust": "Partner application and agreement, contact with Aircall marketplace team, customer admin consent.",
+    "confidence": "Medium",
+    "uncertain": "Partner approval criteria, sandbox availability, marketplace review steps, fees and timelines (partner pages and developer.aircall.io partner-program URL not loadable); whether refresh tokens exist.",
+    "sources": [
+      "https://developers.aircall.io/api-references",
+      "https://developers.aircall.io/tutorials/how-aircall-oauth-flow-works",
+      "https://developers.aircall.io/"
+    ]
+  },
+  {
+    "n": 30,
+    "id": "vonage",
+    "name": "Vonage",
+    "category": "Communications & Messaging",
+    "website": "developer.vonage.com",
+    "authModel": "API key / token only",
+    "authDetail": "Two mechanisms: API key + secret (Authorization: Basic base64(key:secret); two secrets can be active for rotation) and per-application JWTs signed RS256 with an Application ID and private key (default expiry 15 minutes, max 24 hours). A separate signature secret signs webhooks. No OAuth documented.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://developer.vonage.com/en/application/overview",
+      "path": "Vonage API Dashboard → Applications → Create a new application (enable Voice/Messages/RTC, set webhook URLs, generate keys) and Settings for API key/secret"
+    },
+    "access": "Self-serve",
+    "productionGate": "None for credentials. Likely: paid account for production, and number/sender registration (e.g. 10DLC, WhatsApp via Messages API) where applicable; not verified.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days for the connection; sender registration may add time (unverified)",
+    "cost": "Free sign-up; usage-based billing (trial credit likely)",
+    "roles": {
+      "team": "Vonage account owner or admin on a company-owned account creates applications and holds the API secret.",
+      "console": "none documented in the pages read (Dashboard user management likely exists).",
+      "customer": "Customer admin supplies their API key + secret, or creates an application and shares Application ID plus private key; no customer-side approval flow exists."
+    },
+    "testing": "Use a trial or test account with your own numbers; JWT apps can be tested with the Vonage CLI. Trial restrictions (e.g. verified destination numbers) are likely but not confirmed here.",
+    "steps": [
+      {
+        "do": "Decide per customer: collect API key/secret or an Application ID + private key",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Customer creates an application in the Vonage Dashboard and enables the needed capabilities",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Build a connect form for key/secret or Application ID + private key; encrypt at rest",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Mint RS256 JWTs (15-minute default) in your backend for JWT-based APIs",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with a test API call and set the webhook URLs on the customer's application",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Verify webhook signatures with the signature secret; support secret rotation",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No OAuth scopes. JWT claims can carry ACL paths to limit access (shown for Client SDK user tokens); applications are limited by enabled capabilities.",
+    "blockers": [
+      "Customers sharing master API secrets: prefer a dedicated application with its own private key where the API supports JWT.",
+      "Different Vonage APIs use different auth types: check each API's auth before building one flow.",
+      "Private key is shown once at creation: instruct customers to save it.",
+      "No documented partner or subaccount delegation in the pages read: confirm with Vonage if you manage accounts for customers."
+    ],
+    "agentCan": "Write credential capture, JWT minting, webhook verification, test calls and customer-facing setup guides.",
+    "humanMust": "Customer creates the application or keys; account and billing setup; any number or sender registration.",
+    "confidence": "Medium",
+    "uncertain": "Whether Vonage has partner subaccount or OAuth options for ISVs (not covered in the pages read); trial limits; Dashboard role model.",
+    "sources": [
+      "https://developer.vonage.com/en/getting-started/concepts/authentication",
+      "https://developer.vonage.com/en/application/overview"
+    ]
+  }
+]

@@ -1,0 +1,395 @@
+{
+  "id": "google-workspace",
+  "n": null,
+  "name": "Google Workspace",
+  "sub": "Gmail · Drive · Calendar · Sheets · Docs",
+  "category": "Productivity & PM",
+  "website": "developers.google.com/workspace",
+  "deep": true,
+  "featured": true,
+  "path": "review",
+  "headline": "A test connection takes about an hour. How long production takes depends entirely on which scopes you request.",
+  "needGuide": "Yes. Pick scopes carefully first: reading Gmail or all of Drive turns a few days of work into one to three months plus a paid security audit.",
+  "authModel": "OAuth 2.0",
+  "authDetail": "Authorization code with PKCE and access_type=offline. Refresh tokens are returned only on the first consent. Clients in Testing status get tokens that expire after 7 days.",
+  "userOAuth": "yes",
+  "access": "Self-serve",
+  "difficulty": "Hard",
+  "timeToFirstTest": "30–90 min",
+  "timeToProduction": "Minutes to 3 days (basic scopes) · 1–3 weeks (sensitive) · 1–3+ months (restricted)",
+  "cost": "Google charges nothing. Restricted scopes need a CASA audit from an authorized lab, about US$540–$8,000+ a year.",
+  "confidence": "High",
+  "lastChecked": "2026-10-28",
+  "tiers": [
+    {
+      "label": "Non-sensitive scopes",
+      "eg": "openid, email, drive.file, drive.appdata, gmail.labels",
+      "difficulty": "Easy",
+      "time": "Minutes (automated) to 2–3 business days",
+      "note": "Brand verification only."
+    },
+    {
+      "label": "Sensitive scopes",
+      "eg": "gmail.send, calendar, spreadsheets, documents",
+      "difficulty": "Moderate",
+      "time": "Officially 3–5 business days; 1–3 weeks reported",
+      "note": "Needs scope justifications and a demo video. Some 2026 reviews stalled for 5–12 weeks."
+    },
+    {
+      "label": "Restricted scopes",
+      "eg": "gmail.readonly, gmail.modify, gmail.compose, drive, drive.readonly",
+      "difficulty": "Very hard",
+      "time": "Plan for 1–3+ months",
+      "note": "Restricted review plus a paid CASA assessment, renewed every 12 months."
+    }
+  ],
+  "prereqs": [
+    "A Google Cloud Organization on your company domain, through Workspace or Cloud Identity, so the project belongs to the company and not to one person.",
+    "Your domain verified in Google Search Console. The account that verifies it must be Owner or Editor on the project.",
+    "A public homepage on that domain that describes the app. A login page alone is not enough.",
+    "A privacy policy on the same domain. It must name the Google data you use and include the Limited Use statement and how AI uses the data.",
+    "Terms of service, plus a 120×120 logo (PNG or JPG, under 1 MB).",
+    "A group mailbox, such as oauth@yourco.com, for the support email and developer contact. Google sends verification email there.",
+    "A YouTube channel for an unlisted demo video. You only need it for sensitive or restricted scopes."
+  ],
+  "phases": [
+    {
+      "name": "Set up the projects",
+      "duration": "30 min",
+      "steps": [
+        {
+          "do": "Create two projects, yourapp-dev and yourapp-prod. Google requires separate projects for testing and production. Command: gcloud projects create yourapp-prod --organization=ORG_ID",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Grant access in IAM & Admin → IAM → Grant access. Invite 2 or more Owners; an Owner invite has to be accepted in the Console. Give developers OAuth Config Editor (roles/oauthconfig.editor) and Service Usage Admin. Give QA, Security and Legal OAuth Config Viewer.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Enable only the APIs you need under APIs & Services → Library. Command: gcloud services enable gmail.googleapis.com drive.googleapis.com calendar-json.googleapis.com sheets.googleapis.com",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Configure Google Auth Platform",
+      "duration": "45 min",
+      "steps": [
+        {
+          "do": "Open Google Auth Platform → Get started. Enter the app name and a support email (use the group). Under Audience, choose External. Add the contact email, accept the User Data Policy, then click Create.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Fill in Branding: logo, homepage, privacy and terms URLs, and Authorized domains. Add the authorized domains before you add redirect URIs.",
+          "who": "Design",
+          "agent": false
+        },
+        {
+          "do": "Open Data Access → Add or remove scopes and add only what v1 needs (see the scope table). Each scope you add can move you into a harder review tier.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Open Clients → Create client → Web application. Add the redirect URI https://app.yourco.com/oauth/google/callback. It must match exactly: no wildcards, and localhost only in the dev project. For the agent's client, tick “Use this client for an AI-powered agent”. Download the JSON straight away, because the secret is shown only once.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Store the client secret in your secrets vault and record which project and environment it belongs to.",
+          "who": "Security",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Build and test",
+      "duration": "1–3 days",
+      "steps": [
+        {
+          "do": "Under Audience → Test users → Add users, add up to 100 test users, including pilot customers. Keep the app in Testing for now.",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Implement the authorization code flow with PKCE, using access_type=offline and include_granted_scopes=true. Store the refresh token from the first consent. Read the granted scopes from the token response, because users can untick scopes.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle these errors: invalid_grant (send the user to reconnect) and admin_policy_enforced (the customer's admin blocked you; show steps for their admin).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Run the QA matrix. Test with a personal Gmail account. Test a Workspace user whose admin has set your app to Limited or Blocked. Untick one scope at consent. Revoke at myaccount.google.com/permissions. Note that tokens issued in Testing expire after 7 days.",
+          "who": "QA",
+          "agent": true
+        }
+      ]
+    },
+    {
+      "name": "Verify and publish",
+      "duration": "Days to months",
+      "steps": [
+        {
+          "do": "Verify the domain in Search Console with a Domain property (DNS TXT record), using an account that is Owner or Editor on the prod project.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Click Branding → Verify branding. Once it passes, click Publish branding within 7 days. You can't edit branding while it is under review.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Click Audience → Publish app to move the app to In production.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Sensitive or restricted scopes: open Verification Center → Prepare for verification. For each scope, explain why a narrower scope won't work. Record an unlisted YouTube video that shows the English consent screen, the client ID in the address bar, and every scope in use.",
+          "who": "Legal",
+          "agent": true
+        },
+        {
+          "do": "Restricted scopes only: wait for the CASA email, then contract an authorized lab. Run the scans and the self-assessment questionnaire and fix critical and high findings. The lab sends Google the Letter of Validation.",
+          "who": "Security",
+          "agent": false
+        },
+        {
+          "do": "Reply to Trust & Safety on the same email thread every time. Check every Owner and Editor inbox, including spam, because a missed email pauses your review.",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    },
+    {
+      "name": "Operate",
+      "duration": "Ongoing",
+      "steps": [
+        {
+          "do": "Set reminders: renew CASA 12 months after the Letter of Validation (start about 90 days before). Re-verify whenever you add scopes or change the name, logo or domains. Unused clients are deleted after 6 months.",
+          "who": "Ops",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "consoleRoles": [
+    {
+      "role": "Owner (roles/owner)",
+      "can": "Everything, including IAM and deleting the project. Can only be granted by an invite in the Console that the person accepts.",
+      "who": "2 or more engineering leads, on company accounts"
+    },
+    {
+      "role": "Editor (roles/editor)",
+      "can": "Change the consent screen, clients and project resources",
+      "who": "Tech lead"
+    },
+    {
+      "role": "OAuth Config Editor, Beta (roles/oauthconfig.editor)",
+      "can": "Create and edit branding and clients, read secrets, manage test users, submit verification",
+      "who": "Developers (least privilege)"
+    },
+    {
+      "role": "OAuth Config Viewer, Beta (roles/oauthconfig.viewer)",
+      "can": "Read-only access to branding, clients, test users and verification status",
+      "who": "QA, Security, Legal"
+    },
+    {
+      "role": "Service Usage Admin",
+      "can": "Enable APIs (the OAuth Config roles don't include this)",
+      "who": "Developers"
+    },
+    {
+      "role": "Test users (Audience list)",
+      "can": "Authorize the app while it is in Testing. Maximum 100, and they can't be removed to free quota.",
+      "who": "QA and pilot customers"
+    }
+  ],
+  "roles": {
+    "team": "An Owner and a DNS admin handle the domain and verification. Developers configure clients and scopes. Legal writes the privacy policy and the Limited Use and AI disclosures. Security runs CASA for restricted scopes. A shared group inbox receives Google's email.",
+    "console": "Google Cloud IAM: Owner, Editor, OAuth Config Editor and Viewer (both Beta), Service Usage Admin, plus the Test users list. Add people in IAM & Admin → IAM → Grant access. Owner can only be granted through a Console invite.",
+    "customer": "The end user consents. A Workspace admin can set your client to Trusted, Limited, Specific Google data or Blocked in Admin console → Security → Access and data control → API controls → App access control."
+  },
+  "testing": [
+    "While in Testing, add up to 100 test users. Anyone else gets Error 403 access_denied.",
+    "Test users see the “Google hasn't verified this app” screen. Their tokens expire 7 days after consent.",
+    "Test granular consent with a personal @gmail.com account. Workspace test accounts may not show the new consent screen.",
+    "Pilot option: put the app In production without verification. Tokens don't expire, but the 100-user cap counts new users over the project's lifetime and can never be reset."
+  ],
+  "customer": [
+    "Before brand verification, the consent screen shows “Continue to yourco.com”. Your app name and logo appear only after verification.",
+    "Unverified sensitive or restricted scopes show a warning. The user has to click Advanced → Go to (unsafe).",
+    "Granular consent lets users untick individual scopes. Always check which scopes were actually granted.",
+    "A Workspace admin can mark Gmail, Drive or Calendar as Restricted. Existing tokens for untrusted apps are then revoked and calls fail with admin_policy_enforced. For enterprise customers, ask their admin to mark your client ID as Trusted.",
+    "Domain-wide delegation, using service accounts and a super admin, is a different model. Google says to avoid it."
+  ],
+  "scopesTable": [
+    {
+      "use": "Sign-in and identity",
+      "scope": "openid, email, profile",
+      "tier": "Non-sensitive",
+      "note": "Brand verification only"
+    },
+    {
+      "use": "Read email",
+      "scope": "gmail.readonly (or gmail.metadata)",
+      "tier": "Restricted",
+      "note": "CASA every year. There is no lighter scope for reading mail."
+    },
+    {
+      "use": "Send email",
+      "scope": "gmail.send",
+      "tier": "Sensitive",
+      "note": "Sensitive review"
+    },
+    {
+      "use": "Create drafts",
+      "scope": "gmail.compose",
+      "tier": "Restricted",
+      "note": "Use gmail.send if you don't need drafts"
+    },
+    {
+      "use": "Label or archive",
+      "scope": "gmail.labels / gmail.modify",
+      "tier": "Non-sensitive / Restricted",
+      "note": "gmail.modify is restricted"
+    },
+    {
+      "use": "Files the user picks",
+      "scope": "drive.file + Google Picker",
+      "tier": "Non-sensitive",
+      "note": "Best default for agents"
+    },
+    {
+      "use": "All Drive files",
+      "scope": "drive, drive.readonly",
+      "tier": "Restricted",
+      "note": "Restricted review plus CASA"
+    },
+    {
+      "use": "Sheets and Docs",
+      "scope": "spreadsheets, documents",
+      "tier": "Sensitive",
+      "note": "Or use drive.file instead"
+    },
+    {
+      "use": "Calendar",
+      "scope": "calendar, calendar.events",
+      "tier": "Sensitive",
+      "note": "Google's own docs don't label the tier; reported as sensitive"
+    }
+  ],
+  "review": {
+    "when": "Brand verification applies to any External app in production that shows a name or logo. Data-access verification applies to any sensitive or restricted scope. CASA applies to restricted scopes whose data passes through your servers, which is true of any AI backend.",
+    "timeline": [
+      {
+        "label": "Brand verification",
+        "official": "Minutes (automated) to 2–3 business days",
+        "reported": "The same, but an app-name mismatch can cause a loop"
+      },
+      {
+        "label": "Sensitive scopes",
+        "official": "3–5 business days (docs); 10 business days (FAQ)",
+        "reported": "1–3 weeks with 2–3 email round trips; some 2026 reviews stuck 5–12+ weeks"
+      },
+      {
+        "label": "Restricted scopes + CASA",
+        "official": "“Several weeks” (FAQ says 6)",
+        "reported": "5–20 days for well-prepared teams; plan 1–3+ months"
+      }
+    ],
+    "recurring": "CASA every 12 months. Re-verification whenever you change scopes, name, logo or domains. Keep contact details current, and expect inactive clients to be deleted after 6 months."
+  },
+  "blockers": [
+    {
+      "problem": "“App name on consent screen does not match homepage”",
+      "fix": "Host the OAuth callback on your own domain, not a shared auth domain such as supabase.co, and show the brand name clearly on the homepage."
+    },
+    {
+      "problem": "The scopes in your code differ from the scopes on the Data Access page",
+      "fix": "Search your code and libraries for googleapis.com/auth strings and remove library default scopes."
+    },
+    {
+      "problem": "The demo video doesn't show every scope in use, or shows localhost or a non-English UI",
+      "fix": "Re-record on the production domain with an English consent screen and the client ID visible."
+    },
+    {
+      "problem": "Weak scope justification",
+      "fix": "Name the feature, and explain why gmail.send or drive.file can't do the job."
+    },
+    {
+      "problem": "Stuck “under review” with no email",
+      "fix": "Search every Owner and Editor inbox for api-oauth-dev-verification-reply and reply on that thread. Don't open a new request."
+    },
+    {
+      "problem": "CASA findings",
+      "fix": "Fix wildcard CORS rules and missing security headers, and answer “no” to no SAQ question you haven't fixed."
+    }
+  ],
+  "gotchas": [
+    "There's a limit of 100 refresh tokens per Google account per client. When you exceed it, the oldest token stops working without warning.",
+    "Changing the account password revokes tokens that include Gmail scopes.",
+    "Refresh tokens expire after 6 months without use, or after 7 days while the app is in Testing.",
+    "The demo video has to cover every OAuth client in the project. Keep dev clients in the dev project.",
+    "The 2026-09-03 Workspace data policy bans training shared or foundation models on Workspace data. Restricted scopes also need prompt-injection protection, such as Model Armor or an equivalent.",
+    "The IAP OAuth Admin API was shut down on Mar 19, 2026. You can only configure branding and clients in the Console."
+  ],
+  "agentCan": "Create projects and enable APIs with gcloud, grant non-Owner IAM roles, draft the privacy policy, Limited Use text and scope justifications, write the OAuth and token-refresh code, script QA checks, help fix CASA scan findings, and set renewal reminders.",
+  "humanMust": "Set up the organization and domain, accept Owner invites, configure the console (there's no public API for branding or clients), accept the User Data Policy, verify DNS, record the demo video, submit verification, pay the CASA lab, and answer Trust & Safety email.",
+  "uncertain": [
+    "Google's own docs don't label the tier for Calendar scopes. Calendar is reported as sensitive.",
+    "It's not confirmed whether OAuth Config Editor alone can submit verification in the UI. The role is still in Beta.",
+    "A bug reported in Aug–Sep 2026 disabled the “Prepare for verification” button for some projects. It's unclear whether it has been fixed.",
+    "Google, not you, assigns the CASA level (AL1 or AL2). Developers report AL2 for apps with many restricted scopes."
+  ],
+  "sources": [
+    {
+      "url": "https://support.google.com/cloud/answer/15544987",
+      "label": "Google Auth Platform sections and user types"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/15549945",
+      "label": "Testing vs production, 100 test users, 7-day tokens"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/15549257",
+      "label": "Clients, one-time secret, AI-agent checkbox"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/brand-verification",
+      "label": "Brand verification"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+      "label": "Sensitive scope verification"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification",
+      "label": "Restricted scopes and CASA"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/13463817",
+      "label": "Verification FAQ: timelines, AI rules"
+    },
+    {
+      "url": "https://developers.google.com/workspace/workspace-api-user-data-developer-policy",
+      "label": "Workspace API user data policy (AI, Model Armor)"
+    },
+    {
+      "url": "https://knowledge.workspace.google.com/admin/apps/control-which-apps-access-google-workspace-data",
+      "label": "Workspace admin app access control"
+    },
+    {
+      "url": "https://nango.dev/blog",
+      "label": "Community: CASA cost and timing reports"
+    }
+  ],
+  "firstShort": "30–90 min",
+  "prodShort": "Days to 3+ months, by scope"
+}

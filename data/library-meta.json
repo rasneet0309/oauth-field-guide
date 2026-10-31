@@ -1,0 +1,34 @@
+{
+  "schema": 3,
+  "lastChecked": "2026-10-28",
+  "source": "data/research (OAuth Field Guide v2.1.0 research, checked 2026-10-28) + data/curated",
+  "counts": {
+    "total": 103,
+    "inDepth": 10,
+    "researched": 93
+  },
+  "featured": [
+    "slack",
+    "github",
+    "salesforce",
+    "notion",
+    "stripe",
+    "google-workspace",
+    "microsoft-365",
+    "meta",
+    "hubspot",
+    "shopify"
+  ],
+  "categories": [
+    "AI, Research & Media",
+    "CRM & Sales",
+    "Communications & Messaging",
+    "Data, SEO & Scraping",
+    "Developer, Infra & Data",
+    "Ecommerce",
+    "Finance & Fintech",
+    "Marketing, Ads, Email & Social",
+    "Productivity & PM",
+    "Support & Helpdesk"
+  ]
+}

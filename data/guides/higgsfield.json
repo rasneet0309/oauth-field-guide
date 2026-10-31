@@ -1,0 +1,149 @@
+{
+  "schema": 3,
+  "id": "higgsfield",
+  "name": "Higgsfield",
+  "category": "AI, Research & Media",
+  "website": "higgsfield.ai/cli",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 97,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No OAuth was confirmed: you create an API key ID and secret in the console with billing added, in about 1-3 days. For CLI or MCP use, end users sign in with their own account and credits.",
+  "needGuide": "No — create a key in the Higgsfield console and add billing.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "The REST API uses a project-scoped key ID and secret: `Authorization: Key <KEY_ID>:<KEY_SECRET>`, created in the Higgsfield console. The CLI (`npm i -g @higgsfield/cli`) signs in with `higgsfield auth login` in a browser and its tokens are short-lived. The MCP server (https://mcp.higgsfield.ai/mcp) says 'no API keys', so likely browser OAuth sign-in (unconfirmed). No developer-registered OAuth app is documented.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None documented. API is pay-per-generation. The page mentions business-email verification and adding a card with a $15 balance for launch pricing. Each new key starts at 20 concurrent requests.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scope model documented; keys are per project.",
+    "summary": "No scope model documented. Keys are per project; CLI/MCP act as the signed-in user with access to their credits and generations.",
+    "table": []
+  },
+  "cost": "API is pay-per-use (e.g. $0.04/image for one model; volume discounts). CLI/MCP spend credits from the user's Higgsfield plan.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Whoever owns the Higgsfield workspace and billing, on a company account (the CLI has a `workspace` command to select the billing workspace).",
+    "Where you register: Higgsfield Console (also open.higgsfield.ai) → API keys → create a key ID/secret per project; exact menu names not documented.",
+    "Cost: API is pay-per-use (e.g. $0.04/image for one model; volume discounts). CLI/MCP spend credits from the user's Higgsfield plan."
+  ],
+  "registerAt": {
+    "url": "https://console.higgsfield.ai",
+    "path": "Higgsfield Console (also open.higgsfield.ai) → API keys → create a key ID/secret per project; exact menu names not documented."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a Higgsfield account with a company email and open console.higgsfield.ai.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Add billing (card and balance) and verify the business email if you want the launch discount.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create an API key ID and secret for a project and store them as HF_API_KEY_ID and HF_API_KEY_SECRET on your server.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "POST to a model endpoint such as api.higgsfield.ai/<model>/<mode> with the Key header, then poll status_url until done.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "For agent use install the CLI and run `higgsfield auth login`, or connect the MCP server from your client.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Add spend limits, cancellation via cancel_url, and per-customer cost tracking.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Whoever owns the Higgsfield workspace and billing, on a company account (the CLI has a `workspace` command to select the billing workspace).",
+    "console": "none documented (keys are per project and can be rotated or revoked)",
+    "customer": "For CLI/MCP use, the end user signs in with their own Higgsfield account and uses their own credits. Customer admin controls are not documented.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Free-tier or credit availability is not stated.",
+    "Use `higgsfield generate cost-estimate` to check cost before generating, and poll the status_url for jobs."
+  ],
+  "blockers": [
+    {
+      "problem": "No third-party OAuth, so customers cannot connect through your app",
+      "fix": "Use your own API key and bill customers, or have them use the CLI/MCP themselves."
+    },
+    {
+      "problem": "CLI tokens are short-lived",
+      "fix": "Handle 'Session expired' by re-running auth login."
+    },
+    {
+      "problem": "Generation costs vary by model and resolution",
+      "fix": "Estimate cost before each call and set spend caps."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the generation client, install and script the CLI, poll jobs, estimate costs, and draft prompts and usage docs.",
+    "humanMust": "Sign in (including browser login), add payment, verify the business email, and approve spend."
+  },
+  "uncertain": [
+    "Whether the MCP server uses OAuth, console menu paths, free credits, rate limits beyond 20 concurrent, and whether Higgsfield offers partner OAuth were not confirmed."
+  ],
+  "sources": [
+    {
+      "url": "https://higgsfield.ai/cli",
+      "label": "higgsfield.ai/cli"
+    },
+    {
+      "url": "https://higgsfield.ai/higgsfield-api",
+      "label": "higgsfield.ai/higgsfield-api"
+    },
+    {
+      "url": "https://docs.higgsfield.ai/docs",
+      "label": "docs.higgsfield.ai/docs"
+    },
+    {
+      "url": "https://github.com/higgsfield-ai/cli",
+      "label": "github.com/higgsfield-ai/cli"
+    },
+    {
+      "url": "https://higgsfield.ai/mcp",
+      "label": "higgsfield.ai/mcp"
+    }
+  ]
+}

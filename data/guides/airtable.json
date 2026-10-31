@@ -1,0 +1,148 @@
+{
+  "schema": 3,
+  "id": "airtable",
+  "name": "Airtable",
+  "category": "Productivity & PM",
+  "website": "airtable.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 72,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "self",
+  "verdict": "Self-serve: register an OAuth integration at airtable.com/create/oauth, with no app review but public Terms of Service and Privacy Policy URLs required before others can authorize. Enterprise admins can block or allow-list integrations.",
+  "needGuide": "Short one: publish your ToS and privacy pages, register the integration, ship.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code grant with PKCE (S256 only; docs list code_challenge/verifier as non-optional, so treat as required). Access token 60 min; refresh token 60 days, rotating (each refresh invalidates the previous pair). Client secret is optional (use one for server-side exchange). Auth at airtable.com/oauth2/v1/authorize, token at airtable.com/oauth2/v1/token. Redirect URIs must be exact-match HTTPS (HTTP only for localhost).",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review; need ToS/privacy pages)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No app review documented. Before anyone other than the developer can authorize, the integration must have a Terms of Service URL and Privacy Policy URL (support email optional). Enterprise customers' admins can block users from authorizing OAuth integrations, or allow-list specific integrations by Client ID.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Granular scopes plus per-base selection by the user; no scope triggers review.",
+    "summary": "Granular scopes set on the integration (records read/write, schema read/write, webhooks, comments, user email). Tokens reach only granted scopes and only the bases the user selected. Exact scope names not re-verified this session (see Scopes reference). No scope documented as triggering review.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Airtable user can register an integration; it is tied to the creating account, so create it from a company-owned account rather than a personal one (likely; ownership transfer not documented).",
+    "Where you register: airtable.com/create/oauth → Register new OAuth integration → enter name + redirect URL → Register integration → add scopes, then fill Terms of Service URL, Privacy Policy URL, Support email",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://airtable.com/create/oauth",
+    "path": "airtable.com/create/oauth → Register new OAuth integration → enter name + redirect URL → Register integration → add scopes, then fill Terms of Service URL, Privacy Policy URL, Support email"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Publish public Terms of Service, Privacy Policy and a support email address for the product",
+          "who": "Legal",
+          "agent": true
+        },
+        {
+          "do": "Go to airtable.com/create/oauth and click Register new OAuth integration with a unique name and your HTTPS callback URL",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Select minimum scopes (e.g. data.records:read/write, schema.bases:read) and generate a client secret; store it in a secrets manager",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code + PKCE (S256), exchange the code within 10 minutes, and store the rotating refresh token atomically",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Fill ToS, Privacy Policy and support email on the integration page so outside users can authorize",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Test with a second Airtable account on a different workspace; verify refresh, revoke, and base-selection behavior",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Give Enterprise customers your Client ID so their admin can allow-list it",
+          "who": "Owner",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Airtable user can register an integration; it is tied to the creating account, so create it from a company-owned account rather than a personal one (likely; ownership transfer not documented).",
+    "console": "none documented",
+    "customer": "The end user authorizes and picks which workspaces/bases to grant; they cannot grant more than they hold. On Enterprise, an admin may block base/workspace selection, block OAuth authorization entirely, or allow only listed Client IDs, so customer IT may need to allow-list your Client ID.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Authorize with your own account against your own bases immediately; the consent dialog can be previewed once at least one scope is added.",
+    "No separate sandbox documented.",
+    "The ToS/privacy URL requirement applies to non-development use."
+  ],
+  "blockers": [
+    {
+      "problem": "Others cannot authorize until ToS and Privacy Policy URLs are set",
+      "fix": "Add them before the first external pilot."
+    },
+    {
+      "problem": "Refresh tokens rotate and die after 60 days unused",
+      "fix": "Persist the new token on every refresh and serialize refreshes per user (409 means a recent refresh)."
+    },
+    {
+      "problem": "Enterprise admins may block OAuth or require allow-listing by Client ID",
+      "fix": "Ship a one-page admin note with your Client ID."
+    },
+    {
+      "problem": "Redirect mismatch returns no error at all",
+      "fix": "Register the exact URI and avoid redirecting from it."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft ToS/privacy copy, write the PKCE and refresh-rotation code, build the base/workspace picker UX, run test calls, and draft the admin allow-list note.",
+    "humanMust": "Sign in and register the integration, generate the client secret, approve legal documents, and coordinate Enterprise admin allow-listing."
+  },
+  "uncertain": [
+    "Exact scope names, rate limits, whether integrations support co-owners, and any Airtable Marketplace listing process were not confirmed.",
+    "No community sources consulted (search/fetch budgets ran out)."
+  ],
+  "sources": [
+    {
+      "url": "https://airtable.com/developers/web/guides/oauth-integrations",
+      "label": "airtable.com/developers/web/guides/oauth-integrations"
+    },
+    {
+      "url": "https://airtable.com/developers/web/api/oauth-reference",
+      "label": "airtable.com/developers/web/api/oauth-reference"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "schema": 3,
+  "id": "gohighlevel",
+  "name": "GoHighLevel",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "gohighlevel.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 34,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: a Private app needs no review but is unlisted, and whether unrelated customers can install it at scale is unconfirmed. Public Marketplace listing needs review and a demo video.",
+  "needGuide": "Yes — choose the app type and install scope (sub-account or agency) carefully, then decide whether to list.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization-code grant for v2 APIs; token endpoint https://services.leadconnectorhq.com/oauth/token with user_type Company (agency tokens) or Location (sub-account tokens). Access tokens last about 24 hours; refresh tokens last 1 year if unused and rotate on each use. An agency token can mint location tokens via /oauth/locationToken. PKCE not documented.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "unknown; private install likely days, public listing review time not published",
+    "firstShort": "1–2 hours",
+    "prodShort": "Unknown (private likely days)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Private apps need no review but are not listed. Public Marketplace listing requires review against the App Review Guidelines (HTTPS redirect on a verified domain, minimal scopes, working install, support channel with 24-hour first response, uninstall/disconnect flow, and a Loom demo video as the final submission step). Whether private apps can be installed by unrelated customers at scale was not confirmed.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Scopes are selected per app and reviewers ask you to justify them.",
+    "summary": "Scopes are selected per app in Advanced Settings -> Auth (for example contacts, conversations, workflows, locations); request only what you need because reviewers ask you to justify them. The exact scope list is in the Scopes docs (not read).",
+    "table": []
+  },
+  "cost": "Free developer account (likely); customers need their own HighLevel subscription",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A developer with a HighLevel Developer Account (sign in at marketplace.gohighlevel.com); use a company-owned login. Whether a paid agency plan is required was not stated.",
+    "Where you register: Developer Marketplace -> My Apps -> Create App; Advanced Settings -> Auth (scopes, redirect URL, Installation URL); Manage -> Secrets -> Client Keys -> Add",
+    "Cost: Free developer account (likely); customers need their own HighLevel subscription"
+  ],
+  "registerAt": {
+    "url": "https://marketplace.gohighlevel.com",
+    "path": "Developer Marketplace -> My Apps -> Create App; Advanced Settings -> Auth (scopes, redirect URL, Installation URL); Manage -> Secrets -> Client Keys -> Add"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in to marketplace.gohighlevel.com -> My Apps -> Create App; set App Type Private, Target User Sub-account, Who Can Install, Listing Type",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Advanced Settings -> Auth: pick minimum scopes, add HTTPS redirect URL, copy the Installation URL",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Manage -> Secrets -> Client Keys -> Add; store client ID and secret (secret shown once)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Create a Sandbox account and install the app; exchange code at /oauth/token with the right user_type; refresh and persist rotated refresh tokens",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "For agency installs, call /oauth/locationToken per sub-account and handle uninstall events",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Complete Profile (logo, category, description, screenshots), record a Loom demo of install, setup, core flow, errors and disconnect",
+          "who": "Design",
+          "agent": false
+        },
+        {
+          "do": "Switch to Public and submit for review; set up support email or phone",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A developer with a HighLevel Developer Account (sign in at marketplace.gohighlevel.com); use a company-owned login. Whether a paid agency plan is required was not stated.",
+    "console": "none documented in the pages read.",
+    "customer": "A sub-account (location) admin installs for one location; an agency admin installs at agency level or in bulk, which yields Company-type tokens. Target User and Who Can Install settings decide who sees the app.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a Sandbox (App Test) account and a Private Integration Token for it, install the app through the private install link, and verify OAuth, scopes, API behavior and webhooks; a pre-release checklist is in the App Testing Guide."
+  ],
+  "blockers": [
+    {
+      "problem": "Using the wrong user_type returns the wrong token level",
+      "fix": "Company tokens cannot make location calls without exchanging for a location token."
+    },
+    {
+      "problem": "Refresh tokens rotate",
+      "fix": "Failing to save the new one breaks the connection until reinstall."
+    },
+    {
+      "problem": "Whitelabel apps must not show HighLevel or GHL branding anywhere, including OAuth screens",
+      "fix": ""
+    },
+    {
+      "problem": "Redirect URLs must be HTTPS and match a verified domain or review fails",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and location-token code, set up webhook handlers, draft listing copy, scope justifications and the Loom script, run sandbox test calls.",
+    "humanMust": "Developer account sign-in, install into the sandbox, record the Loom demo, submit for review, provide support contact."
+  },
+  "uncertain": [
+    "Public review timeline, private-app install limits for external customers, and whether an agency plan is needed to host a developer account were not documented on the pages read."
+  ],
+  "sources": [
+    {
+      "url": "https://marketplace.gohighlevel.com/docs/oauth/CreateMarketplaceApp",
+      "label": "marketplace.gohighlevel.com/docs/oauth/CreateMarketplaceApp"
+    },
+    {
+      "url": "https://marketplace.gohighlevel.com/docs/oauth/AppReviewGuidelines",
+      "label": "marketplace.gohighlevel.com/docs/oauth/AppReviewGuidelines"
+    },
+    {
+      "url": "https://marketplace.gohighlevel.com/docs/Authorization/OAuth2.0",
+      "label": "marketplace.gohighlevel.com/docs/Authorization/OAuth2.0"
+    },
+    {
+      "url": "https://marketplace.gohighlevel.com/docs/oauth/AppTestingGuide",
+      "label": "marketplace.gohighlevel.com/docs/oauth/AppTestingGuide"
+    }
+  ]
+}

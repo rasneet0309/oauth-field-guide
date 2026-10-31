@@ -1,0 +1,141 @@
+{
+  "schema": 3,
+  "id": "datadog",
+  "name": "Datadog",
+  "category": "Developer, Infra & Data",
+  "website": "datadoghq.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 69,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "partner",
+  "verdict": "You need the Datadog Partner Network, a partner developer org and a Developer Platform listing. Production credentials are issued only when you submit for publication, and until then other orgs get invalid client errors; likely 4-8+ weeks.",
+  "needGuide": "Yes — join the partner network and create a listing first; production credentials only come at submission.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "OAuth 2.0 for integrations is available only to approved Technology Partners building official integrations, not standalone OAuth clients. Clients are confidential (secret shown once; one active secret). The flow must start from Datadog so the region 'domain' (for example ap1.datadoghq.com) and 'site' reach your onboarding URL; PKCE is supported. Refresh tokens do not expire unless revoked; access-token lifetime not confirmed. Request api_keys_write to mint an API key via /api/v2/api_keys/marketplace.",
+    "userOAuth": "partner-only",
+    "access": "Partner program required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "1-2 days (partner org must be provisioned first)",
+    "timeToProduction": "unknown (likely 4-8+ weeks incl. partner onboarding and listing review)",
+    "firstShort": "1–2 days",
+    "prodShort": "Unknown (likely 4–8+ weeks)",
+    "difficulty": "Complex",
+    "prodDays": 56
+  },
+  "approval": {
+    "gate": "Product must be generally available. Join the Datadog Partner Network, get a partner developer organization, create a Developer Platform listing, then submit for publication; production client credentials are issued only on submission. Until Datadog publishes it, the client works only inside your partner developer org (other orgs get invalid_request - Invalid client_id).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Request the minimum from Datadog's scopes reference; api_keys_write is needed to create the customer's API key.",
+    "summary": "Request the minimum scopes from the Datadog scopes reference; api_keys_write is needed to create the customer API key. Send the access token as a Bearer token; using an application key with it causes Forbidden. Scope list not fetched.",
+    "table": []
+  },
+  "cost": "No fee stated in the pages read; partner program terms not verified.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A partner/alliances owner to apply to the Datadog Partner Network, plus an engineer with access to the partner developer organization and Developer Platform.",
+    "Where you register: Developer Platform → your listing → Configuration Method tab → API with OAuth → OAuth Client Name, Onboarding URL, Redirect URIs → Generate OAuth Client Secret → pick scopes → Save Changes",
+    "Cost: No fee stated in the pages read; partner program terms not verified."
+  ],
+  "registerAt": {
+    "url": "https://docs.datadoghq.com/developers/integrations/api_integration/",
+    "path": "Developer Platform → your listing → Configuration Method tab → API with OAuth → OAuth Client Name, Onboarding URL, Redirect URIs → Generate OAuth Client Secret → pick scopes → Save Changes"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Apply to the Datadog Partner Network and obtain a partner developer organization (requires a GA product)",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create a Developer Platform listing and choose Configuration Method: API with OAuth",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Enter OAuth client name, Onboarding URL and Redirect URIs, pick minimum scopes (plus api_keys_write if you submit data), generate and store the secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement OAuth with PKCE, handle domain and site parameters, and call per-region API hosts without customer subdomains",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Run Test Authorization in the partner org; confirm API key creation and data submission",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Replace test URLs with production ones and submit the listing for publication to receive production credentials",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A partner/alliances owner to apply to the Datadog Partner Network, plus an engineer with access to the partner developer organization and Developer Platform.",
+    "console": "none documented for listing collaborators; secret rotation requires emailing ecosystems@datadog.com",
+    "customer": "A Datadog user at the customer starts the install from the integration tile and approves scopes; they likely need permissions to authorize apps and manage API keys (not confirmed). Customers choose their site/region.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "In your partner developer organization use Test Authorization on the OAuth config to simulate starting from the tile.",
+    "Testing and production use different client IDs and redirect URIs, so keep them in config."
+  ],
+  "blockers": [
+    {
+      "problem": "Not self-serve",
+      "fix": "Non-partners cannot get an OAuth client; fallback is the customer pasting an API key plus application key (per task hint, not verified in these docs)."
+    },
+    {
+      "problem": "invalid_request - Invalid client_id",
+      "fix": "The test client only works in the partner org until published."
+    },
+    {
+      "problem": "Mismatching redirect URI after publication",
+      "fix": "Update URLs when production credentials arrive."
+    },
+    {
+      "problem": "Wrong region",
+      "fix": "Always use the domain parameter for API hosts."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth/PKCE flow, region handling and key-minting code, draft listing text and scope justifications, and run test calls.",
+    "humanMust": "Complete partner program enrollment and agreements, create the listing in the console, wait for Datadog publication, and email ecosystems@datadog.com to rotate secrets."
+  },
+  "uncertain": [
+    "Partner Network fees, review timeline and criteria, access-token lifetime and the full scope list were not confirmed; the OAuth2 endpoints reference failed to fetch (rate limit)."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.datadoghq.com/developers/integrations/api_integration/",
+      "label": "docs.datadoghq.com/developers/integrations/api_integration"
+    },
+    {
+      "url": "https://docs.datadoghq.com/developers/authorization/",
+      "label": "docs.datadoghq.com/developers/authorization"
+    }
+  ]
+}

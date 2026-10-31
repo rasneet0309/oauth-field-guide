@@ -1,0 +1,676 @@
+[
+  {
+    "n": 62,
+    "id": "vercel",
+    "name": "Vercel",
+    "category": "Developer, Infra & Data",
+    "website": "vercel.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Two OAuth paths. (1) Vercel Integration ('connectable account'): the install redirects to your Redirect URL with a single-use code (valid 30 min); exchange at POST https://api.vercel.com/v2/oauth/access_token (client_id, client_secret, code, redirect_uri) for a long-lived access token plus installation_id and team_id (append teamId to API calls). (2) Sign in with Vercel: OAuth 2.0/OIDC authorization code + PKCE S256, access token 1 h, rotating refresh token 30 days (needs offline_access), but API permissions for team resources were still 'private beta' on the scopes page (updated 2026-02-26), so for acting on customers' teams use an Integration.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://vercel.com/d?to=%2Fdashboard%2Fintegrations%2Fconsole",
+      "path": "Team switcher → Integrations → Integrations Console → Create (Create Integration form). For Sign in with Vercel instead: Team → Settings → Apps → Create."
+    },
+    "access": "Self-serve",
+    "productionGate": "Connectable-account integrations get a 'Community' badge on creation and can be installed by external users via your site or a deploy button (docs also say 'once approved'; no review SLA stated). Public Marketplace listing needs 500+ active installs, passing the approval checklist, and an email to integrations@vercel.com. Native (Marketplace Partner API) integrations need program sign-up, a shared Slack channel, checklist, review and a final walkthrough call. You must accept Vercel's integrations agreement terms.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days for a Community-badge connectable integration (likely; no stated review). Marketplace listing: unknown, gated on 500 installs. Native integration: likely several weeks.",
+    "cost": "Free to create a connectable integration; native Marketplace billing/revenue terms not verified.",
+    "roles": {
+      "team": "Create under a company-owned Vercel team, not a personal account, and keep 2+ owners: if the integration's owners leave the team it is flagged disabled and deleted after 30 days if ownership is not transferred.",
+      "console": "No separate console roles documented; the integration belongs to the team shown in the Integrations Console, so team membership is the access control.",
+      "customer": "A member of the customer's Vercel account/team installs it and picks which projects it can access (the install wizard checks project selection). Scope additions or upgrades later require confirmation by every affected user and team owner via email."
+    },
+    "testing": "Install your own integration on your own team straight after creation (https://vercel.com/integrations/<slug>); no sandbox needed. Sign in with Vercel allows an http://localhost:3000 callback. Native flows have a Preview Form in the console. Use View Logs on the Edit Integration page to debug.",
+    "steps": [
+      {
+        "do": "Pick a company-owned Vercel team with 2+ owners; open Integrations → Integrations Console → Create",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Complete the Create Integration form: name, URL slug, legal developer name, contact and support emails, logo, category, docs/EULA/privacy URLs, overview, Redirect URL (your OAuth callback), API Scopes, webhook URL",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Accept the Vercel integrations agreement terms at the end of the form",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Implement the redirect handler: take code, POST to https://api.vercel.com/v2/oauth/access_token, store access_token, installation_id and team_id encrypted, send teamId on every API call",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Verify webhook signatures with the Integration Secret from the console Credentials section; add a way to rotate it",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Install on a test team and confirm scopes, project selection and uninstall handling; test a scope upgrade email",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Publish the install link (https://vercel.com/integrations/<slug>) or a deploy button; optionally email integrations@vercel.com for Marketplace review once you reach 500 installs",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Integration scopes are set in the console: integration-configuration, deployment, deployment-check, edge-config, project, project-env-vars, global-project-env-vars, team, user, drains, domain, billing (Pro/Enterprise only), each Read or Read/Write. Adding or upgrading scopes triggers email confirmation by users/team owners; downgrades apply immediately. Sign in with Vercel scopes are only openid, email, profile, offline_access.",
+    "blockers": [
+      "Token calls fail with 403 for team installs: always add the teamId query parameter returned in the code exchange.",
+      "Integration disabled when owners leave the team: add a second owner and keep the team company-owned.",
+      "Sign in with Vercel tokens cannot manage customer projects yet (permissions in private beta): use an Integration for agent actions.",
+      "Calling the Vercel API from the browser hits CORS and leaks the token: call it only server-side."
+    ],
+    "agentCan": "Write the redirect/code-exchange handler, webhook verification and token storage, draft the listing copy, overview and scope justification, and run test API calls with the issued token.",
+    "humanMust": "Create the integration in the console (login/2FA), accept the legal terms, supply EULA and privacy URLs, install it from a real customer account, and email integrations@vercel.com for any Marketplace review or native-program walkthrough.",
+    "confidence": "High",
+    "uncertain": "Docs are inconsistent on whether an integration needs approval before external installs (the create page says 'approved' but also says the Community badge applies on creation). Review SLA, native-integration revenue terms and which customer team roles may install were not confirmed. Community sources were not consulted (search budget exhausted).",
+    "sources": [
+      "https://vercel.com/docs/integrations/create-integration",
+      "https://vercel.com/docs/integrations/create-integration/vercel-api-integrations",
+      "https://vercel.com/docs/integrations/create-integration/approval-checklist",
+      "https://vercel.com/docs/sign-in-with-vercel/getting-started",
+      "https://vercel.com/docs/sign-in-with-vercel/manage-from-dashboard",
+      "https://vercel.com/docs/sign-in-with-vercel/scopes-and-permissions"
+    ]
+  },
+  {
+    "n": 63,
+    "id": "netlify",
+    "name": "Netlify",
+    "category": "Developer, Infra & Data",
+    "website": "netlify.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Docs say to use OAuth2 applications for public integrations and personal access tokens (PATs) for your own scripts. Authorization endpoint is https://app.netlify.com/authorize. Netlify's own tutorial uses the implicit flow (response_type=token, token in URL hash); a 2016 blog post suggests the authorization code grant when you have a server. Token lifetime, refresh tokens and scopes are not documented in the pages read. Resetting a user's password invalidates all their PATs and OAuth tokens.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://app.netlify.com/user/applications#oauth-applications",
+      "path": "User settings → Applications → OAuth applications → New OAuth app (name, redirect URI); save Client ID and Secret"
+    },
+    "access": "Self-serve",
+    "productionGate": "None documented: no review, listing or partner step is described for OAuth applications; users approve on Netlify's authorize page. Netlify also runs a separate extensions/integrations program (not researched).",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (likely, no review documented)",
+    "cost": "Free",
+    "roles": {
+      "team": "The OAuth app lives in a personal user's settings, not a team, so create it from a shared company-owned Netlify user (or bot account) to avoid losing it when someone leaves. No special role documented.",
+      "console": "none documented (apps are per user; no collaborator feature found)",
+      "customer": "The end user authorizes the app on the Netlify consent page. Teams that require SAML SSO deny PATs by default; whether OAuth tokens need the same SAML opt-in was not confirmed. Team owners may be needed for team-level access (likely)."
+    },
+    "testing": "Register an app under your own Netlify account (free) and authorize with a second test account; use a localhost redirect URI such as http://localhost:8888/ for netlify dev. No sandbox needed.",
+    "steps": [
+      {
+        "do": "Sign in to a company-owned Netlify user and open https://app.netlify.com/user/applications#oauth-applications",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Click New OAuth app; enter name and redirect URI(s) for dev and prod; save Client ID and secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Send users to https://app.netlify.com/authorize with client_id, redirect_uri, response_type and a random state; verify state on return",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Prefer a server-side callback so the token is never exposed to the browser; store tokens encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call https://api.netlify.com/api/v1 with Authorization: Bearer and a User-Agent header containing a contact email",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a second Netlify account, including revoke and SAML-team cases",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "No scope model documented: tokens appear to act with the authorizing user's full API access (inference). Check https://open-api.netlify.com for endpoints.",
+    "blockers": [
+      "Implicit flow returns the token in the URL hash: use a server and authorization code where possible; confirm the grant is accepted for your app.",
+      "No documented token lifetime or refresh: handle 401s by sending the user through authorization again.",
+      "SAML-enforced teams may block tokens: ask the customer admin to allow it (PATs have an explicit SAML checkbox).",
+      "Password reset by the user kills all tokens: build a reconnect flow."
+    ],
+    "agentCan": "Write the authorize/callback code, token storage and API client, run test calls, and draft the app description.",
+    "humanMust": "Log in (with 2FA) and register the OAuth app in user settings, and have a customer user approve the consent screen.",
+    "confidence": "Medium",
+    "uncertain": "Could not confirm grant types actually supported today (code vs implicit), token lifetime, scopes, how redirect URIs are managed, or whether any extension/partner review exists. Current OAuth reference pages failed to fetch; the 2016 blog is stale. Community sources not consulted.",
+    "sources": [
+      "https://docs.netlify.com/api/get-started/",
+      "https://developers.netlify.com/guides/generating-personal-access-tokens-with-netlify-oauth",
+      "https://www.netlify.com/blog/2016/10/10/integrating-with-netlify-oauth2/"
+    ]
+  },
+  {
+    "n": 64,
+    "id": "cloudflare",
+    "name": "Cloudflare",
+    "category": "Developer, Infra & Data",
+    "website": "cloudflare.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Third-party OAuth clients are supported on Free, Pro, Business and Enterprise plans, authorization code flow only (no client credentials, implicit, password or device). Server apps use a client secret (client_secret_basic/post, PKCE optional); browser/mobile/CLI apps use PKCE S256 with auth method none. Endpoints: https://dash.cloudflare.com/oauth2/auth and /oauth2/token, plus /oauth2/revoke and /oauth2/userinfo. Token lifetimes not confirmed. API tokens (user or account-owned, cfut_ prefix) are the alternative.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.cloudflare.com/fundamentals/oauth/create-an-oauth-client/",
+      "path": "Dashboard → select account → Manage Account → OAuth clients → Create client (name, response type, grant type, auth method, redirect URLs) → Continue → pick scopes → Create client"
+    },
+    "access": "Self-serve",
+    "productionGate": "New clients are private: only members of the owning account can authorize them. To let any customer connect, make it public by adding name, logo, client URL and scopes and verifying the client URL domain with a DNS TXT record (cloudflare_oauth_client_publisher=...). Cloudflare checks for up to two days. Making a client public is permanent. No separate approval form is described.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (DNS verification window is up to 2 days; no manual review documented)",
+    "cost": "Free",
+    "roles": {
+      "team": "Needs Super Administrator, Administrator or OAuth Client Write on the owning Cloudflare account (or an API token with OAuth Clients Write). Use a company-owned account.",
+      "console": "none documented beyond account roles; add the OAuth Client Write role to a member via Manage Account → Members (likely).",
+      "customer": "The authorizing user picks which account(s) to grant and the permissions. Account administrators can block new authorizations at Manage Account → Members → Settings → Public OAuth App access (existing authorizations stay). Users see a shield icon: amber means unverified domain."
+    },
+    "testing": "Private clients work for members of your own account, so test with a separate member login before going public. Create it via dashboard or POST /client/v4/accounts/{account_id}/oauth_clients. A second test account to simulate an outside customer is advisable (likely).",
+    "steps": [
+      {
+        "do": "Confirm you hold Administrator or OAuth Client Write on a company-owned Cloudflare account",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Manage Account → OAuth clients → Create client: set grant type authorization_code, token auth method, redirect URLs, then select scopes (mark optional ones)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Save the client ID and secret (shown once; two secrets allowed for rotation)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorize/token against dash.cloudflare.com/oauth2 with state and PKCE S256; store refresh data encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test as a non-owner member, including declining optional scopes",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "To go public: add name, logo, client URL, publish the DNS TXT verification record, then PATCH visibility",
+        "who": "Developer",
+        "agent": false
+      }
+    ],
+    "scopes": "Scope names match Cloudflare API token permission names; list them from /client/v4/oauth/scopes. At least one scope is required, scopes are required by default and a subset can be marked optional so users can decline. Users can also choose Read only or Full access. No scope triggers extra review.",
+    "blockers": [
+      "Private client only authorizes your own account's members: complete domain verification before customer rollout.",
+      "Customer admin disabled Public OAuth App access: ask them to re-enable it for new authorizations.",
+      "Public status is permanent: finalize client name, logo and URL first.",
+      "Verification TXT record can time out after two days: restart with a PATCH."
+    ],
+    "agentCan": "Create and configure the client through the API (given a token), write the OAuth code, draft consent-screen copy, run test calls, and monitor the DNS verification.",
+    "humanMust": "Log in with 2FA to create the token or client, add the DNS TXT record (or approve it), and have a customer admin approve authorization.",
+    "confidence": "High",
+    "uncertain": "Access/refresh token lifetimes, which customer roles may authorize, and the docs' publication date were not confirmed; this feature looks new, so check for changes. Community sources not consulted.",
+    "sources": [
+      "https://developers.cloudflare.com/fundamentals/oauth/",
+      "https://developers.cloudflare.com/fundamentals/oauth/create-an-oauth-client/",
+      "https://developers.cloudflare.com/fundamentals/oauth/integrate-with-cloudflare/",
+      "https://developers.cloudflare.com/fundamentals/oauth/authorizing-an-application/",
+      "https://developers.cloudflare.com/fundamentals/api/get-started/create-token/"
+    ]
+  },
+  {
+    "n": 65,
+    "id": "supabase",
+    "name": "Supabase",
+    "category": "Developer, Infra & Data",
+    "website": "supabase.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "OAuth 2.0 authorization code flow for the Management API: authorize at https://api.supabase.com/v1/oauth/authorize (client_id, redirect_uri, response_type=code, state, optional organization_slug), exchange at POST https://api.supabase.com/v1/oauth/token with Basic auth. PKCE (S256) is strongly recommended. Refresh tokens work via the same endpoint; access-token lifetime is not stated. Revoked access makes refresh fail with 401.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration",
+      "path": "Dashboard → Organization settings → OAuth Apps → Add application → fill details → Confirm"
+    },
+    "access": "Self-serve",
+    "productionGate": "No review documented. The guide says the OAuth app must be 'published' before use, without explaining how; likely just saving it in org settings. Scopes are fixed at app creation; changing them forces users to re-authorize.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (likely)",
+    "cost": "Free (requires a Supabase organization; plan requirements not stated)",
+    "roles": {
+      "team": "Create the app inside an organization your company owns, in the org settings. Which org roles can create apps is not documented; use an Owner (likely safest).",
+      "console": "none documented beyond org membership",
+      "customer": "The authorizing user selects which of their organizations to grant. Their org role limits what the token can do (likely Owner/Admin for project management). Token access is described as full Management API access, restricted only by app scopes."
+    },
+    "testing": "Create the app in your own org and authorize with your own account; no sandbox. Use a throwaway Supabase project for create/delete tests.",
+    "steps": [
+      {
+        "do": "Open Dashboard → Organization settings → OAuth Apps in a company-owned org",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Add application: name, website, redirect URI(s), select scopes (Auth, Database, Domains, Edge Functions, Environment, Projects, Rest, Secrets, read-only Organizations/Storage); Confirm",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Save client ID and secret in a secrets manager",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Redirect users to /v1/oauth/authorize with state and PKCE S256 code_challenge; validate state on callback",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "POST /v1/oauth/token with Basic auth, code, redirect_uri and code_verifier; store refresh token encrypted; handle 401 by refreshing or re-authorizing",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test end to end against a scratch project and a second account; verify re-authorize after scope change",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "Per-app scopes set at creation: Auth, Database, Domains, Edge Functions, Environment, Projects, Rest, Secrets (Read/Write), Organizations and Storage (Read only). The authorize 'scope' parameter is deprecated. Only some features are available until fine-grained access control rolls out. No scope triggers approval.",
+    "blockers": [
+      "Database password cannot be fetched via the Management API: collect it from the user in your UI for existing projects.",
+      "Changing scopes later forces every user to re-authorize: choose scopes carefully up front.",
+      "redirect_uri plus state must not exceed 4 kB.",
+      "Unclear 'publish' step: confirm in the dashboard or with Supabase support before launch."
+    ],
+    "agentCan": "Write the OAuth/PKCE client, token refresh logic and Management API calls, and draft the app description and scope justification.",
+    "humanMust": "Log in to the dashboard and create the OAuth app; a customer user must consent and choose an organization.",
+    "confidence": "Medium",
+    "uncertain": "Access-token lifetime, which org roles can create apps, what 'publish' entails, and rate limits were not documented in fetched pages. Community sources not consulted; fetch limit reached before further checks.",
+    "sources": [
+      "https://supabase.com/docs/guides/integrations/build-a-supabase-integration",
+      "https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration",
+      "https://supabase.com/docs/guides/platform/oauth-apps/build-a-supabase-integration",
+      "https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration/oauth-scopes"
+    ]
+  },
+  {
+    "n": 66,
+    "id": "neo4j",
+    "name": "Neo4j",
+    "category": "Developer, Infra & Data",
+    "website": "neo4j.com",
+    "authModel": "Client credentials only",
+    "authDetail": "No user-facing OAuth for third parties. The Aura API uses OAuth 2.0 client credentials: POST https://api.neo4j.io/oauth/token with Basic auth (client ID/secret) and grant_type=client_credentials returns a 1-hour bearer token (403 once expired). Credentials are tied to the creating user, inherit that user's roles, and never expire until deleted. Database access itself is a separate Bolt URI with database credentials (per Aura convention, not re-verified here).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://console.neo4j.io/account/api-keys",
+      "path": "Aura console → profile menu (top right) → Account Settings → Client credentials → Aura API → Create client credential"
+    },
+    "access": "Not offered",
+    "productionGate": "None: each customer creates their own Aura API credentials; there is no developer-registered app, review or partner program for Aura OAuth.",
+    "difficulty": "N/A",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (build credential intake and token caching)",
+    "cost": "Free to create credentials on all tiers; API rate limits: 25 req/min on Free/Pro trial, 125 req/min on paid tiers, billing endpoints 10 req/day per organization.",
+    "roles": {
+      "team": "No developer app needed. Your team only needs a test Aura account to build against.",
+      "console": "none documented",
+      "customer": "A customer user creates client credentials in their Aura Account Settings; the credentials carry that user's roles, so ask for a dedicated least-privileged user (likely) rather than an org admin. Exact org/project roles required are not documented."
+    },
+    "testing": "Use a free Aura account and a free instance: create client credentials, fetch a token, call GET https://api.neo4j.io/v1/instances. Respect the 25 req/min trial limit.",
+    "steps": [
+      {
+        "do": "Tell the customer to open Aura console → Account Settings → Client credentials → Aura API → Create client credential",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Customer copies the Client ID and Client Secret (shown once) into your app's connection form",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store the secret encrypted; request a token with POST api.neo4j.io/oauth/token and cache it for under one hour",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with GET /v1/instances and show a clear error on 403 (expired) or revoked credentials",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "For data access, separately collect the Bolt URI, database user and password and keep them in the vault",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Throttle to the documented rate limits and test with a free-tier account",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "No scopes: the token inherits the creating user's capabilities and roles. Billing endpoints are limited to 10 requests/day per organization.",
+    "blockers": [
+      "Credentials mirror the creator's roles: ask customers to create them from a least-privileged user.",
+      "Token expires after 1 hour with no refresh: cache and re-request.",
+      "Low trial rate limit (25 req/min): back off on 429s.",
+      "Aura API credentials do not give database query access: you also need Bolt credentials."
+    ],
+    "agentCan": "Write the credential intake form, token exchange and caching code, validate with test calls, and draft the customer instructions.",
+    "humanMust": "The customer must log in and create the credentials; your team must handle secure secret storage sign-off.",
+    "confidence": "High",
+    "uncertain": "Which Aura roles can create credentials, whether the Aura API is available on every tier, and DB-level SSO/OIDC options were not confirmed (fetch limit reached). Neo4j has no announced third-party OAuth.",
+    "sources": [
+      "https://neo4j.com/docs/aura/api/authentication/",
+      "https://neo4j.com/docs/aura/api/overview/"
+    ]
+  },
+  {
+    "n": 67,
+    "id": "snowflake",
+    "name": "Snowflake",
+    "category": "Developer, Infra & Data",
+    "website": "snowflake.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "No central developer registration: each customer account admin creates a custom OAuth client with CREATE SECURITY INTEGRATION (TYPE=OAUTH, OAUTH_CLIENT=CUSTOM) and hands you a client ID/secret and their account URL. Authorization code grant at <account_url>/oauth/authorize and /oauth/token-request; PKCE S256 optional but recommended (can be required). Access token 600 s default (60-3600 s); refresh tokens only if OAUTH_ISSUE_REFRESH_TOKENS is on, with the refresh-token scope, validity set per integration. Alternatives: PATs (15-day default, 365-day max, network policy needed) and key-pair auth (not re-verified).",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://docs.snowflake.com/en/user-guide/oauth-custom",
+      "path": "In the customer's account, as ACCOUNTADMIN or a role with global CREATE INTEGRATION: CREATE SECURITY INTEGRATION ... TYPE=OAUTH OAUTH_CLIENT=CUSTOM OAUTH_REDIRECT_URI='<your callback>' (plus token-validity and refresh-token options); then retrieve the generated client ID and secrets"
+    },
+    "access": "Self-serve",
+    "productionGate": "None from Snowflake for custom clients: no review or partner agreement. The gate is per customer: their admin must create the security integration in their account. Partner OAuth (Tableau, Looker, Alation, ThoughtSpot, Collibra) uses predefined OAUTH_CLIENT values; no route for arbitrary developers is described.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours (needs a Snowflake account where you hold admin rights)",
+    "timeToProduction": "1-3 days to ship; each customer onboarding takes their admin about 15-60 min plus change approval (likely)",
+    "cost": "Free to implement; needs a Snowflake account (trial likely sufficient) for testing.",
+    "roles": {
+      "team": "Developer team needs a test Snowflake account where one member is ACCOUNTADMIN (or has CREATE INTEGRATION) to run the SQL.",
+      "console": "none documented (no developer console; configuration is SQL per account)",
+      "customer": "Customer ACCOUNTADMIN or a role with global CREATE INTEGRATION creates the integration. Admin controls: BLOCKED_ROLES_LIST, ALLOWED_ROLES_LIST, token validity, refresh-token toggle, network policies. ACCOUNTADMIN, SECURITYADMIN, GLOBALORGADMIN and ORGADMIN roles can never be consented to by default."
+    },
+    "testing": "Create the integration in your own trial/dev account and run the full authorize, token and refresh cycle in a browser (the authorize URL cannot be curled). Test per-account URL handling with two accounts if possible.",
+    "steps": [
+      {
+        "do": "Give customers a copy-paste SQL template for CREATE SECURITY INTEGRATION (OAUTH_CLIENT=CUSTOM, your redirect URI, OAUTH_ISSUE_REFRESH_TOKENS=TRUE, PKCE required)",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Customer ACCOUNTADMIN runs the SQL and sends client ID, client secret and account URL",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store per-customer client credentials and account URL encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Redirect to <account_url>/oauth/authorize with session:role:<ROLE>, refresh_token scope, state and S256 PKCE; exchange at /oauth/token-request",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Refresh before the 10-minute access token expires; handle refresh-token expiry by re-prompting the user",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Verify with a non-ACCOUNTADMIN role and a network policy in place",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "session:role:<role_name> pins the token to one case-sensitive role; session:role-any allows USE ROLE only if OAUTH_ANY_ROLE_MODE is enabled; refresh_token requests offline access. Pin to a read-only role for agent use. Blocked admin roles need a Snowflake Support request.",
+    "blockers": [
+      "Each customer must create their own integration: ship a clear SQL template and runbook.",
+      "Admin roles are blocked from OAuth consent: use a dedicated lower-privilege role.",
+      "Short access tokens (default 600 s): refresh proactively.",
+      "Redirect URI must match exactly and use TLS unless OAUTH_ALLOW_NON_TLS_REDIRECT_URI is set."
+    ],
+    "agentCan": "Draft and parameterize the SQL template, write the OAuth/PKCE client and token refresh, generate the customer runbook, and run test queries.",
+    "humanMust": "A customer ACCOUNTADMIN must run the SQL, share secrets securely and approve network policies; your team must log in to a test account.",
+    "confidence": "Medium",
+    "uncertain": "Default refresh-token validity, key-pair auth details and current partner-program rules were not confirmed (fetch limit reached). Custom-client OAuth for multi-tenant SaaS pitfalls from community sources were not consulted.",
+    "sources": [
+      "https://docs.snowflake.com/en/user-guide/oauth-custom",
+      "https://docs.snowflake.com/en/user-guide/oauth-partner",
+      "https://docs.snowflake.com/en/user-guide/programmatic-access-tokens"
+    ]
+  },
+  {
+    "n": 68,
+    "id": "mongodb-atlas",
+    "name": "MongoDB Atlas",
+    "category": "Developer, Infra & Data",
+    "website": "mongodb.com/atlas",
+    "authModel": "Client credentials only",
+    "authDetail": "Atlas Administration API: service accounts (OAuth 2.0 client credentials, recommended) with a client ID and rotatable secret; access tokens last 1 hour and cannot be refreshed. API keys (HTTP Digest) are legacy. A service account belongs to one organization and can be granted access to any projects in it. Atlas docs also mention delegated 'Atlas App Connections' for third-party partner apps and MCP clients (off by default in existing orgs), but registration details were not found.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://www.mongodb.com/docs/atlas/configure-api-access-org/",
+      "path": "Customer Atlas organization → Organization Settings / Access Manager → Applications → Service Accounts → create (exact UI path not confirmed; Organization Owner required)"
+    },
+    "access": "Not offered",
+    "productionGate": "None for service accounts: the customer creates one and shares client ID/secret. Third-party OAuth via App Connections appears limited to partner apps (likely partner-gated, unconfirmed). Organizations that require the Administration API IP access list will return 403 until your egress IPs are allowlisted.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (credential intake and IP allowlisting)",
+    "cost": "Free to create service accounts; Atlas test clusters can be free tier.",
+    "roles": {
+      "team": "No developer app registration. Your team needs an Atlas test organization where someone is Organization Owner.",
+      "console": "none documented",
+      "customer": "An Organization Owner creates the service account and assigns it roles and projects, and adds your static egress IPs to the org's Administration API access list (new orgs require it by default). Project-level service accounts with wider reach need Organization Owner to rotate or revoke."
+    },
+    "testing": "Create an Atlas org and project, make a service account, fetch a token and call /api/atlas/v2/groups/<GROUP-ID>/clusters.",
+    "steps": [
+      {
+        "do": "Ask the customer's Organization Owner to create a service account with the minimum project roles needed",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Customer adds your egress IP addresses to the organization's API access list",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Customer shares client ID and secret via your intake form; store encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Request tokens at https://cloud.mongodb.com/api/oauth/token with Basic auth and grant_type=client_credentials; cache for under 1 hour",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call the Administration API with the versioned Accept header; surface 401/403 as 'check roles or IP list'",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Provide a secret-rotation flow; ask Atlas support or your MongoDB contact whether delegated App Connections apply to you",
+        "who": "Developer",
+        "agent": false
+      }
+    ],
+    "scopes": "Roles, not OAuth scopes: the service account's organization/project roles limit operations. Service accounts cannot sign in to the Atlas UI or access cluster data; database data access needs separate database users or connection strings (likely).",
+    "blockers": [
+      "403 on every call: the customer's IP access list does not include your servers.",
+      "401 on project endpoints: the service account is not in the org or project hosting the resource.",
+      "Tokens cannot be refreshed: request a new one before the hour ends.",
+      "No end-user OAuth: you must collect secrets from the customer and handle rotation."
+    ],
+    "agentCan": "Write the token client, caching, API calls and rotation reminders, draft customer setup instructions, and run test calls.",
+    "humanMust": "A customer Organization Owner must create the service account and update the IP access list; your team handles secret custody.",
+    "confidence": "Medium",
+    "uncertain": "Could not confirm the exact UI path for creating service accounts, secret expiry options, or what Atlas App Connections (delegated OAuth for partner apps and MCP clients) require; the token URL came from a tool-generated sketch flagged as unverified. The fetch limit stopped further checks.",
+    "sources": [
+      "https://www.mongodb.com/docs/atlas/api/service-accounts-overview/",
+      "https://www.mongodb.com/docs/atlas/configure-api-access/",
+      "https://www.mongodb.com/docs/atlas/configure-api-access-org/"
+    ]
+  },
+  {
+    "n": 69,
+    "id": "datadog",
+    "name": "Datadog",
+    "category": "Developer, Infra & Data",
+    "website": "datadoghq.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "OAuth 2.0 for integrations is available only to approved Technology Partners building official integrations, not standalone OAuth clients. Clients are confidential (secret shown once; one active secret). The flow must start from Datadog so the region 'domain' (for example ap1.datadoghq.com) and 'site' reach your onboarding URL; PKCE is supported. Refresh tokens do not expire unless revoked; access-token lifetime not confirmed. Request api_keys_write to mint an API key via /api/v2/api_keys/marketplace.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://docs.datadoghq.com/developers/integrations/api_integration/",
+      "path": "Developer Platform → your listing → Configuration Method tab → API with OAuth → OAuth Client Name, Onboarding URL, Redirect URIs → Generate OAuth Client Secret → pick scopes → Save Changes"
+    },
+    "access": "Partner program required",
+    "productionGate": "Product must be generally available. Join the Datadog Partner Network, get a partner developer organization, create a Developer Platform listing, then submit for publication; production client credentials are issued only on submission. Until Datadog publishes it, the client works only inside your partner developer org (other orgs get invalid_request - Invalid client_id).",
+    "difficulty": "Hard",
+    "timeToFirstTest": "1-2 days (partner org must be provisioned first)",
+    "timeToProduction": "unknown (likely 4-8+ weeks incl. partner onboarding and listing review)",
+    "cost": "No fee stated in the pages read; partner program terms not verified.",
+    "roles": {
+      "team": "A partner/alliances owner to apply to the Datadog Partner Network, plus an engineer with access to the partner developer organization and Developer Platform.",
+      "console": "none documented for listing collaborators; secret rotation requires emailing ecosystems@datadog.com",
+      "customer": "A Datadog user at the customer starts the install from the integration tile and approves scopes; they likely need permissions to authorize apps and manage API keys (not confirmed). Customers choose their site/region."
+    },
+    "testing": "In your partner developer organization use Test Authorization on the OAuth config to simulate starting from the tile. Testing and production use different client IDs and redirect URIs, so keep them in config.",
+    "steps": [
+      {
+        "do": "Apply to the Datadog Partner Network and obtain a partner developer organization (requires a GA product)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create a Developer Platform listing and choose Configuration Method: API with OAuth",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Enter OAuth client name, Onboarding URL and Redirect URIs, pick minimum scopes (plus api_keys_write if you submit data), generate and store the secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement OAuth with PKCE, handle domain and site parameters, and call per-region API hosts without customer subdomains",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Run Test Authorization in the partner org; confirm API key creation and data submission",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Replace test URLs with production ones and submit the listing for publication to receive production credentials",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Request the minimum scopes from the Datadog scopes reference; api_keys_write is needed to create the customer API key. Send the access token as a Bearer token; using an application key with it causes Forbidden. Scope list not fetched.",
+    "blockers": [
+      "Not self-serve: non-partners cannot get an OAuth client; fallback is the customer pasting an API key plus application key (per task hint, not verified in these docs).",
+      "invalid_request - Invalid client_id: the test client only works in the partner org until published.",
+      "Mismatching redirect URI after publication: update URLs when production credentials arrive.",
+      "Wrong region: always use the domain parameter for API hosts."
+    ],
+    "agentCan": "Write the OAuth/PKCE flow, region handling and key-minting code, draft listing text and scope justifications, and run test calls.",
+    "humanMust": "Complete partner program enrollment and agreements, create the listing in the console, wait for Datadog publication, and email ecosystems@datadog.com to rotate secrets.",
+    "confidence": "High",
+    "uncertain": "Partner Network fees, review timeline and criteria, access-token lifetime and the full scope list were not confirmed; the OAuth2 endpoints reference failed to fetch (rate limit).",
+    "sources": [
+      "https://docs.datadoghq.com/developers/integrations/api_integration/",
+      "https://docs.datadoghq.com/developers/authorization/"
+    ]
+  },
+  {
+    "n": 70,
+    "id": "sentry",
+    "name": "Sentry",
+    "category": "Developer, Infra & Data",
+    "website": "sentry.io",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Integration Platform. Internal integrations: org-only, token auto-generated on install. Public integrations: OAuth authorization-code style. After install Sentry sends a grant code and installation ID (redirect URL and installation.created webhook); exchange via POST /api/0/sentry-app-installations/{id}/authorizations/ with client ID/secret. Tokens expire after 8 hours; refresh with a client-secret-signed JWT (jwt-bearer grant, recommended) or a refresh token. Permissions are scoped to the organization.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://docs.sentry.io/organization/integrations/integration-platform/",
+      "path": "sentry.io → Settings → Developer Settings → New Public Integration (name, webhook URL, redirect URL, permissions, logo)"
+    },
+    "access": "Application/approval required",
+    "productionGate": "A public integration starts unpublished: only the organization that created it can see or install it. To serve other organizations you click Publish, which emails integrations-platform@sentry.io for review. Review criteria and timeline are not documented in the pages read. Logo PNG 256-1024 px required.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown (likely 2-6 weeks incl. Sentry review)",
+    "cost": "Free",
+    "roles": {
+      "team": "Create it under your company's Sentry organization; you cannot grant the integration permissions beyond the creating user's own. Specific org role needed not documented (likely Manager or Owner).",
+      "console": "none documented (integrations belong to the organization)",
+      "customer": "A customer organization admin/owner installs the integration and approves the requested permissions (likely; roles not stated). Org-wide scope means issue/event access spans the whole organization."
+    },
+    "testing": "Develop as an unpublished public integration and install it in your own Sentry org, or use an internal integration for quick tests; use the external-install URL https://sentry.io/sentry-apps/<slug>/external-install/. Sentry offers an example app (Python/TypeScript) with testing advice. No sandbox documented.",
+    "steps": [
+      {
+        "do": "In your Sentry org go to Settings → Developer Settings and create a new public integration; set webhook URL, redirect URL, permissions and logo",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Implement the redirect/setup endpoint: receive code and installation ID, exchange at /sentry-app-installations/{id}/authorizations/, store token and refresh token encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement 8-hour token refresh using the JWT grant; handle installation.deleted webhooks",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If Verify Install is on, PUT status=installed to /sentry-app-installations/{id}/",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Install and test in your own org; ask a friendly second org to test after publishing",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Click Publish next to the integration and answer follow-ups from integrations-platform@sentry.io",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Standard Sentry API permissions (for example project, issue and event read/write) are chosen when creating the integration and become the token's scopes; users approve them at install. Scopes are org-wide. Which scopes draw extra review is not documented.",
+    "blockers": [
+      "Only the creating org can install until Sentry approves publication: plan the review wait before customer launches.",
+      "Tokens die after 8 hours: implement refresh early.",
+      "Cannot request permissions the creator does not have: create it from an org owner/manager account.",
+      "Browser use of tokens needs authorized origins listed (no wildcards): prefer server-side calls."
+    ],
+    "agentCan": "Write the setup endpoint, JWT refresh and webhook handlers, draft listing description and permission justification, and run test API calls.",
+    "humanMust": "Log in (2FA) and create the integration, upload the logo, press Publish, and handle any Sentry review correspondence; a customer admin must install it.",
+    "confidence": "Medium",
+    "uncertain": "Review criteria, timeline and eligibility for publication, plus exact org roles for creating and installing, were not documented in fetched pages. Community sources not consulted; fetch limit reached.",
+    "sources": [
+      "https://docs.sentry.io/organization/integrations/integration-platform/",
+      "https://docs.sentry.io/organization/integrations/integration-platform/public-integration/"
+    ]
+  }
+]

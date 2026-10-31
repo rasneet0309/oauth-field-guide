@@ -1,0 +1,147 @@
+{
+  "schema": 3,
+  "id": "lark",
+  "name": "Lark (Larksuite)",
+  "category": "Communications & Messaging",
+  "website": "open.larksuite.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 24,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "partner",
+  "verdict": "Custom apps work only inside the creating tenant and need a tenant admin to approve each release, so reaching other companies likely needs a store app with Lark review. Lark and Feishu are separate platforms; low confidence.",
+  "needGuide": "Yes — decide Lark or Feishu per customer region first, then plan for store-app review.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Likely: custom (self-built) apps use app_id/app_secret to mint tenant_access_token for their own tenant; store (marketplace/ISV) apps are installed across tenants and get tenant tokens via app_ticket; user-level access uses an authorization-code flow returning user_access_token. Not verified from docs this session (site is JS-rendered).",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "unknown (likely several weeks for store listing review)",
+    "firstShort": "30–60 min",
+    "prodShort": "Unknown (likely weeks)",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Custom apps are limited to the creating tenant and need a tenant admin to approve each release. Serving other companies likely requires a store/ISV app with Lark review and directory listing. Lark (open.larksuite.com) and Feishu (open.feishu.cn) are separate platforms with separate tenants: an app must be registered on the one the customer uses.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "High",
+    "why": "Granular per-API scopes; sensitive scopes need tenant admin approval at release, and store review likely scrutinizes them.",
+    "summary": "Granular permission scopes per API (messages, contacts, docs). Sensitive scopes need tenant admin approval at release; store-app review likely scrutinizes scopes (unverified).",
+    "table": []
+  },
+  "cost": "Free to build (likely); store listing terms unverified",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Developer needs a Lark account in a tenant where they can create apps (developer permission may be restricted by the tenant admin).",
+    "Where you register: Lark Developer Console → Create custom app (or create a store app) → Credentials & Basic Info → Permissions & Scopes → Version Management & Release",
+    "Cost: Free to build (likely); store listing terms unverified"
+  ],
+  "registerAt": {
+    "url": "https://open.larksuite.com/app",
+    "path": "Lark Developer Console → Create custom app (or create a store app) → Credentials & Basic Info → Permissions & Scopes → Version Management & Release"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Decide Lark vs Feishu domain per customer region (open.larksuite.com vs open.feishu.cn)",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create an app in the Developer Console and capture app_id/app_secret",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Select permission scopes and enable bot/web features as needed",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement tenant_access_token minting and, for user actions, the OAuth code flow to obtain user_access_token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Create a version and submit for release; internal tenant admin approves in the Admin Console",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "For external customers, apply for store (ISV) app listing and complete Lark review",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Draft app description, privacy policy and scope justifications for review",
+          "who": "Legal",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Developer needs a Lark account in a tenant where they can create apps (developer permission may be restricted by the tenant admin).",
+    "console": "App collaborators can be added in the Developer Console (likely, under app Collaborators); not verified.",
+    "customer": "Tenant admin must approve a custom app release and any admin-only scopes in the Lark Admin Console; admins can restrict availability scope.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a free Lark tenant and a custom app there; release it internally with your own admin.",
+    "Test store-app flows only after Lark grants a test listing (unverified)."
+  ],
+  "blockers": [
+    {
+      "problem": "Custom apps cannot be installed in other tenants",
+      "fix": "Use a store app for multi-company use."
+    },
+    {
+      "problem": "Lark vs Feishu tenants do not interoperate",
+      "fix": "Build region-aware config."
+    },
+    {
+      "problem": "Admin approval pending",
+      "fix": "Customer admin must approve scopes in the Admin Console or calls return permission errors."
+    },
+    {
+      "problem": "Docs site is JS-rendered",
+      "fix": "Use official SDKs and API explorer to confirm flows."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write token-minting and OAuth code, wire event subscriptions, draft listing copy and scope justifications, run test calls.",
+    "humanMust": "Create the app and complete tenant admin approvals; submit the store listing; any business verification Lark requires."
+  },
+  "uncertain": [
+    "Both Lark doc fetches returned only page metadata, so everything here is from background knowledge, not confirmed 2026 docs.",
+    "Store-app review process, timelines, fees and whether non-listed apps can be installed cross-tenant are unconfirmed."
+  ],
+  "sources": [
+    {
+      "url": "https://open.larksuite.com/document/home/introduction-to-custom-app-development/self-built-application-development-process",
+      "label": "open.larksuite.com/document/home/introduction-to-custom-app-developmen…"
+    },
+    {
+      "url": "https://open.larksuite.com/document/uAjLw4CM/ukTMukTMukTM/reference/auth-v3/auth/overview",
+      "label": "open.larksuite.com/document/uAjLw4CM/ukTMukTMukTM/reference/auth-v3/au…"
+    }
+  ]
+}

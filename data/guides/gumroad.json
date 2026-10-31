@@ -1,0 +1,143 @@
+{
+  "schema": 3,
+  "id": "gumroad",
+  "name": "Gumroad",
+  "category": "Ecommerce",
+  "website": "gumroad.com/api",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 48,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "self",
+  "verdict": "Likely self-serve: create an application in Gumroad settings and run OAuth, probably in 1-3 days. No review was found, but every detail is from background knowledge, so confidence is low.",
+  "needGuide": "Short one, but confirm the registration steps and scopes in a browser first.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Likely OAuth 2.0 authorization code against gumroad.com/oauth/authorize and /oauth/token with scopes such as view_profile, edit_products, view_sales, mark_sales_as_shipped, refund_sales; access tokens likely do not expire and there is likely no refresh token. API base api.gumroad.com/v2. Based on background knowledge: the docs page rendered empty when fetched.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unverified)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None found. Applications are self-serve, with no documented review or listing requirement (unverified).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "A few scopes (view_sales, edit_products, refund_sales…); refunds and edits are the sensitive ones, with no review known.",
+    "summary": "Likely: view_profile, edit_products, view_sales, mark_sales_as_shipped, refund_sales (and possibly account). Refunds and product edits are the sensitive ones; no review process is known.",
+    "table": []
+  },
+  "cost": "Free",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Gumroad creator account owned by the company (likely one login per account; no team seats confirmed).",
+    "Where you register: Likely Gumroad Settings → Advanced → Applications → Create application (name, redirect URI, icon); yields Application ID and Secret. Not verified.",
+    "Cost: Free"
+  ],
+  "registerAt": {
+    "url": "https://gumroad.com/api",
+    "path": "Likely Gumroad Settings → Advanced → Applications → Create application (name, redirect URI, icon); yields Application ID and Secret. Not verified."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create the Gumroad application in settings and record Application ID/Secret and redirect URI",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Implement the authorize redirect with chosen scopes and state",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Exchange the code at the token endpoint and store the access token encrypted per creator",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate with GET /v2/user and /v2/products, then list sales if scope allows",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Register resource subscriptions (webhook-style pings) for sales if needed and handle revoked tokens",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a second seller account to confirm the flow works for external users",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Gumroad creator account owned by the company (likely one login per account; no team seats confirmed).",
+    "console": "none documented.",
+    "customer": "The creator (seller) who owns the Gumroad account clicks Authorize; no workspace admin layer.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own seller account with free or low-priced test products; also generate an access token for your own account for quick tests.",
+    "Whether Gumroad offers a sandbox is unknown."
+  ],
+  "blockers": [
+    {
+      "problem": "Docs are not machine-readable (the page rendered empty)",
+      "fix": "Confirm endpoint names in a browser before coding."
+    },
+    {
+      "problem": "Likely long-lived tokens with no refresh",
+      "fix": "Provide revoke/disconnect UX and rotate on 401."
+    },
+    {
+      "problem": "Request only view_sales or view_profile unless the agent truly needs refunds or edits",
+      "fix": ""
+    },
+    {
+      "problem": "Gumroad has no known multi-user team model",
+      "fix": "One seller login may be shared."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth flow, API client and webhook handlers, and draft the permission-explanation copy.",
+    "humanMust": "Log in to create the OAuth application and handle any 2FA; the customer clicks Authorize."
+  },
+  "uncertain": [
+    "Gumroad API docs and help-center pages returned only page metadata (JS-rendered/redirected), so every Gumroad detail here is background knowledge.",
+    "Scope names, token lifetime, and the registration menu path need to be confirmed in a browser.",
+    "A later fetch rate limit prevented a retry."
+  ],
+  "sources": [
+    {
+      "url": "https://gumroad.com/api",
+      "label": "gumroad.com/api"
+    },
+    {
+      "url": "https://gumroad.com/help",
+      "label": "gumroad.com/help"
+    }
+  ]
+}

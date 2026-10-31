@@ -1,0 +1,150 @@
+{
+  "schema": 3,
+  "id": "bigcommerce",
+  "name": "BigCommerce",
+  "category": "Ecommerce",
+  "website": "developer.bigcommerce.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 43,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "review",
+  "verdict": "Draft apps are for testing. Reaching all merchants needs approval for the BigCommerce App Marketplace; requirements and timeline were not retrieved, likely several weeks.",
+  "needGuide": "Yes — read the marketplace requirements guide before building, since approval gates public installs.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Single-click apps: merchant installs, BigCommerce calls your GET /auth callback with code, scope and context (stores/{hash}); you POST to https://login.bigcommerce.com/oauth2/token and get a per-store access token with no refresh-token flow. Merchants must accept all scopes; a scope change or merchant email change invalidates the token and re-prompts. Separate load, uninstall and remove_user callbacks. Docs call the token both semi-permanent and permanent.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "1-2 hours (sandbox store + ngrok)",
+    "timeToProduction": "unknown (marketplace review length not documented on fetched pages; likely several weeks)",
+    "firstShort": "1–2 hours",
+    "prodShort": "Unknown (likely weeks)",
+    "difficulty": "Moderate",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Apps become available to all merchants only after approval for the BigCommerce App Marketplace (requirements are in a separate guide that was not retrieved). Per the docs, apps approved for public listing can mint tokens for any store owner or authorized user. Partner program application is recommended if charging for the app. Draft apps are for testing, likely only on the developer's own or sandbox stores.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Scopes are fixed in the app profile, merchants can't pick a subset, and changing scopes forces re-acceptance.",
+    "summary": "Scopes are chosen in the app profile (products, orders, customers, content, carts and so on, each read-only or modify). Merchants cannot pick a subset, and changing scopes forces re-acceptance. Whether sensitive scopes get extra scrutiny at approval was not confirmed.",
+    "table": []
+  },
+  "cost": "Free to build and test; Partner program terms and any marketplace revenue share not confirmed.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A company-owned Developer Portal account created with a shared company email; the same identity owns the sandbox store and draft app installs.",
+    "Where you register: Developer Portal (Dev Tools) → My Apps → Create an app; set callback URLs and scopes in the app profile; copy client_id and client_secret. (Portal URL and menu names not confirmed.)",
+    "Cost: Free to build and test; Partner program terms and any marketplace revenue share not confirmed."
+  ],
+  "registerAt": {
+    "url": "https://devtools.bigcommerce.com/",
+    "path": "Developer Portal (Dev Tools) → My Apps → Create an app; set callback URLs and scopes in the app profile; copy client_id and client_secret. (Portal URL and menu names not confirmed.)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Register a company Developer Portal account and create a sandbox store",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create the app in the Developer Portal and set auth, load, uninstall and remove_user callback URLs plus minimal scopes",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement GET /auth: validate scopes, POST code to https://login.bigcommerce.com/oauth2/token, persist access_token, scope, context and user",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement load callback (signed payload verification), uninstall and remove_user handlers",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Install the draft app on the sandbox store through a tunnel and test the iframe UI and API calls with X-Auth-Token",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Draft the marketplace listing, privacy policy and support docs; apply to the Partner program if monetizing",
+          "who": "Legal",
+          "agent": true
+        },
+        {
+          "do": "Submit the app for approval and fix review feedback",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A company-owned Developer Portal account created with a shared company email; the same identity owns the sandbox store and draft app installs.",
+    "console": "none documented on fetched pages.",
+    "customer": "The store owner (or a user allowed to install apps) clicks install, sees the full scope list and must accept all of it. Re-consent is required after scope changes.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create a free BigCommerce sandbox store; install the draft app; expose localhost via ngrok or another tunnel; starter apps exist for Node/Next.js, Python, PHP, Ruby, Laravel."
+  ],
+  "blockers": [
+    {
+      "problem": "If the /auth or /load callback does not respond, the merchant sees a blank screen",
+      "fix": "Return quickly and log failures."
+    },
+    {
+      "problem": "Scope changes invalidate tokens",
+      "fix": "Keep scopes minimal from the first release."
+    },
+    {
+      "problem": "Draft apps are probably not installable by arbitrary customers, so pilots with real merchants may need store-level API accounts (merchant-created token) until approval",
+      "fix": "Not confirmed."
+    },
+    {
+      "problem": "Marketplace approval requirements live in a separate guide",
+      "fix": "Read it before building the UI."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth/callback server and API client, set up ngrok-based test flows, and draft listing copy and policy pages.",
+    "humanMust": "Register the portal account, accept the developer and Partner agreements, submit for approval, and have a merchant owner click install."
+  },
+  "uncertain": [
+    "Draft app installation limits, approval requirements, review timeline, Partner program fee, and the Developer Portal URL were not retrieved (fetch limit reached).",
+    "Official domain redirects from developer.bigcommerce.com to docs.bigcommerce.com for some pages."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.bigcommerce.com/docs/integrations/apps",
+      "label": "developer.bigcommerce.com/docs/integrations/apps"
+    },
+    {
+      "url": "https://docs.bigcommerce.com/developer/docs/integrations/apps/introduction",
+      "label": "docs.bigcommerce.com/developer/docs/integrations/apps/introduction"
+    },
+    {
+      "url": "https://docs.bigcommerce.com/developer/docs/integrations/apps/guide/auth",
+      "label": "docs.bigcommerce.com/developer/docs/integrations/apps/guide/auth"
+    }
+  ]
+}

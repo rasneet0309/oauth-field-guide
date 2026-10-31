@@ -1,0 +1,136 @@
+{
+  "schema": 3,
+  "id": "liveagent",
+  "name": "LiveAgent",
+  "category": "Support & Helpdesk",
+  "website": "liveagent.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 16,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "key",
+  "verdict": "No OAuth or review was found. Each customer's admin likely generates an API key and shares their account URL, though most details are unconfirmed (low confidence); likely 1-3 days.",
+  "needGuide": "No — just collect the account URL and API key, but verify where the key lives in a test account first.",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "LiveAgent's public support examples pass an apikey parameter (query string on GET, form field on POST/DELETE). No OAuth was found, but the official developer portal could not be read (robots disallowed), so this is unconfirmed. Base URL is likely per customer (own domain).",
+    "userOAuth": "no",
+    "access": "Not offered"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (API-key paste); unknown if a marketplace exists",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days (unconfirmed)",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None found for API-key use. Any OAuth or partner program is unknown.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scopes documented; the key likely inherits its owner's agent permissions.",
+    "summary": "No scopes documented; likely inherits the key owner's agent permissions.",
+    "table": []
+  },
+  "cost": "Requires a LiveAgent account on a plan with API access (likely paid; 14-day trial likely)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A LiveAgent account (trial) with an administrator to generate an API key.",
+    "Where you register: Customer: LiveAgent admin → Configuration → System → API (likely; not confirmed in fetched pages)",
+    "Cost: Requires a LiveAgent account on a plan with API access (likely paid; 14-day trial likely)"
+  ],
+  "registerAt": {
+    "url": "https://support.liveagent.com/061754-How-to-make-REST-API-calls-in-Postman",
+    "path": "Customer: LiveAgent admin → Configuration → System → API (likely; not confirmed in fetched pages)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Build a connect form asking for LiveAgent account URL and API key",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Customer admin generates an API key in LiveAgent settings (verify UI path in the customer account)",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Validate with a read-only call (e.g. list conversations) using the apikey; avoid putting the key in logged URLs",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store the key encrypted and give customers revocation instructions",
+          "who": "Security",
+          "agent": true
+        },
+        {
+          "do": "Email LiveAgent to ask whether OAuth or a partner integration program exists",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A LiveAgent account (trial) with an administrator to generate an API key.",
+    "console": "none documented",
+    "customer": "A LiveAgent administrator who generates the key and shares the account URL (likely).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a LiveAgent trial account and Postman per the support article.",
+    "Sandbox limits not documented."
+  ],
+  "blockers": [
+    {
+      "problem": "GET examples put apikey in the URL",
+      "fix": "It can leak into proxy and access logs, so prefer POST or headers if supported."
+    },
+    {
+      "problem": "Per-customer domains",
+      "fix": "Collect the exact account URL instead of assuming one host."
+    },
+    {
+      "problem": "Docs hard to reach",
+      "fix": "Developer.liveagent.com disallows automated fetches, so read it manually."
+    },
+    {
+      "problem": "Plan limits on API access are unverified",
+      "fix": "Confirm on the customer's plan."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the API-key connection flow and validation calls and draft customer setup instructions and a vendor inquiry email.",
+    "humanMust": "Customer admin creates the key; a human reads the developer portal and confirms plan requirements, and contacts LiveAgent about OAuth."
+  },
+  "uncertain": [
+    "Almost everything: API key location, header vs query use, OAuth availability, plan gating, rate limits. developer.liveagent.com was blocked by robots rules and liveagent.com/api had no auth details."
+  ],
+  "sources": [
+    {
+      "url": "https://support.liveagent.com/061754-How-to-make-REST-API-calls-in-Postman",
+      "label": "support.liveagent.com/061754-How-to-make-REST-API-calls-in-Postman"
+    },
+    {
+      "url": "https://www.liveagent.com/api/",
+      "label": "liveagent.com/api"
+    }
+  ]
+}

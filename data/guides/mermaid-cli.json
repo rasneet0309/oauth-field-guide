@@ -1,0 +1,129 @@
+{
+  "schema": 3,
+  "id": "mermaid-cli",
+  "name": "Mermaid CLI",
+  "category": "AI, Research & Media",
+  "website": "github.com/mermaid-js/mermaid-cli",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 98,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "none",
+  "verdict": "No connector path: it is a local rendering tool that needs no customer account or approval. Run it on your own server and handle Chromium sandboxing in containers; under a day.",
+  "needGuide": "No — just install it and run mmdc; there is nothing for customers to connect.",
+  "auth": {
+    "model": "No auth (local tool)",
+    "detail": "Local command-line tool (`mmdc`) that renders Mermaid diagrams to SVG, PNG or PDF. The README mentions no account, API key or login. Network access is only needed to install it, or if a diagram loads icon packs from a URL.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "under 30 min",
+    "timeToProduction": "under 1 day",
+    "firstShort": "Under 30 min",
+    "prodShort": "Under 1 day",
+    "difficulty": "N/A",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "None. Runs on your own machine or server; no customer account connects. Production concerns are Chromium/Puppeteer sandboxing in containers.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": null,
+    "kind": "No connector path"
+  },
+  "scopes": {
+    "complexity": "N/A",
+    "why": "Local tool; no authentication or permissions apply.",
+    "summary": "None. No authentication or permissions apply.",
+    "table": []
+  },
+  "cost": "Free (open source; license not checked)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any developer who can install Node packages or run a container on the agent's host.",
+    "Where you register: No registration. Install with `npm install -g @mermaid-js/mermaid-cli`.",
+    "Cost: Free (open source; license not checked)"
+  ],
+  "registerAt": {
+    "url": "https://github.com/mermaid-js/mermaid-cli",
+    "path": "No registration. Install with `npm install -g @mermaid-js/mermaid-cli`."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Install Node.js, then run `npm install -g @mermaid-js/mermaid-cli` (Homebrew is no longer supported).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Render a test file with `mmdc -i input.mmd -o output.svg` (or .png / .pdf).",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "In containers or CI, pass a puppeteer-config.json via `-p` to handle the Linux sandbox issue, or use the official Docker image.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Wrap the CLI as an agent tool: write the diagram text to a temp file, run mmdc and return the output file.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Validate diagram input and limit render time and file size to guard against abuse.",
+          "who": "Security",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any developer who can install Node packages or run a container on the agent's host.",
+    "console": "none documented",
+    "customer": "None. No customer approval or account is needed because rendering is local.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Run `mmdc -i input.mmd -o output.svg` locally.",
+    "Docker and Podman images and `npx -p @mermaid-js/mermaid-cli mmdc` also work.",
+    "Check output on a Linux CI image."
+  ],
+  "blockers": [
+    {
+      "problem": "Headless Chromium sandbox errors on Linux or Docker",
+      "fix": "Use the repo's puppeteer-config.json guidance or run the Docker image."
+    },
+    {
+      "problem": "Needs a Chromium download via Puppeteer, which can fail behind a proxy",
+      "fix": "Use an already-installed Chromium as per the known-issues docs."
+    },
+    {
+      "problem": "Rendering untrusted diagram text on a server",
+      "fix": "Sandbox the process and set timeouts."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Install the tool, write and render Mermaid diagrams, set up the Docker or CI configuration, and wrap it as a tool.",
+    "humanMust": "Nothing beyond approving installation on the host."
+  },
+  "uncertain": [
+    "License and exact Node and Chromium version requirements were not read from the page."
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/mermaid-js/mermaid-cli",
+      "label": "github.com/mermaid-js/mermaid-cli"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "$comment": "Apps with no provider approval to start but a provider gate at scale, quoted from each app's research (productionGate). Shown next to 'Provider approval: Not required'.",
+  "discord": "Verification once the bot nears 100 servers; privileged intents need approval",
+  "xero": "App Certification above 50 connected organisations"
+}

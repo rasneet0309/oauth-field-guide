@@ -1,0 +1,755 @@
+[
+  {
+    "n": 1,
+    "id": "salesforce",
+    "name": "Salesforce",
+    "category": "CRM & Sales",
+    "website": "salesforce.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code flow (PKCE is the ECA default) with refresh tokens via the refresh_token / offline_access scope. Each customer org has its own instance_url (My Domain); sandboxes log in at test.salesforce.com. Access tokens last about 2 hours by default and customer admins can change that. Enable 'Introspect All Tokens' because Salesforce does not return expiry.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://help.salesforce.com/s/articleView?id=xcloud.create_a_local_external_client_app.htm",
+      "path": "Setup → External Client App Manager → New External Client App (Enable OAuth, add callback URL and scopes, set Distribution State to Packaged). Connected Apps are no longer the default path."
+    },
+    "access": "Self-serve",
+    "productionGate": "As of Spring '26 new Connected Apps cannot be created without a Support request (UI and Metadata API; package install excepted), so register an External Client App (ECA) instead. To reach other customers' orgs the ECA is distributed inside a package that the customer admin installs (likely a 2GP package; packaging mechanics not confirmed from docs). Listing on AgentExchange (formerly AppExchange) requires the ISV Partner Program, a verified Partner Business Org and a mandatory Security Review. Likely, but not confirmed: since 2025 customer orgs also restrict authorization of uninstalled connected apps and admins can limit API access to approved apps.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "1–2 hours",
+    "timeToProduction": "1–3 weeks unlisted (package + customer admin install); roughly 6–12+ weeks incl. security review and listing (unverified estimate)",
+    "cost": "Developer Edition free. ISV Partner Program membership and security review fee apply for listing; amounts not confirmed in the docs I could read.",
+    "roles": {
+      "team": "System Administrator in a company-owned Developer Edition org (not a personal login). Packaging needs a Dev Hub-enabled org and namespace. Listing needs a verified Partner Business Org and ISV Partner Program signup.",
+      "console": "No separate developer console; collaborators are org users with the right permission sets. Partner Community/Partner Console roles for security review submissions are not documented in what I read.",
+      "customer": "A Salesforce admin must install the package or ECA, approve it (admin-approved users / permission sets) and keep API Enabled on user profiles. Admin controls that can block: connected-app and ECA creation settings, OAuth usage policies, IP relaxation, API access controls."
+    },
+    "testing": "Free Developer Edition orgs, scratch orgs and customer sandboxes. A Developer Edition org is not a sandbox. Install the package into a second Developer Edition or sandbox org to rehearse the customer flow. No stated user caps for unlisted testing.",
+    "steps": [
+      {
+        "do": "Sign up for a company-owned Developer Edition org at developer.salesforce.com/signup",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Enable Dev Hub and register a namespace if you will package (Setup → Dev Hub)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create the app: Setup → External Client App Manager → New External Client App; enable OAuth, callback URL, scopes api, refresh_token, openid; require PKCE; Distribution State: Packaged",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement authorization-code + PKCE and token refresh; store instance_url per connection and call login.salesforce.com or My Domain",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Package the ECA (2GP) and install it in a separate sandbox or Developer Edition org; verify admin-approved-user policy",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Provide the customer admin an install link and checklist (install package, assign permission set, confirm API Enabled)",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "For AgentExchange listing: join the ISV Partner Program, verify the Partner Business Org, run Code Analyzer scans and submit the Security Review",
+        "who": "Security",
+        "agent": false
+      }
+    ],
+    "scopes": "OAuth scopes: api (REST data), refresh_token/offline_access, openid/id, full, web. Data access is also limited by the connecting user's profile and field-level security. Security review is triggered by the distribution route (listing), not by individual scopes.",
+    "blockers": [
+      "New Connected Apps are blocked since Spring '26: build an ECA, or ask Support to enable creation (Support will not be able to once connected apps reach end of support).",
+      "Customer admins may refuse uninstalled or unreviewed apps: ship via package and give admins an install guide.",
+      "Security review is mandatory for AgentExchange listings and typically slow: submit early and run Code Analyzer first.",
+      "Wrong login host for sandboxes or My Domain orgs: store the instance and login host per connection."
+    ],
+    "agentCan": "Write the OAuth/PKCE client and token-refresh code, generate ECA and package metadata, script package creation with the sf CLI, draft the admin install guide and security review documentation, run test API calls.",
+    "humanMust": "Sign up for orgs, accept Partner Program terms, verify the Partner Business Org, pay review fees, submit and answer the security review, and have the customer admin install and approve.",
+    "confidence": "Medium",
+    "uncertain": "Salesforce Help articles (ECA setup, API Access Control, uninstalled connected app approval) did not render, so the 2025 admin restriction, the exact ECA packaging rules and the security review fee and timeline are unverified. The web fetch limit was then hit.",
+    "sources": [
+      "https://help.salesforce.com/s/articleView?id=005228017&type=1",
+      "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_oauth_and_connected_apps.htm",
+      "https://developer.salesforce.com/docs/platform/isvforce/guide/security-review-create-secure-solution.html",
+      "https://developer.salesforce.com/docs/platform/isvforce/guide/appexchange-partner-start.html",
+      "https://docs.nango.dev/integrations/all/salesforce"
+    ]
+  },
+  {
+    "n": 2,
+    "id": "hubspot",
+    "name": "HubSpot",
+    "category": "CRM & Sales",
+    "website": "hubspot.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code flow at app.hubspot.com/oauth/authorize; code exchanged at /oauth/v3/token for access and refresh tokens. Access tokens are short-lived (about 30 minutes, likely; the page did not state it). PKCE is not documented. Production redirect URIs must be HTTPS; http://localhost is allowed for testing.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/create-an-app",
+      "path": "HubSpot CLI: hs account auth → hs project create (base: App; distribution: marketplace; auth: oauth) → hs project upload → hs project open → Auth tab for client ID/secret. Legacy 'Create app' in the developer account is no longer available: legacy public apps cannot be created as of June 23, 2026."
+    },
+    "access": "Self-serve",
+    "productionGate": "No approval to install on arbitrary accounts: unlisted OAuth apps install with an 'unverified' or 'not reviewed' banner (verifying your domain softens it). Marketplace listing is optional but needs at least 3 active unique installs from unaffiliated production accounts, the Technology Partner Program Agreement, OAuth as the only auth method, and review by Ecosystem Quality (initial review within 10 business days, whole process up to 60 days after feedback; one submission at a time).",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days unlisted; about 3–10 weeks for a Marketplace listing (needs 3 live installs first)",
+    "cost": "Free developer account and test accounts; no listing fee found",
+    "roles": {
+      "team": "Any developer with a HubSpot developer account; use a company-owned developer account so the app is not tied to one person. The CLI needs a personal access key.",
+      "console": "Developer account user management and project-level permissions exist but role details were not in the pages I read.",
+      "customer": "Installer must be a Super Admin or hold Marketplace Access permission. Users without access to a required scope cannot install; optional scopes get dropped silently."
+    },
+    "testing": "Free developer test accounts (Development → Test accounts); install via the project's Distribution tab and tick the box to allow an unverified app. hs project dev gives local development. Install caps for unlisted apps are not documented in what I read.",
+    "steps": [
+      {
+        "do": "Create a HubSpot developer account under a company email and install the HubSpot CLI (v7.6.0 or newer)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Run hs project create, choose App, distribution marketplace, auth oauth; edit app-hsmeta.json with redirectUrls and scopes",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Set requiredScopes minimal and move tier-dependent scopes to optionalScopes or conditionallyRequiredScopes",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "hs project upload, open the project, copy client ID and secret from the Auth tab into your server",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Create a developer test account and install via Distribution → test install; run the OAuth flow end to end",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Verify your domain and publish the install URL to customers; Super Admins install",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Optional listing: accept Technology Partner Program Agreement, complete listing fields and public docs, submit after 3 active installs",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "requiredScopes must be granted or install fails; optionalScopes are dropped when the account lacks the feature; conditionallyRequiredScopes apply only if in the install URL scope parameter. Listing review expects only scopes actually used and a shared-data table matching them. AI connectors must use user-level permissions or HubSpot's MCP Server.",
+    "blockers": [
+      "Legacy public apps can no longer be created: use projects on the 2025.2 or 2026.03 platform.",
+      "Listing needs 3 active unique installs before review: run unlisted installs with early customers first.",
+      "Over-requested scopes fail install for non-Super Admins or lower tiers: use optional scopes.",
+      "An AI connector that does not use user-level permissions may be refused listing: align with the MCP guidance."
+    ],
+    "agentCan": "Scaffold the project and app-hsmeta.json, run hs CLI upload commands, write OAuth and refresh code, draft listing copy, public setup docs and the shared-data table, run test API calls.",
+    "humanMust": "Create and log in to the developer account, accept the Technology Partner Program Agreement, verify the domain, and have a customer Super Admin install.",
+    "confidence": "Medium",
+    "uncertain": "Numeric install cap for unlisted apps, exact access-token lifetime, PKCE support and developer-account roles were not confirmed.",
+    "sources": [
+      "https://developers.hubspot.com/docs/apps/legacy-apps/public-apps/overview",
+      "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/create-an-app",
+      "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/app-configuration",
+      "https://developers.hubspot.com/docs/apps/developer-platform/list-apps/listing-your-app/app-marketplace-listing-requirements",
+      "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/oauth/working-with-oauth"
+    ]
+  },
+  {
+    "n": 3,
+    "id": "pipedrive",
+    "name": "Pipedrive",
+    "category": "CRM & Sales",
+    "website": "pipedrive.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code flow: user consents at /oauth/authorize, code (valid 5 minutes) is exchanged at oauth.pipedrive.com/oauth/token with HTTP Basic client auth. Access token lasts 60 minutes; refresh token expires after 60 days unused (resets on use). Token response returns a per-company api_domain. PKCE is not documented.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://pipedrive.readme.io/docs/marketplace-registering-a-private-app",
+      "path": "Sign up for a developer sandbox account (developers.pipedrive.com) → profile name → Developer Hub → Create an app → Create private app (or Create public app). App type cannot be changed later."
+    },
+    "access": "Self-serve",
+    "productionGate": "Private apps need no review: once made live they can be installed by any Pipedrive company through the installation link. Public Marketplace listing requires mandatory review (up to 21 business days) with a demo video, working test accounts, the Developer Partner Agreement, OAuth 2.0 only and no stored user API tokens. Approval leaves the app unlisted until you click Publish.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days via private app link; up to about 21 business days for public listing",
+    "cost": "Free (sandbox and Developer Hub); no listing fee found",
+    "roles": {
+      "team": "Any developer with a Pipedrive developer sandbox account; use a company-owned account. App review needs a contact email who can answer during review.",
+      "console": "none documented",
+      "customer": "The installing Pipedrive user approves the consent screen (Allow and install) and must have an account in your product. Whether a non-admin may install apps depends on the company's permission set; not confirmed."
+    },
+    "testing": "Developer sandbox account; Install and test works only for users in your sandbox company and cannot be shared externally. A draft private app can be shared only with users of the same company; a live private app can be installed anywhere.",
+    "steps": [
+      {
+        "do": "Sign up for a developer sandbox at developers.pipedrive.com and attest no sanctioned-country operations",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Developer Hub → Create an app → Create private app; set callback URL and scopes on the OAuth & access scopes tab",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization-code exchange, store api_domain, refresh before 60 minutes and at least every 60 days",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Use Install & test in the sandbox, then make the app live to validate the callback URL",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Share the installation link (Share app button) with customers",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Optional public listing: create a public app, fill listing, record demo video, supply test accounts, Send to review, then Publish after approval",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Scopes are fixed at registration; users accept or deny all at once. Request the minimum; reviewers check for necessary scopes only. No scope-specific extra approval was documented.",
+    "blockers": [
+      "Only one callback URL per app: use one redirect endpoint and route by state.",
+      "A live private app cannot revert to draft and changes apply instantly: test in a separate app first.",
+      "Refresh token dies after 60 idle days: schedule keep-alive refreshes.",
+      "Public review can stretch past 21 business days: ship privately first."
+    ],
+    "agentCan": "Write the OAuth client and refresh scheduler, draft listing text, scope justifications and the demo-video script, run sandbox API calls.",
+    "humanMust": "Create the sandbox account, click through Developer Hub, record the demo video, agree to the Developer Partner Agreement, and publish after approval.",
+    "confidence": "High",
+    "uncertain": "Who in a customer company may install apps (admin vs any user) and whether PKCE is supported were not confirmed.",
+    "sources": [
+      "https://pipedrive.readme.io/docs/marketplace-registering-a-private-app",
+      "https://pipedrive.readme.io/docs/marketplace-registering-the-app",
+      "https://pipedrive.readme.io/docs/marketplace-app-approval-process",
+      "https://pipedrive.readme.io/docs/marketplace-oauth-authorization",
+      "https://pipedrive.readme.io/docs/getting-started"
+    ]
+  },
+  {
+    "n": 4,
+    "id": "attio",
+    "name": "Attio",
+    "category": "CRM & Sales",
+    "website": "attio.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization-code flow: authorize at app.attio.com/authorize, exchange at app.attio.com/oauth/token. token_level=workspace (default) or user; user-level tokens require PKCE (S256). Token lifetimes and refresh behavior were not stated in the pages I read.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://build.attio.com",
+      "path": "build.attio.com → New app (name and slug) → OAuth tab: toggle OAuth 2.0, add redirect URIs, copy client ID and secret → Scopes tab"
+    },
+    "access": "Self-serve",
+    "productionGate": "No approval documented for OAuth apps to be authorized by other workspaces (likely none; unconfirmed). Attio's App Store listing has a publication lifecycle and code review (docs.attio.com/share/*), which I could not read. Private invites exist for unlisted sharing.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days unlisted; App Store listing timeline unknown",
+    "cost": "Free Attio account; no developer fee found",
+    "roles": {
+      "team": "Any member of a free Attio workspace can open the developer console; use a company-owned workspace.",
+      "console": "none documented",
+      "customer": "Only workspace admins can grant a workspace-level token. For user-level tokens any member can authorize, but an admin must approve the requested scopes at install; non-admins can send an install request."
+    },
+    "testing": "Use your own Attio workspace (free) as the test tenant; localhost redirect URIs are used in the tutorial. No sandbox limits documented.",
+    "steps": [
+      {
+        "do": "Create or choose a company-owned Attio workspace and open build.attio.com",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "New app → name and slug (slug is permanent)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "OAuth tab: enable OAuth 2.0 and add HTTPS redirect URIs plus localhost for dev; copy client ID and secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Scopes tab: select minimal read/write scopes for records, lists, objects",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement authorization-code exchange; add PKCE and token_level=user if acting as the member",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Install into a test workspace as admin, run test API calls against api.attio.com/v2",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Optional: read the publication lifecycle and code review pages and submit to the App Store, or send private invites",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "API keys and OAuth share one scope set configured in the console; each endpoint lists its required scopes. Typical agent scopes: record read/write, list read/write, object configuration. Webhooks accept only workspace-level tokens.",
+    "blockers": [
+      "Non-admins cannot grant workspace tokens: instruct customers to ask an admin or use an install request.",
+      "User-level tokens fail without PKCE S256: implement code_challenge.",
+      "App Store listing requirements (code review) not verified: read docs.attio.com/share/code-review.md before promising a date.",
+      "Redirect URIs must match exactly: register every environment."
+    ],
+    "agentCan": "Write the OAuth/PKCE client, choose scopes, run test calls, draft listing copy and images brief.",
+    "humanMust": "Log in to build.attio.com, copy secrets, have a customer admin authorize, and complete any App Store submission.",
+    "confidence": "Medium",
+    "uncertain": "Token lifetime and refresh details, whether unpublished apps can be installed by other workspaces, and App Store review timeline were not confirmed (the publishing pages could not be fetched before the fetch limit was hit).",
+    "sources": [
+      "https://docs.attio.com/rest-api/tutorials/connect-an-app-through-oauth",
+      "https://docs.attio.com/rest-api/guides/authentication",
+      "https://docs.attio.com/llms.txt",
+      "https://docs.nango.dev/integrations/all/attio"
+    ]
+  },
+  {
+    "n": 5,
+    "id": "twenty",
+    "name": "Twenty",
+    "category": "CRM & Sales",
+    "website": "twenty.com",
+    "authModel": "API key / token only",
+    "authDetail": "Likely: per-workspace API keys used as Bearer tokens against REST and GraphQL; cloud uses Twenty's hosted API, self-hosted uses the instance's own domain. Twenty also has an Apps framework (TypeScript packages) per its docs index; whether it exposes third-party OAuth was not verified.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.twenty.com/llms.txt",
+      "path": "No developer-registered OAuth app confirmed. The customer's workspace admin creates the key in Settings → APIs & Webhooks → Create API key (path from memory, not verified)."
+    },
+    "access": "Not offered",
+    "productionGate": "None for API keys: each customer generates a key in their own workspace and pastes it into your app along with the base URL (cloud vs self-hosted). Likely no marketplace review, but unverified.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15–30 min",
+    "timeToProduction": "1–3 days (no review)",
+    "cost": "Free to self-host or try cloud; key creation likely free",
+    "roles": {
+      "team": "Any developer with access to a Twenty workspace (self-hosted via Docker or a cloud workspace).",
+      "console": "none documented",
+      "customer": "A workspace admin (or role with API and Webhooks permission, likely) creates and shares the key, and may assign it a role that limits data access (likely)."
+    },
+    "testing": "Self-host with Docker or use a Twenty cloud trial workspace as the test tenant; both are free to start.",
+    "steps": [
+      {
+        "do": "Spin up a test workspace (docker self-host or cloud signup)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Settings → APIs & Webhooks → Create API key with an expiry; copy once",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Build a connect screen that takes base URL plus API key; normalize cloud vs self-hosted URL",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with a test call (list people) before saving; store key encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Document for customers how admins create a least-privilege role-scoped key",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Check whether the Twenty Apps framework or OAuth for apps has shipped before launch",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Likely no per-scope model: permissions follow the role assigned to the API key; metadata API access may require an elevated role. Unverified.",
+    "blockers": [
+      "Self-hosted instances sit behind private networks or odd domains: let users enter a base URL and allow-list your egress IPs.",
+      "API keys expire: surface expiry and a re-enter flow.",
+      "Key shown only once: tell admins to copy immediately.",
+      "Schema is workspace-specific (custom objects): discover fields via the metadata API."
+    ],
+    "agentCan": "Write the key-entry flow, URL normalization, validation call and schema discovery code, draft customer setup docs.",
+    "humanMust": "A customer admin must create the key and share it; no legal or review steps known.",
+    "confidence": "Low",
+    "uncertain": "The Twenty docs for API keys and OAuth could not be fetched (rate limit hit); everything beyond the docs index is from prior knowledge. Check whether OAuth for apps now exists.",
+    "sources": [
+      "https://docs.twenty.com/llms.txt",
+      "https://docs.twenty.com/getting-started/core-concepts/apps.md",
+      "https://docs.twenty.com/getting-started/quickstart.md"
+    ]
+  },
+  {
+    "n": 6,
+    "id": "podio",
+    "name": "Podio",
+    "category": "CRM & Sales",
+    "website": "podio.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Likely: server-side authorization-code flow (podio.com/oauth/authorize, token at api.podio.com/oauth/token), plus client-side, password and app-authentication flows. Access tokens last about 8 hours with a refresh token. Unverified this session.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.podio.com/authentication",
+      "path": "Logged-in Podio user → Account Settings → API Keys (podio.com/settings/api): register a key tied to your domain to get client ID and secret (from memory, not verified)."
+    },
+    "access": "Self-serve",
+    "productionGate": "None known: any registered API key can use the authorization-code flow against any Podio user's account. No marketplace review is known for API clients.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days (no review)",
+    "cost": "Free to register an API key; Podio has paid plans for customers",
+    "roles": {
+      "team": "Any Podio user can register an API key; use a company-owned Podio account, since the key belongs to the account that created it.",
+      "console": "none documented",
+      "customer": "The connecting Podio user approves access to workspaces and orgs they belong to; org admins may limit membership and API usage (likely)."
+    },
+    "testing": "Free Podio account and a test organization or workspace; no separate sandbox. API rate limits apply (about 1000 calls per hour, from memory).",
+    "steps": [
+      {
+        "do": "Create a company Podio account and a test workspace",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Register an API key in Account Settings with your app domain; copy client ID and secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement server-side authorization-code flow with a redirect on the registered domain",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store access and refresh tokens; refresh before the roughly 8-hour expiry",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test calls against org, space and app item endpoints; handle rate limiting",
+        "who": "QA",
+        "agent": true
+      }
+    ],
+    "scopes": "Likely a coarse scope parameter (for example global:all) rather than fine-grained scopes; permissions follow the user's Podio access. Unverified.",
+    "blockers": [
+      "Redirect URI must match the domain registered on the API key: register the production domain.",
+      "Rate limits are low and shared per user: batch and cache.",
+      "Account-based keys are tied to a person: register under a shared company account.",
+      "Podio's product direction under its owner may change: confirm status before building."
+    ],
+    "agentCan": "Write the OAuth client, refresh logic and API wrappers, run test calls.",
+    "humanMust": "Register the API key in the UI and have the customer authorize.",
+    "confidence": "Low",
+    "uncertain": "The Podio authentication page could not be fetched (hourly fetch limit hit). All details are from prior knowledge: token lifetime, scope model, registration path, rate limits.",
+    "sources": [
+      "https://developers.podio.com/authentication",
+      "https://developers.podio.com/"
+    ]
+  },
+  {
+    "n": 7,
+    "id": "zoho-crm",
+    "name": "Zoho CRM",
+    "category": "CRM & Sales",
+    "website": "zoho.com/crm",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Likely: authorization-code flow at accounts.zoho.<dc>/oauth/v2/auth with access_type=offline for a refresh token. Access tokens last 1 hour; refresh tokens do not expire but a per-user cap applies (about 20 per client, oldest dropped) and access-token minting is rate-limited. Responses return location, accounts-server and api_domain for the customer's data center. Unverified this session.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://api-console.zoho.com",
+      "path": "api-console.zoho.com (use the regional console for EU, IN, AU, JP, CA, SA, CN) → Add Client → Server-based Applications → set homepage and redirect URI, copy client ID and secret"
+    },
+    "access": "Self-serve",
+    "productionGate": "No approval to connect: a Server-based client works for any Zoho CRM org. Enable the multi-data-center option so one client works across regions, then route each user to their own accounts and api_domain host. Zoho Marketplace publishing is separate, optional and reviewed.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "1–3 days (no review); Marketplace listing takes weeks (unverified)",
+    "cost": "Free API console; Zoho CRM edition limits apply to customers' API credits",
+    "roles": {
+      "team": "Any Zoho account holder can create clients; use a company-owned Zoho account, since clients are tied to the creating user.",
+      "console": "none documented",
+      "customer": "A Zoho CRM user authorizes within their profile permissions; admins can limit API access and manage Connected Apps (likely). An admin is typically needed for org-wide scopes such as settings or users."
+    },
+    "testing": "Self Client in the API Console generates a short-lived grant token (about 10 minutes) for server-side testing. Test data centers matter: create the test org in the same region you will call. Zoho CRM trial or free edition for tests; sandbox needs higher editions (likely).",
+    "steps": [
+      {
+        "do": "Create a company Zoho account and a test CRM org",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Open api-console.zoho.com → Add Client → Server-based Applications; add redirect URI; tick use-same-credentials for all data centers",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Build authorization URL per DC with scope ZohoCRM.modules.ALL (add others as needed), access_type=offline, prompt=consent",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exchange the code at the accounts-server value returned; save refresh token, api_domain and location",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call the CRM API at api_domain; refresh the access token hourly",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with users in two data centers (for example com and eu)",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "Granular scopes such as ZohoCRM.modules.ALL, ZohoCRM.modules.contacts.READ, ZohoCRM.settings.READ, ZohoCRM.users.READ, ZohoCRM.org.READ. No scope review applies to direct OAuth use; Marketplace review is separate.",
+    "blockers": [
+      "Data centers: a user's account lives in one region; use the accounts-server and api_domain returned, never hardcode zoho.com.",
+      "Refresh-token cap per user per client: persist and reuse tokens instead of reauthorizing.",
+      "Wrong client type (Self Client in production) fails: use Server-based.",
+      "Excess access-token requests are throttled: cache tokens for an hour."
+    ],
+    "agentCan": "Write multi-DC OAuth code, token store and refresh logic, scope selection and test calls.",
+    "humanMust": "Create the client in API Console, and have the customer user or admin authorize.",
+    "confidence": "Low",
+    "uncertain": "Not fetched this session (hourly fetch limit hit), so all Zoho details come from prior knowledge. Confirm the refresh-token and access-token limits, the region list and sandbox edition requirements in the Zoho OAuth docs.",
+    "sources": [
+      "https://www.zoho.com/crm/developer/docs/api/v8/oauth-overview.html",
+      "https://api-console.zoho.com"
+    ]
+  },
+  {
+    "n": 8,
+    "id": "close",
+    "name": "Close",
+    "category": "CRM & Sales",
+    "website": "close.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Likely: authorization-code flow (app.close.com/oauth2/authorize, token at api.close.com/oauth2/token) with offline_access for refresh tokens and a one-hour access token. Unverified this session.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developer.close.com/integrations/create-an-oauth-app",
+      "path": "Close → Settings → Developer → OAuth Apps → Create App. The app is private to your own Close organization until Close approves it."
+    },
+    "access": "Application/approval required",
+    "productionGate": "Mandatory review before other organizations can connect. OAuth apps are private by default: only members of your own Close organization can authorize them. To open the app up, click Make Public in its settings and submit it for review; Close replies by email, and once approved any Close user can authorize it. No review timeline is published. A listing in the Close Integrations Directory is separate and optional: once the app is public, email support@close.com to apply (public OAuth 2.0 integrations only).",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30–60 min",
+    "timeToProduction": "unknown (Close publishes no review timeline)",
+    "cost": "Free to register; Close plans are paid, but API access is believed to be included",
+    "roles": {
+      "team": "A Close organization admin is likely needed to create OAuth apps; use a company-owned Close account (a trial can serve).",
+      "console": "none documented",
+      "customer": "The user authorizing grants access as themselves; organization admins may restrict who can authorize or install apps (unverified)."
+    },
+    "testing": "A Close trial organization acts as the test tenant; there is no separate sandbox that I know of.",
+    "steps": [
+      {
+        "do": "Create a Close trial org with a company email",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "In Settings → Developer → OAuth Apps, click Create App, enter the app details and redirect URIs, then copy the Client ID and Client Secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization-code flow requesting offline_access plus the needed scope",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Store refresh token; refresh access tokens before expiry",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with API calls on leads, contacts and activities; handle rate-limit headers",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Click Make Public and submit the app for Close's review; customers outside your organization can connect only after Close approves it by email",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Likely coarse scopes (all.full_access, offline_access) rather than per-object permissions; behaviour follows the authorizing user's permissions. Unverified.",
+    "blockers": [
+      "Other organizations can't authorize the app until Close approves it: submit it for review as soon as the flow works.",
+      "Coarse scopes mean broad access: pitch least-privilege at the user-role level.",
+      "Rate limits per organization: respect Retry-After headers.",
+      "Tokens are user-tied: reconnect if the authorizing user leaves."
+    ],
+    "agentCan": "Write the OAuth client and refresh logic, draft the review submission and the directory application email, and run test calls.",
+    "humanMust": "Create the app in the Close UI, submit it for Close's review, and have the customer user authorize.",
+    "confidence": "Low",
+    "uncertain": "The registration path and the review that makes an app public were confirmed in Close's developer docs on 30 Oct 2026. Scope names, token lifetime, the review's criteria and its timeline were not confirmed.",
+    "sources": [
+      "https://developer.close.com/integrations/create-an-oauth-app",
+      "https://developer.close.com/integrations/publish",
+      "https://developer.close.com/"
+    ]
+  },
+  {
+    "n": 9,
+    "id": "copper",
+    "name": "Copper",
+    "category": "CRM & Sales",
+    "website": "copper.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Likely: the standard API uses a per-user API key sent with the user's email in headers. OAuth 2.0 authorization-code is offered to integration partners only, with credentials issued by Copper. Details unverified this session.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://developer.copper.com/",
+      "path": "No self-serve console known. Contact Copper's partnerships or developer team to request OAuth credentials (likely). Fallback: user creates an API key in Copper → Settings → Integrations → API Keys."
+    },
+    "access": "Partner program required",
+    "productionGate": "Likely a partner application before OAuth client credentials are issued; once issued, customers connect via OAuth. Listing in Copper's integration directory would be a further partner step. Unverified.",
+    "difficulty": "Hard",
+    "timeToFirstTest": "30–60 min with an API key; days to weeks for OAuth credentials",
+    "timeToProduction": "unknown (partner approval)",
+    "cost": "Unknown; likely free to apply. Customers need a Copper plan with API access.",
+    "roles": {
+      "team": "A business contact with authority to apply as a partner, plus a developer; use a company email and a company-owned Copper test account.",
+      "console": "none documented",
+      "customer": "A Copper user generates their own API key (admin rights may be needed, likely) or approves the OAuth consent; admins may restrict API access."
+    },
+    "testing": "Copper trial account plus API key for early development; no public sandbox known. OAuth testing needs partner credentials.",
+    "steps": [
+      {
+        "do": "Start a Copper trial with a company email as the test tenant",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Prototype with an API key plus user email headers against the Copper API",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Apply to Copper's partner program, requesting OAuth credentials and a redirect URI",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Meanwhile offer an API-key connect screen: user pastes key and email, you validate with a test call and store them encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "After credentials arrive, implement authorization-code flow and migrate customers",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Complete any partner agreement and listing requirements Copper specifies",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "Likely no fine-grained scopes; access follows the authorizing user's Copper permissions. Unverified.",
+    "blockers": [
+      "OAuth is partner-gated: ship API-key onboarding first.",
+      "API keys are tied to a user: use a service user so keys survive staff changes.",
+      "Keys need the matching user email header: collect both.",
+      "Partner timeline unknown: contact Copper before committing dates."
+    ],
+    "agentCan": "Write the API-key connect flow and validation, draft the partner application and use-case write-up, build the OAuth code in advance.",
+    "humanMust": "Contact Copper, sign any partner agreement, and have customers create keys or approve consent.",
+    "confidence": "Low",
+    "uncertain": "Copper docs were not fetched (hourly fetch limit hit). Partner requirements, review timeline and cost are unconfirmed; the OAuth-for-partners framing comes from the task hint and prior knowledge.",
+    "sources": [
+      "https://developer.copper.com/",
+      "https://developer.copper.com/introduction/authentication.html"
+    ]
+  },
+  {
+    "n": 10,
+    "id": "dealcloud",
+    "name": "DealCloud (Intapp)",
+    "category": "CRM & Sales",
+    "website": "api.docs.dealcloud.com",
+    "authModel": "Client credentials only",
+    "authDetail": "Likely: OAuth 2.0 client-credentials grant against each customer's own DealCloud site (tenant-specific host), using a client ID and secret issued by that customer's admin; short-lived bearer tokens. There is no third-party registered app with authorization-code flow that I know of. Unverified this session.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://api.docs.dealcloud.com",
+      "path": "Per customer: a DealCloud admin creates API credentials in the tenant's Admin settings (Programmatic Access / API Keys, path from memory), mapped to a service user."
+    },
+    "access": "Not offered",
+    "productionGate": "No central app approval: each customer admin issues credentials for their own tenant, so every customer needs an admin step. Intapp may offer partner or marketplace routes for a named integration (unverified).",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "needs a tenant; 1+ hour once credentials exist",
+    "timeToProduction": "unknown; per-customer onboarding, likely days to weeks each",
+    "cost": "Requires a DealCloud (Intapp) customer tenant; no public sandbox or free tier known",
+    "roles": {
+      "team": "A solutions or integration engineer who can obtain a sandbox or customer tenant via Intapp or a customer sponsor.",
+      "console": "none documented",
+      "customer": "A DealCloud admin must create the API credentials and choose the service user and permissions; customer IT may also need to allow-list your IPs."
+    },
+    "testing": "Needs a DealCloud tenant, ideally a customer's sandbox or Intapp partner environment (likely). No open signup.",
+    "steps": [
+      {
+        "do": "Obtain a DealCloud test or sandbox tenant through Intapp or a pilot customer",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Customer admin creates API credentials in the tenant and shares client ID, secret and the site hostname",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Build a connect form: tenant hostname, client ID, client secret; store encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Request tokens with the client-credentials grant against the tenant token endpoint; refresh on expiry",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate with a test call, then map customer-specific entries and fields via the schema endpoints",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Ask Intapp about a partner or marketplace route if you want a branded integration",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "Likely a limited scope set (for example data access) with real permissions determined by the service user's role in the tenant. Unverified.",
+    "blockers": [
+      "Heavily customized schemas per customer: discover entries and fields dynamically.",
+      "Customer IP allow-listing: publish your static egress IPs.",
+      "No self-serve test tenant: arrange a pilot customer early.",
+      "Service-user permissions limit data: document least-privilege setup."
+    ],
+    "agentCan": "Write the client-credentials client, schema discovery and sync code, draft the customer admin setup guide and test script.",
+    "humanMust": "A customer DealCloud admin must issue credentials; a human negotiates tenant access and any Intapp partner agreement.",
+    "confidence": "Low",
+    "uncertain": "The DealCloud API docs were not fetched (hourly fetch limit hit). Token endpoint, lifetime, scopes, admin path and any partner program are from prior knowledge.",
+    "sources": [
+      "https://api.docs.dealcloud.com",
+      "https://www.intapp.com/dealcloud/"
+    ]
+  }
+]

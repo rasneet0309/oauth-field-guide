@@ -1,0 +1,157 @@
+{
+  "schema": 3,
+  "id": "gorgias",
+  "name": "Gorgias",
+  "category": "Support & Helpdesk",
+  "website": "gorgias.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 19,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "partner",
+  "verdict": "Merchants install from the Gorgias App Store, and public apps must be approved by Gorgias's tech partnership team. Even a sandbox needs Gorgias to convert a trial; no published timeline, likely several weeks.",
+  "needGuide": "Yes — register at partners.gorgias.com, fill in the Draft App form, and ask Gorgias to convert a trial into a sandbox.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "OAuth2 authorization code is mandatory for public apps; private apps use API key basic auth (account email plus key). Per-merchant endpoints https://{subdomain}.gorgias.com/oauth/authorize and /oauth/token (HTTP Basic client auth). Access tokens last 24 h; refresh tokens do not currently expire and need the offline scope. PKCE not yet enabled; nonce and state are required.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "1-3 days (sandbox needs Gorgias to convert the trial)",
+    "timeToProduction": "unknown; likely several weeks (approval has no published SLA)",
+    "firstShort": "1–3 days",
+    "prodShort": "Unknown (likely weeks)",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Merchants install from the in-product App Store (Settings → Integrations), which opens your App URL with an account parameter. Public apps must be approved by Gorgias's tech partnership team. No timeline is published. A sandbox account also requires a ready draft app and a manual conversion by Gorgias.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Many read/write scope pairs (tickets, customers, macros, rules…) to choose from; none documented as needing extra approval.",
+    "summary": "openid, email, profile, offline plus read/write pairs: account, users, customers, tickets, custom_fields, events, integrations, jobs, macros, rules, satisfaction_survey, tags, apps; statistics:read. write:all is deprecated. No scope was documented as needing extra approval.",
+    "table": []
+  },
+  "cost": "Free; no partner fee found",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Developer Portal account plus a Gorgias trial converted to a developer account by techpartners@gorgias.com.",
+    "Where you register: Developer Portal (partners.gorgias.com) → create Draft App form → receive Client ID and Secret",
+    "Cost: Free; no partner fee found"
+  ],
+  "registerAt": {
+    "url": "https://partners.gorgias.com/signup",
+    "path": "Developer Portal (partners.gorgias.com) → create Draft App form → receive Client ID and Secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Register at partners.gorgias.com/signup and start the Draft App form",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create a trial at gorgias.com/signup and email techpartners@gorgias.com with the account URL to get a developer account",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Implement the App URL handler (reads account), authorize with state and nonce, exchange the code with Basic auth",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Choose minimal scopes and include offline for refresh; handle 24 h access tokens",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test install and uninstall in the sandbox (the demo repo github.com/gorgias/appstore-demo-app helps)",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Add screenshots, finish the Draft App form and click Submit Application",
+          "who": "Design",
+          "agent": false
+        },
+        {
+          "do": "Respond to the review result and fix requested changes",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Developer Portal account plus a Gorgias trial converted to a developer account by techpartners@gorgias.com.",
+    "console": "none documented",
+    "customer": "A merchant account user who clicks Connect App and accepts the consent page (admin requirement likely, not confirmed). Merchants can uninstall or revoke the refresh token.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Register at partners.gorgias.com, create a Gorgias trial, then email techpartners@gorgias.com (with a draft app ready) to convert it to a developer account; sandbox starts as a Demo account and the plan switch is manual."
+  ],
+  "blockers": [
+    {
+      "problem": "Sandbox needs a draft app first and manual conversion by Gorgias",
+      "fix": "Email early."
+    },
+    {
+      "problem": "Users must start from the App Store",
+      "fix": "Build your App URL handler to read the account subdomain."
+    },
+    {
+      "problem": "No PKCE yet",
+      "fix": "Protect the client secret and use state and nonce."
+    },
+    {
+      "problem": "write:all is being removed",
+      "fix": "Use granular scopes."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth code and account-subdomain handling, draft the Draft App form, scope rationale and listing copy, and run test calls.",
+    "humanMust": "Register on the portal, email techpartners@gorgias.com, upload screenshots, submit the app, and respond to the tech partnership team."
+  },
+  "uncertain": [
+    "Review duration and criteria (Draft App form and quality-guidelines pages did not load); eligibility rules to submit; the merchant role required to install."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.gorgias.com/docs/set-up-oauth2-app-store",
+      "label": "developers.gorgias.com/docs/set-up-oauth2-app-store"
+    },
+    {
+      "url": "https://developers.gorgias.com/docs/authentication",
+      "label": "developers.gorgias.com/docs/authentication"
+    },
+    {
+      "url": "https://developers.gorgias.com/docs/1-register-on-developer-portal.md",
+      "label": "developers.gorgias.com/docs/1-register-on-developer-portal.md"
+    },
+    {
+      "url": "https://developers.gorgias.com/docs/5-submit-app-for-review.md",
+      "label": "developers.gorgias.com/docs/5-submit-app-for-review.md"
+    },
+    {
+      "url": "https://developers.gorgias.com/docs/oauth2-scopes.md",
+      "label": "developers.gorgias.com/docs/oauth2-scopes.md"
+    }
+  ]
+}

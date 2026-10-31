@@ -1,0 +1,163 @@
+{
+  "schema": 3,
+  "id": "linkedin-ads",
+  "name": "LinkedIn Ads",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "linkedin.com/developers",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 33,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "Development tier needs access approval, and serving many customers needs the Standard tier through a support ticket with a demo video. LinkedIn picks partners at its discretion, with no published timeline (6-12+ weeks is an inference).",
+  "needGuide": "Yes — apply for Advertising API access and plan the Standard-tier video request; nothing scales until approved.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "3-legged authorization-code OAuth only (client credentials is not available for marketing use). Access tokens last 60 days; programmatic refresh tokens are limited to a small set of partners; PKCE is not documented. Members must accept all requested scopes together.",
+    "userOAuth": "partner-only",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Very hard",
+    "timeToFirstTest": "days to weeks (Development tier needs approval; timeline not documented)",
+    "timeToProduction": "unknown; likely 6-12+ weeks (inference, no published timeline)",
+    "firstShort": "Days to weeks",
+    "prodShort": "Unknown (likely 6–12+ weeks)",
+    "difficulty": "Complex",
+    "prodDays": 84
+  },
+  "approval": {
+    "gate": "Advertising API starts in the Development tier after an access application: you can edit at most 5 ad accounts you administer, create 1 test ad account via API, and real accounts must be made in Campaign Manager. Serving many customers needs the Standard tier, requested by a support ticket on the Developer Support Portal with a video showing the platform creating, editing or optimizing LinkedIn campaigns. LinkedIn selects partners at its discretion and may decline even qualifying ones; no timeline is published.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Scopes (r_ads, rw_ads, r_ads_reporting…) come with each approved API product, and members also need the matching role.",
+    "summary": "r_ads, rw_ads, r_ads_reporting for advertising; rw_organization_admin and r_organization_admin for Page admin data; w_organization_social and r_organization_social for Page posts. Scopes are granted automatically once API access is approved; the member also needs the matching role.",
+    "table": []
+  },
+  "cost": "Free (no fee documented)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Someone who can create a developer app tied to the company's LinkedIn Page; the Page admin must approve the association and verification (likely via a verification link in the app Settings, not confirmed on the pages read). Use a company-owned LinkedIn login.",
+    "Where you register: Developer Portal -> Create app (associate a LinkedIn Page) -> Products tab -> Advertising API -> Request access (access form); ad accounts: Products -> View Ad Accounts -> Add Ad Account",
+    "Cost: Free (no fee documented)"
+  ],
+  "registerAt": {
+    "url": "https://www.linkedin.com/developers/apps/new",
+    "path": "Developer Portal -> Create app (associate a LinkedIn Page) -> Products tab -> Advertising API -> Request access (access form); ad accounts: Products -> View Ad Accounts -> Add Ad Account"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create or confirm a LinkedIn Company Page; Page super admin available",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Create the app at linkedin.com/developers/apps/new and associate it with the Page; have the Page admin verify it",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Read the restricted use-cases list, then Products tab -> Advertising API -> request access and complete the form",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "After approval, Products -> View Ad Accounts -> Add Ad Account (9-digit ID from Campaign Manager); generate a test token",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Build 3-legged OAuth (authorization at /oauth/v2/authorization, tokens at /oauth/v2/accessToken); handle 60-day expiry with re-auth",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Record a demo video of the platform creating, editing and optimizing campaigns on LinkedIn",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Submit Standard tier upgrade ticket at linkedin.com/help/linkedin/ask/dsapi; follow up through support",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Use current versioned API; version 202511 sunsets 2026-11-16",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Someone who can create a developer app tied to the company's LinkedIn Page; the Page admin must approve the association and verification (likely via a verification link in the app Settings, not confirmed on the pages read). Use a company-owned LinkedIn login.",
+    "console": "none documented in the sources read; the Developer Portal app likely has a team members area (unconfirmed).",
+    "customer": "A member holding a role on the ad account (rw_ads needs ACCOUNT_BILLING_ADMIN, ACCOUNT_MANAGER, CAMPAIGN_MANAGER or CREATIVE_MANAGER) or on the Company Page; their token fails without the role. A Company Page can link many ad accounts, but an ad account links to only one Page, permanently.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Development tier: Token Generator in the Developer Portal (or the Postman workspace); map up to 5 ad accounts you administer; 1 API-created test ad account.",
+    "Customer ad accounts beyond those cannot be used until Standard."
+  ],
+  "blockers": [
+    {
+      "problem": "Development tier caps at 5 editable ad accounts",
+      "fix": "A multi-customer agent cannot launch until Standard is approved."
+    },
+    {
+      "problem": "Standard is discretionary with no published timeline or criteria",
+      "fix": "Plan for ticket follow-ups and a polished demo video."
+    },
+    {
+      "problem": "Token from a member without a role on the Page or ad account returns errors",
+      "fix": "Check roles with /adAccountUsers and /organizationAcls."
+    },
+    {
+      "problem": "60-day access tokens and no standard refresh tokens mean customers must re-authorize periodically unless you are a partner with programmatic refresh",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the access-form use case and Standard upgrade narrative, write the OAuth and role-check code, script the demo flow, run API test calls with the generated token, migrate to the current API version.",
+    "humanMust": "Page admin verification, LinkedIn login and 2FA, submitting the access form and support ticket, recording the demo video, communicating with LinkedIn support."
+  },
+  "uncertain": [
+    "Company Page verification steps, Development-tier approval time and Standard review time were not documented in the fetched pages; the increasing-access page without a version parameter errored; no community sources were checked because search and fetch budgets ran out."
+  ],
+  "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/marketing/increasing-access?view=li-lms-2026-10",
+      "label": "learn.microsoft.com/en-us/linkedin/marketing/increasing-access"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/marketing/quick-start",
+      "label": "learn.microsoft.com/en-us/linkedin/marketing/quick-start"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started",
+      "label": "learn.microsoft.com/en-us/linkedin/marketing/getting-started"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+      "label": "learn.microsoft.com/en-us/linkedin/shared/authentication/authorization…"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/getting-started?view=li-lms-2026-10",
+      "label": "learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/getting-…"
+    }
+  ]
+}

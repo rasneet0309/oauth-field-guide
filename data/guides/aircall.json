@@ -1,0 +1,145 @@
+{
+  "schema": 3,
+  "id": "aircall",
+  "name": "Aircall",
+  "category": "Communications & Messaging",
+  "website": "aircall.io",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 29,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "partner",
+  "verdict": "OAuth credentials come only after you sign up as a Technology Partner and email Aircall, and the docs say marketplace listing is required for OAuth. Customer Company Admins install; likely 2-6 weeks, unconfirmed.",
+  "needGuide": "Yes — sign up as a Technology Partner and request credentials first; nothing works for customers until then.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "OAuth 2.0 authorization-code for Technology Partners only: Admin starts from the Aircall Dashboard, your install_uri redirects to dashboard.aircall.io/oauth/authorize (scope=public_api); code valid 10 minutes, exchanged at POST https://api.aircall.io/v1/oauth/token. Access token is described as permanent (refresh not documented). Customers building for their own account use API ID/token Basic auth.",
+    "userOAuth": "partner-only",
+    "access": "Partner program required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min (own account with API key); days after partner approval for OAuth",
+    "timeToProduction": "unknown (likely 2-6 weeks incl. partner approval and marketplace listing)",
+    "firstShort": "30–60 min (key)",
+    "prodShort": "Unknown (likely 2–6 weeks)",
+    "difficulty": "Moderate",
+    "prodDays": 42
+  },
+  "approval": {
+    "gate": "Technology partner account plus Aircall issuing OAuth credentials; the docs state listing on the Aircall App Marketplace is a requirement for OAuth. Customers' Company Admins must install.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Only the public_api scope is documented.",
+    "summary": "Only public_api is documented. Rate limits and webhook setup apply per company; no scope-level review documented.",
+    "table": []
+  },
+  "cost": "No fee documented (not confirmed)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Partner contact (company email) completes the partner sign-up; developers need an Aircall account to test.",
+    "Where you register: Aircall partner sign-up → request OAuth credentials by emailing marketplace@aircall.io with install_uri and redirect_uri → receive client_id and client_secret",
+    "Cost: No fee documented (not confirmed)"
+  ],
+  "registerAt": {
+    "url": "https://aircall.io/partners/technology/signup/",
+    "path": "Aircall partner sign-up → request OAuth credentials by emailing marketplace@aircall.io with install_uri and redirect_uri → receive client_id and client_secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign up as a Technology Partner at aircall.io/partners/technology/signup",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Email marketplace@aircall.io with app name, HTTPS install_uri and redirect_uri to request client_id and client_secret",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Implement install_uri that forwards to dashboard.aircall.io/oauth/authorize with client_id, redirect_uri, response_type=code, scope=public_api, state",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement redirect_uri: exchange the code within 10 minutes at POST https://api.aircall.io/v1/oauth/token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Store the Bearer token per company; call the Public API and register webhooks",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test in Aircall's dashboard with an admin, then agree marketplace listing details with Aircall",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Partner contact (company email) completes the partner sign-up; developers need an Aircall account to test.",
+    "console": "none documented.",
+    "customer": "Only Company Admins can authorize the app or install integrations; they click Authorize in the dashboard popup.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Fast path: create an API key in Settings → API Keys → Add a new API key in your own Aircall company and test Basic auth.",
+    "For OAuth, a test company or sandbox is not documented: ask Aircall partner team."
+  ],
+  "blockers": [
+    {
+      "problem": "OAuth credentials are not self-serve",
+      "fix": "Email Aircall early."
+    },
+    {
+      "problem": "install_uri and redirect_uri must be HTTPS, and install_uri must forward to the authorize URL",
+      "fix": ""
+    },
+    {
+      "problem": "Non-admin users cannot install",
+      "fix": "Instruct customers to involve an Aircall Admin."
+    },
+    {
+      "problem": "Token never expires per docs",
+      "fix": "Provide customer-side revocation and uninstall handling."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write install and redirect handlers, token storage, API calls and webhook consumers; draft the partner application and listing copy.",
+    "humanMust": "Partner application and agreement, contact with Aircall marketplace team, customer admin consent."
+  },
+  "uncertain": [
+    "Partner approval criteria, sandbox availability, marketplace review steps, fees and timelines (partner pages and developer.aircall.io partner-program URL not loadable); whether refresh tokens exist."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.aircall.io/api-references",
+      "label": "developers.aircall.io/api-references"
+    },
+    {
+      "url": "https://developers.aircall.io/tutorials/how-aircall-oauth-flow-works",
+      "label": "developers.aircall.io/tutorials/how-aircall-oauth-flow-works"
+    },
+    {
+      "url": "https://developers.aircall.io/",
+      "label": "developers.aircall.io"
+    }
+  ]
+}

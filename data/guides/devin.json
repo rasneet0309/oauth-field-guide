@@ -1,0 +1,149 @@
+{
+  "schema": 3,
+  "id": "devin",
+  "name": "Devin",
+  "category": "AI, Research & Media",
+  "website": "docs.devin.ai",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 96,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "key",
+  "verdict": "No OAuth: each customer org admin creates a service user with a least-privilege role and sends you the key and org ID. On enterprise accounts an admin policy can disable keys; about 1-3 days.",
+  "needGuide": "No — just collect a service-user key and org ID (Settings → Devin API → Service users).",
+  "auth": {
+    "model": "API key / token only",
+    "detail": "Devin API v3 uses Bearer tokens only, prefixed `cog_`: service user API keys (RBAC) and personal access tokens (PATs). Legacy v1/v2 keys (`apk_`, `apk_user_`) are deprecated. The MCP server (https://mcp.devin.ai/mcp, Streamable HTTP) takes a `cog_` key as a bearer token; no OAuth is documented anywhere. Enterprise service-user keys and PATs also need an X-Org-Id header.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review); depends on customer admin",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "No OAuth app review. Each customer creates their own service-user key and pastes it into your app. The Enterprise API (/v3/enterprise/*) is for enterprise customers only, and on enterprise accounts PATs are disabled by default behind an admin policy that can require approval and expiry.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "RBAC roles on the service user rather than OAuth scopes.",
+    "summary": "RBAC roles on the service user rather than OAuth scopes. Organization API (/v3/organizations/*) covers sessions, knowledge, playbooks and secrets. Enterprise API (/v3/enterprise/*) covers analytics, audit logs, users and billing. Impersonation needs ImpersonateOrgSessions.",
+    "table": []
+  },
+  "cost": "Requires a Devin account (Teams or Enterprise plan for service users, likely); API usage consumes the customer's Devin quota",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A Devin org admin on your side who can create service users; the page does not state which roles can provision them.",
+    "Where you register: Org: Settings → Devin API → Service users tab. Enterprise: Enterprise settings → Devin API → Service users. Assign a role, copy the cog_ key (shown once).",
+    "Cost: Requires a Devin account (Teams or Enterprise plan for service users, likely); API usage consumes the customer's Devin quota"
+  ],
+  "registerAt": {
+    "url": "https://docs.devin.ai/api-reference/authentication.md",
+    "path": "Org: Settings → Devin API → Service users tab. Enterprise: Enterprise settings → Devin API → Service users. Assign a role, copy the cog_ key (shown once)."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "In your Devin org go to Settings → Devin API → Service users and create a service user with a least-privilege role.",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Copy the cog_ key once and store it in a secrets manager.",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Call GET /v3/self on api.devin.ai with `Authorization: Bearer cog_...` to verify.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Create sessions through /v3/organizations/{org}/sessions; use create_as_user_id if the role has ImpersonateOrgSessions.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Build a customer-facing setup screen that asks for the key and org ID, stores them encrypted, validates with /v3/self and shows the minimum role needed.",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Optionally configure the Devin MCP server with the key and X-Org-Id header for enterprise keys.",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A Devin org admin on your side who can create service users; the page does not state which roles can provision them.",
+    "console": "Custom roles and RBAC (enterprise): assign a role to the service user in the Devin API tab; the role limits which endpoints it can call.",
+    "customer": "A customer org or enterprise admin creates a service user with a least-privilege role, and sends you the key and org ID. Enterprise admins can disable PATs and enforce SSO/IP allowlists.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Devin org and a test service user.",
+    "Rate limits were not found in the docs."
+  ],
+  "blockers": [
+    {
+      "problem": "No OAuth, so users must paste keys",
+      "fix": "Key-entry UI with validation and rotation guidance."
+    },
+    {
+      "problem": "Legacy apk_ keys do not work with most MCP tools",
+      "fix": "Require cog_ service-user keys."
+    },
+    {
+      "problem": "Enterprise PATs are disabled by default",
+      "fix": "Use service users, or ask the admin to change the policy."
+    },
+    {
+      "problem": "Enterprise service-user key creation endpoints are Beta",
+      "fix": "Create keys in the UI."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the key-validation and session-creation client, configure MCP, draft the customer setup guide and role recommendations, and run test sessions.",
+    "humanMust": "A Devin admin logs in to create service users and keys, pays for the plan, and approves enterprise policies."
+  },
+  "uncertain": [
+    "Which roles may create service users, rate limits, the exact plan needed for service users, and any OAuth roadmap were not documented."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.devin.ai/api-reference/authentication.md",
+      "label": "docs.devin.ai/api-reference/authentication.md"
+    },
+    {
+      "url": "https://docs.devin.ai/api-reference/overview.md",
+      "label": "docs.devin.ai/api-reference/overview.md"
+    },
+    {
+      "url": "https://docs.devin.ai/work-with-devin/devin-mcp.md",
+      "label": "docs.devin.ai/work-with-devin/devin-mcp.md"
+    },
+    {
+      "url": "https://docs.devin.ai/_llms/en/api.txt",
+      "label": "docs.devin.ai/_llms/en/api.txt"
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "schema": 3,
+  "id": "fanbasis",
+  "name": "fanbasis (now Commas)",
+  "category": "Ecommerce",
+  "website": "fanbasis.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 50,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "none",
+  "verdict": "No connector path found: API access appears to be an Enterprise offer reached by contacting Commas. No developer docs, scopes or review process are public; low confidence.",
+  "needGuide": "No guide possible yet — email Commas to ask whether an API, keys or OAuth exist.",
+  "auth": {
+    "model": "Other",
+    "detail": "No public developer docs or OAuth found. fanbasis.com redirects to commas.com ('FanBasis is now Commas'). The site lists an Enterprise 'APIs and SDKs' offering and an MCP (beta) that lets an AI assistant create checkout links, issue refunds and pull numbers; auth method for either is not stated.",
+    "userOAuth": "no",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "N/A",
+    "timeToFirstTest": "unknown",
+    "timeToProduction": "unknown",
+    "firstShort": "Unknown",
+    "prodShort": "Unknown",
+    "difficulty": "N/A",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "API access appears to be part of an Enterprise offering reached by contacting Commas (likely a sales conversation). No developer registration, scopes or review process is documented publicly.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": null,
+    "kind": "No connector path"
+  },
+  "scopes": {
+    "complexity": "N/A",
+    "why": "No connector path is documented.",
+    "summary": "Unknown. The MCP beta description implies actions like creating checkout links, issuing refunds and reading metrics, so expect refund permissions to be sensitive.",
+    "table": []
+  },
+  "cost": "unknown (Enterprise pricing not public)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Likely a company-owned Commas account and a named contact for Enterprise/API access.",
+    "Where you register: No self-serve console found. Enterprise & APIs page, then contact Commas at https://commas.com/contact.",
+    "Cost: unknown (Enterprise pricing not public)"
+  ],
+  "registerAt": {
+    "url": "https://commas.com/enterprises",
+    "path": "No self-serve console found. Enterprise & APIs page, then contact Commas at https://commas.com/contact."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Email Commas (commas.com/contact) asking whether a public API, API keys, webhooks or OAuth exist, and request docs",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Ask whether the MCP (beta) supports OAuth for third-party accounts and what scopes it exposes",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "If Enterprise APIs are offered, request sandbox keys and a reference for auth and rate limits",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "If only keys exist, design a connect screen where the user pastes a key; store it encrypted and validate with a test call",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Evaluate webhooks or CSV export as a fallback to read sales data",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Likely a company-owned Commas account and a named contact for Enterprise/API access.",
+    "console": "none documented.",
+    "customer": "Not documented. Likely each creator or account owner connects their own Commas account or provides a key or MCP connection.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Not documented.",
+    "Create your own Commas account to test checkout links and the MCP beta; confirm sandbox availability with Commas."
+  ],
+  "blockers": [
+    {
+      "problem": "Brand changed from FanBasis to Commas",
+      "fix": "Search docs under the new name."
+    },
+    {
+      "problem": "No public API reference was found",
+      "fix": "You may be blocked until Commas shares docs under an Enterprise agreement."
+    },
+    {
+      "problem": "The MCP beta may only support interactive use for a single account, which does not serve multi-customer agents",
+      "fix": ""
+    },
+    {
+      "problem": "Embedded payments products may require KYC-style onboarding for your own platform",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the outreach email and integration questionnaire, and build a paste-a-key connect flow plus test-call validation once credentials exist.",
+    "humanMust": "A human contacts Commas sales/support, signs any Enterprise or partner agreement, and completes any KYC for payment features."
+  },
+  "uncertain": [
+    "Only the commas.com home page was read; the Enterprise & APIs page and any docs could not be fetched because of a fetch rate limit.",
+    "Auth method, existence of public API docs, and MCP auth are all unconfirmed."
+  ],
+  "sources": [
+    {
+      "url": "https://fanbasis.com",
+      "label": "fanbasis.com"
+    },
+    {
+      "url": "https://commas.com/",
+      "label": "commas.com"
+    }
+  ]
+}

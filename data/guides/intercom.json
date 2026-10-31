@@ -1,0 +1,158 @@
+{
+  "schema": 3,
+  "id": "intercom",
+  "name": "Intercom",
+  "category": "Support & Helpdesk",
+  "website": "intercom.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 12,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "review",
+  "verdict": "Self-serve to build, but Intercom must review every public app before any customer can install, even unlisted ones. Review takes up to 7 business days; budget 1-3 weeks with the video and forms.",
+  "needGuide": "Yes — prepare the OAuth install, features and uninstall video plus the App Partner Program form before you submit.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code flow with client_secret and a state parameter (PKCE not documented). Authorization endpoint is regional (US/EU/AU); code exchanged at https://api.intercom.io/auth/eagle/token for a Bearer access token. Token lifetime and refresh not covered in the fetched docs (tokens likely non-expiring).",
+    "userOAuth": "yes",
+    "access": "Application/approval required"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 weeks incl. video, forms and review (up to 7 business days)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 weeks incl. review",
+    "difficulty": "Moderate",
+    "prodDays": 21
+  },
+  "approval": {
+    "gate": "Mandatory Intercom review for any public app (listed or unlisted) before customers can install. Review takes up to 7 business days. Submit an app description, App Partner Program form, and an end-to-end video of OAuth install, features and uninstall. App Store listing is optional after approval.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Provider review"
+  },
+  "scopes": {
+    "complexity": "Medium",
+    "why": "Scopes are picked in the Developer Hub; reviewers compare them with the app's features and may ask you to trim and resubmit.",
+    "summary": "Pick scopes in Developer Hub; reviewers compare them to actual functionality and may ask you to trim and resubmit. Webhook topics are tied to scopes. Canvas Kit apps get some scopes automatically.",
+    "table": []
+  },
+  "cost": "Free (development workspaces are free); reviewer needs test credentials if the app needs a paid plan",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: An Intercom teammate account that can open Developer Hub; public apps must be built in a separate free development workspace.",
+    "Where you register: Developer Hub → Your apps → New App → Configure → Authentication → tick Use OAuth; add HTTPS redirect URLs and scopes",
+    "Cost: Free (development workspaces are free); reviewer needs test credentials if the app needs a paid plan"
+  ],
+  "registerAt": {
+    "url": "https://developers.intercom.com",
+    "path": "Developer Hub → Your apps → New App → Configure → Authentication → tick Use OAuth; add HTTPS redirect URLs and scopes"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Create a free development workspace, then Developer Hub → New App",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Authentication page: tick Use OAuth, add HTTPS redirect URLs (staging + production), choose minimal scopes",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorize redirect with random state; POST code, client_id, client_secret to /auth/eagle/token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Verify with GET /me and test install and uninstall in the dev workspace",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Complete App Listing and App Partner Program form in Test and publish",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Record video showing OAuth install with full client_id and state visible, all features, and uninstall",
+          "who": "Design",
+          "agent": false
+        },
+        {
+          "do": "Submit for Review and answer feedback in the Messenger conversation",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "An Intercom teammate account that can open Developer Hub; public apps must be built in a separate free development workspace.",
+    "console": "None documented for app collaborators; creators/submitters receive review notifications.",
+    "customer": "A workspace teammate who installs the app via OAuth consent. Specific permission level not documented in fetched pages (likely admin-level).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Free development workspaces: US-only, capped at 20 users/leads, no outbound email or push, cannot be converted to production.",
+    "During review the app stays private to your team."
+  ],
+  "blockers": [
+    {
+      "problem": "Customers cannot install until approval",
+      "fix": "Plan the video and forms up front."
+    },
+    {
+      "problem": "Over-requested scopes cause resubmission",
+      "fix": "Map each scope to a visible feature."
+    },
+    {
+      "problem": "EU/AU workspaces",
+      "fix": "Dev workspaces are US-only, so use regional auth endpoints and test carefully."
+    },
+    {
+      "problem": "Approved apps need re-approval for changes",
+      "fix": "Keep a private staging app alongside the public one."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth code and regional endpoint handling, draft listing copy, scope justifications and video script, and run test API calls.",
+    "humanMust": "Create the workspace/app in the console, record the demo video, submit the review, communicate via the Intercom Messenger, and accept partner terms."
+  },
+  "uncertain": [
+    "Token expiry/refresh behavior; customer-side permission needed to install; App Store guideline details (guidelines and listing pages were not fetched)."
+  ],
+  "sources": [
+    {
+      "url": "https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth",
+      "label": "developers.intercom.com/docs/build-an-integration/learn-more/authentic…"
+    },
+    {
+      "url": "https://developers.intercom.com/docs/publish-to-the-app-store/review-publish-your-app.md",
+      "label": "developers.intercom.com/docs/publish-to-the-app-store/review-publish-y…"
+    },
+    {
+      "url": "https://developers.intercom.com/docs/build-an-integration/getting-started",
+      "label": "developers.intercom.com/docs/build-an-integration/getting-started"
+    },
+    {
+      "url": "https://developers.intercom.com/docs/build-an-integration/learn-more/authentication",
+      "label": "developers.intercom.com/docs/build-an-integration/learn-more/authentic…"
+    },
+    {
+      "url": "https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/installing-uninstalling-apps.md",
+      "label": "developers.intercom.com/docs/build-an-integration/learn-more/authentic…"
+    }
+  ]
+}

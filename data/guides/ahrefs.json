@@ -1,0 +1,162 @@
+{
+  "schema": 3,
+  "id": "ahrefs",
+  "name": "Ahrefs",
+  "category": "Data, SEO & Scraping",
+  "website": "ahrefs.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 53,
+  "lastChecked": "2026-10-28",
+  "confidence": "High",
+  "path": "partner",
+  "verdict": "Mandatory application and approval, and a new product needs an Enterprise Ahrefs subscription. You submit screenshots and an unedited OAuth recording, and the app stays Inactive until Ahrefs activates it; no published timeline.",
+  "needGuide": "Yes — apply through Ahrefs Connect first; nothing works for customers until the app is active.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Ahrefs Connect: authorization-code with mandatory PKCE (S256), scope apiv3-integration-apps. Authorize at https://app.ahrefs.com/web/oauth/authorize, token at https://ahrefs.com/oauth/token. Access tokens last 1 year and there are no refresh tokens, so users must re-authorize. Web apps keep a client secret server-side. Separately, API v3 uses Bearer API keys, and the hosted MCP (https://api.ahrefs.com/mcp/mcp) creates an MCP-scoped key on consent.",
+    "userOAuth": "partner-only",
+    "access": "Partner program required"
+  },
+  "effort": {
+    "researchRating": "Very hard",
+    "timeToFirstTest": "Days after Ahrefs accepts the application (free test queries with an API key work earlier)",
+    "timeToProduction": "unknown (review timeline not published; the Enterprise sales cycle likely adds weeks)",
+    "firstShort": "Days post-approval",
+    "prodShort": "Unknown (partner review)",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Mandatory application plus approval. New products need an Enterprise Ahrefs subscription. Submit screenshots of every connection step, an unedited OAuth screen recording (tokens must never be visible), and endpoint and data-usage details. The app stays Inactive until Ahrefs switches it to Active.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "A single scope; the constraints are in the data-storage terms, not in scopes.",
+    "summary": "A single scope (apiv3-integration-apps); no finer split. The terms restrict storage: cache only to serve the user, purge on revoke or downgrade, no reselling, no shadow databases.",
+    "table": []
+  },
+  "cost": "Enterprise subscription for the developer (price not published). Each end user needs a paid plan (Lite, Standard, Advanced or Enterprise); calls use the user's API units, and Connect or MCP keys default to a 200,000-unit cap.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: The Enterprise account owner submits the app; the person building the app needs access to Account settings then Ahrefs Connect. Only workspace owners and admins can manage API keys.",
+    "Where you register: Submit the application form (product description, website, planned data use); after acceptance, Ahrefs Account settings then Ahrefs Connect shows the Client ID, Client Secret and redirect URI fields",
+    "Cost: Enterprise subscription for the developer (price not published). Each end user needs a paid plan (Lite, Standard, Advanced or Enterprise); calls use the user's API units, and Connect or MCP keys default to a 200,000-unit cap."
+  ],
+  "registerAt": {
+    "url": "https://docs.ahrefs.com/en/ahrefs-connect/docs/how-to-apply",
+    "path": "Submit the application form (product description, website, planned data use); after acceptance, Ahrefs Account settings then Ahrefs Connect shows the Client ID, Client Secret and redirect URI fields"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Confirm an Enterprise Ahrefs subscription exists for the company",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Apply via the Ahrefs Connect form with product description, website and planned data use",
+          "who": "Owner",
+          "agent": true
+        },
+        {
+          "do": "Copy the Client ID and Secret and register exact redirect URIs in Account settings then Ahrefs Connect",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement authorization code with PKCE S256 and a state check; handle the 1-year expiry with a re-connect flow",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test in staging while the app is Inactive using free test queries",
+          "who": "QA",
+          "agent": true
+        },
+        {
+          "do": "Record an unedited OAuth screen recording and capture screenshots of connect, display and revoke",
+          "who": "Design",
+          "agent": false
+        },
+        {
+          "do": "Send the approval package to your Ahrefs sales contact and wait for Active status",
+          "who": "Owner",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "The Enterprise account owner submits the app; the person building the app needs access to Account settings then Ahrefs Connect. Only workspace owners and admins can manage API keys.",
+    "console": "none documented for sharing Ahrefs Connect apps; API keys (up to 1,000 per workspace) are managed by owners and admins.",
+    "customer": "An Ahrefs user on a paid plan authorizes the connection (likely owner or admin; not stated). Workspace admins can cap per-app API units; a key is invalidated if its creator leaves the workspace.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "While Inactive you can test OAuth flows in staging and make free test queries to API v3 endpoints.",
+    "Free test queries work without an Enterprise plan."
+  ],
+  "blockers": [
+    {
+      "problem": "Enterprise subscription is required for new products",
+      "fix": "Budget and sales cycle apply."
+    },
+    {
+      "problem": "The MCP endpoint rejects custom scripts and standalone HTTP clients",
+      "fix": "It cannot replace Ahrefs Connect for a backend agent."
+    },
+    {
+      "problem": "No refresh tokens and 1-year tokens",
+      "fix": "Build a re-authorization prompt."
+    },
+    {
+      "problem": "Review needs an unedited video with no visible tokens",
+      "fix": "Rehearse the flow first."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Draft the application text, write the PKCE OAuth client and re-auth handling, add data-retention and purge logic, and run test queries.",
+    "humanMust": "Hold the Enterprise contract, submit the application, record the authorization video, and talk to the Ahrefs sales contact."
+  },
+  "uncertain": [
+    "Review timeline, Enterprise price, whether non-technology companies are eligible, exact customer role required to authorize, and rate limits for Connect apps."
+  ],
+  "sources": [
+    {
+      "url": "https://docs.ahrefs.com/en/ahrefs-connect/docs/how-it-works",
+      "label": "docs.ahrefs.com/en/ahrefs-connect/docs/how-it-works"
+    },
+    {
+      "url": "https://docs.ahrefs.com/en/ahrefs-connect/docs/oauth-guide",
+      "label": "docs.ahrefs.com/en/ahrefs-connect/docs/oauth-guide"
+    },
+    {
+      "url": "https://docs.ahrefs.com/en/ahrefs-connect/docs/approval-process",
+      "label": "docs.ahrefs.com/en/ahrefs-connect/docs/approval-process"
+    },
+    {
+      "url": "https://docs.ahrefs.com/en/ahrefs-connect/docs/terms-of-service",
+      "label": "docs.ahrefs.com/en/ahrefs-connect/docs/terms-of-service"
+    },
+    {
+      "url": "https://docs.ahrefs.com/en/mcp/docs/introduction",
+      "label": "docs.ahrefs.com/en/mcp/docs/introduction"
+    },
+    {
+      "url": "https://docs.ahrefs.com/en/api/docs/api-keys-creation-and-management",
+      "label": "docs.ahrefs.com/en/api/docs/api-keys-creation-and-management"
+    }
+  ]
+}

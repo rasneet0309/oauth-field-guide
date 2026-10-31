@@ -1,0 +1,37 @@
+{
+  "$comment": "Hand-reviewed corrections applied on top of the automatic path classification (scripts/lib/library.mjs#classify). Keyed by app id.",
+  "paths": {
+    "whatsapp-business": {
+      "path": "review",
+      "reason": "WhatsApp: self-serve app, but Business Verification + App Review gate production"
+    },
+    "shopify": {
+      "path": "review",
+      "reason": "Shopify: public distribution needs App Store review"
+    },
+    "bigcommerce": {
+      "path": "review",
+      "reason": "BigCommerce: marketplace approval needed to reach all merchants"
+    },
+    "snowflake": {
+      "path": "key",
+      "reason": "Snowflake: each customer admin creates the security integration; no central OAuth app"
+    },
+    "sentry": {
+      "path": "review",
+      "reason": "Sentry: publishing an integration triggers Sentry review"
+    },
+    "smartsheet": {
+      "path": "review",
+      "reason": "Smartsheet: developer registration can be denied"
+    },
+    "quickbooks": {
+      "path": "review",
+      "reason": "QuickBooks: production keys need the app assessment questionnaire"
+    },
+    "close": {
+      "path": "review",
+      "reason": "Close: OAuth apps stay private to your organization until Close approves them (Make Public → review)"
+    }
+  }
+}

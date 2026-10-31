@@ -1,0 +1,143 @@
+{
+  "schema": 3,
+  "id": "magento",
+  "name": "Magento (Adobe Commerce)",
+  "category": "Ecommerce",
+  "website": "developer.adobe.com/commerce",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 45,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "key",
+  "verdict": "No central app: each merchant admin creates and activates an OAuth 1.0a integration under System → Integrations and your app receives per-store credentials. No review, 1-3 days, though host firewalls can block paths.",
+  "needGuide": "Yes — OAuth 1.0a signing and the merchant activation callback are fiddly, so follow the integration guide.",
+  "auth": {
+    "model": "OAuth 1.0a",
+    "detail": "Per-store integration: merchant creates an Integration in Admin, which generates a consumer key/secret. On activation the store POSTs the key, secret, verifier and base URL to your callback URL, opens your identity link URL for merchant login, then you call /oauth/token/request and /oauth/token/access with HMAC-SHA256 signed requests. The access token is long-lived until revoked. Applies to PaaS (on-prem/cloud); Adobe Commerce cloud-service customers use a different auth method.",
+    "userOAuth": "no",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Moderate",
+    "timeToFirstTest": "2-4 hours (local Magento + OAuth 1.0a signing)",
+    "timeToProduction": "1-3 days (no review) for the integration; Marketplace listing timing unknown",
+    "firstShort": "2–4 hours",
+    "prodShort": "1–3 days",
+    "difficulty": "Moderate",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for the OAuth 1.0a handshake: each merchant admin activates it. Distributing an extension as code is optional through Adobe Commerce Marketplace (listing review not retrieved).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (customer key)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "The merchant ticks API resources in an ACL tree when creating the integration; no scope names or review triggers.",
+    "summary": "The merchant picks which API resources (ACL tree) the integration may access during creation; there are no scope names or review triggers. Access is all-or-nothing per resource list.",
+    "table": []
+  },
+  "cost": "Free for Magento Open Source; Adobe Commerce requires a merchant license. Developer needs no fee for the integration.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any developer. Needs a public HTTPS callback and identity-link page that can authenticate your own user and map them to the store.",
+    "Where you register: No central registration. Merchant Admin → System → Extensions → Integrations → Add New Integration → set callback and identity link URLs and API resources → Save & Activate.",
+    "Cost: Free for Magento Open Source; Adobe Commerce requires a merchant license. Developer needs no fee for the integration."
+  ],
+  "registerAt": {
+    "url": "https://developer.adobe.com/commerce/webapi/get-started/authentication/gs-authentication-oauth/",
+    "path": "No central registration. Merchant Admin → System → Extensions → Integrations → Add New Integration → set callback and identity link URLs and API resources → Save & Activate."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Stand up a test Magento store and enable HTTPS",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Build the callback endpoint to receive the activation POST (store URL, verifier, consumer key/secret) and store them",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Build the identity link page: merchant logs into your app, then you call POST /oauth/token/request and /oauth/token/access with signed parameters",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Merchant creates the integration (callback URL, identity link URL, resource ACL) and clicks Save and Activate",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Call REST (for example GET /rest/V1/products) with the signed Authorization header and validate success",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle revocation (merchant deletes or deactivates the integration) and re-activation",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Optional: package an extension for Adobe Commerce Marketplace",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any developer. Needs a public HTTPS callback and identity-link page that can authenticate your own user and map them to the store.",
+    "console": "none documented (no developer console for Integrations; Adobe Developer Console applies to other Adobe APIs).",
+    "customer": "A store admin with access to System → Integrations and to the API resources being granted creates and activates the integration, and clicks Allow. Hosting WAF/CDN rules can block /rest or /oauth paths.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use a local Magento Open Source or Adobe Commerce cloud dev environment and Adobe's sample PHP scripts (endpoint.php, login.php, checklogin.php) that simulate the flow.",
+    "Installing via Composer likely needs Commerce Marketplace access keys."
+  ],
+  "blockers": [
+    {
+      "problem": "OAuth 1.0a signing is easy to get wrong",
+      "fix": "Reuse an existing library (such as PHPoAuthLib in the Adobe samples)."
+    },
+    {
+      "problem": "The merchant must correctly paste both callback and identity link URLs",
+      "fix": "Give them a copy-paste block."
+    },
+    {
+      "problem": "Cloud-service/SaaS Commerce customers use a different auth path",
+      "fix": "Detect the deployment type early."
+    },
+    {
+      "problem": "CDN or firewall rules often block /oauth and /rest calls from your server IPs",
+      "fix": "Ask the customer to allowlist."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the signing client, callback and identity-link endpoints, the customer setup guide with exact field values, and revocation handling.",
+    "humanMust": "The customer's admin must log in, create and activate the integration; a human accepts any Marketplace agreement."
+  },
+  "uncertain": [
+    "Adobe Commerce Marketplace review, the standalone-bearer-token option for integration tokens, and the Adobe IMS / App Builder route for cloud-service customers were not retrieved.",
+    "Per-integration ACL details beyond the OAuth page were not checked."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.adobe.com/commerce/webapi/get-started/authentication/gs-authentication-oauth/",
+      "label": "developer.adobe.com/commerce/webapi/get-started/authentication/gs-auth…"
+    }
+  ]
+}

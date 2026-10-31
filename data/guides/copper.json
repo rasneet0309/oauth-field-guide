@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "copper",
+  "name": "Copper",
+  "category": "CRM & Sales",
+  "website": "copper.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 9,
+  "lastChecked": "2026-10-28",
+  "confidence": "Low",
+  "path": "partner",
+  "verdict": "OAuth is likely offered only to integration partners, so apply to Copper's partner program for client credentials before customers can connect. Until then use per-user API keys; timeline unknown, low confidence.",
+  "needGuide": "Yes — apply to Copper's partner program first, and ship API-key onboarding in the meantime.",
+  "auth": {
+    "model": "OAuth 2.0 (partner-gated)",
+    "detail": "Likely: the standard API uses a per-user API key sent with the user's email in headers. OAuth 2.0 authorization-code is offered to integration partners only, with credentials issued by Copper. Details unverified this session.",
+    "userOAuth": "partner-only",
+    "access": "Partner program required"
+  },
+  "effort": {
+    "researchRating": "Hard",
+    "timeToFirstTest": "30–60 min with an API key; days to weeks for OAuth credentials",
+    "timeToProduction": "unknown (partner approval)",
+    "firstShort": "30–60 min (key)",
+    "prodShort": "Unknown (partner approval)",
+    "difficulty": "Complex",
+    "prodDays": 999
+  },
+  "approval": {
+    "gate": "Likely a partner application before OAuth client credentials are issued; once issued, customers connect via OAuth. Listing in Copper's integration directory would be a further partner step. Unverified.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": true,
+    "kind": "Partner approval"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Likely no fine-grained scopes; access follows the authorizing user's Copper permissions (unverified).",
+    "summary": "Likely no fine-grained scopes; access follows the authorizing user's Copper permissions. Unverified.",
+    "table": []
+  },
+  "cost": "Unknown; likely free to apply. Customers need a Copper plan with API access.",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A business contact with authority to apply as a partner, plus a developer; use a company email and a company-owned Copper test account.",
+    "Where you register: No self-serve console known. Contact Copper's partnerships or developer team to request OAuth credentials (likely). Fallback: user creates an API key in Copper → Settings → Integrations → API Keys.",
+    "Cost: Unknown; likely free to apply. Customers need a Copper plan with API access."
+  ],
+  "registerAt": {
+    "url": "https://developer.copper.com/",
+    "path": "No self-serve console known. Contact Copper's partnerships or developer team to request OAuth credentials (likely). Fallback: user creates an API key in Copper → Settings → Integrations → API Keys."
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Start a Copper trial with a company email as the test tenant",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Prototype with an API key plus user email headers against the Copper API",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Apply to Copper's partner program, requesting OAuth credentials and a redirect URI",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Meanwhile offer an API-key connect screen: user pastes key and email, you validate with a test call and store them encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "After credentials arrive, implement authorization-code flow and migrate customers",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Complete any partner agreement and listing requirements Copper specifies",
+          "who": "Legal",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A business contact with authority to apply as a partner, plus a developer; use a company email and a company-owned Copper test account.",
+    "console": "none documented",
+    "customer": "A Copper user generates their own API key (admin rights may be needed, likely) or approves the OAuth consent; admins may restrict API access.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Copper trial account plus API key for early development; no public sandbox known.",
+    "OAuth testing needs partner credentials."
+  ],
+  "blockers": [
+    {
+      "problem": "OAuth is partner-gated",
+      "fix": "Ship API-key onboarding first."
+    },
+    {
+      "problem": "API keys are tied to a user",
+      "fix": "Use a service user so keys survive staff changes."
+    },
+    {
+      "problem": "Keys need the matching user email header",
+      "fix": "Collect both."
+    },
+    {
+      "problem": "Partner timeline unknown",
+      "fix": "Contact Copper before committing dates."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the API-key connect flow and validation, draft the partner application and use-case write-up, build the OAuth code in advance.",
+    "humanMust": "Contact Copper, sign any partner agreement, and have customers create keys or approve consent."
+  },
+  "uncertain": [
+    "Copper docs were not fetched (hourly fetch limit hit).",
+    "Partner requirements, review timeline and cost are unconfirmed; the OAuth-for-partners framing comes from the task hint and prior knowledge."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.copper.com/",
+      "label": "developer.copper.com"
+    },
+    {
+      "url": "https://developer.copper.com/introduction/authentication.html",
+      "label": "developer.copper.com/introduction/authentication.html"
+    }
+  ]
+}

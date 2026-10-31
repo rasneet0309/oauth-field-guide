@@ -1,0 +1,152 @@
+{
+  "schema": 3,
+  "id": "clickup",
+  "name": "ClickUp",
+  "category": "Productivity & PM",
+  "website": "clickup.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 77,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: a Workspace owner or admin creates the OAuth app under Settings → Apps, and no review or partner program was found. Likely 1-3 days; admin allow-list controls are unconfirmed.",
+  "needGuide": "Short one: create the app as an owner or admin, add the redirect URL, ship.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code grant: authorize at app.clickup.com/api, exchange at api.clickup.com/api/v2/oauth/token. Access tokens currently do not expire and no refresh tokens or PKCE are documented (docs warn this may change; non-SSL redirects may be dropped). Users choose which Workspaces to authorize.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no documented review)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None documented: no review or partner program found for OAuth apps. Only Workspace owners or admins can create the OAuth app. Whether an App Center listing exists or needs review was not found.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scope parameter; the token acts with the user's permissions in the Workspaces they choose.",
+    "summary": "No scope parameter documented; the token acts with the authorizing user's permissions in the Workspaces they selected. No scope-based review.",
+    "table": []
+  },
+  "cost": "Free; API rate limits depend on the customer Workspace plan",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A ClickUp Workspace owner or admin must create the app (docs); do it from a company-owned Workspace so the app is not tied to one person's seat.",
+    "Where you register: Avatar → Settings → Apps → Create new app → name + redirect URL → copy client_id and secret",
+    "Cost: Free; API rate limits depend on the customer Workspace plan"
+  ],
+  "registerAt": {
+    "url": "https://developer.clickup.com/docs/authentication",
+    "path": "Avatar → Settings → Apps → Create new app → name + redirect URL → copy client_id and secret"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in as a Workspace owner/admin and open avatar → Settings → Apps → Create new app",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Enter the app name and HTTPS redirect URL; copy client_id and client secret into a secrets manager",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement the authorize redirect with a state parameter and the token exchange; store the non-expiring token encrypted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call Get Authorized Teams (Workspaces) after consent to record which Workspaces were granted",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Handle 429 using X-RateLimit headers (100/min on Free-Business, 1,000 Business Plus, 10,000 Enterprise)",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a second Workspace and a non-admin user; implement a re-authorize flow for changing Workspaces",
+          "who": "QA",
+          "agent": false
+        },
+        {
+          "do": "Add token-expiry/refresh handling behind a feature flag in case ClickUp starts expiring tokens",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A ClickUp Workspace owner or admin must create the app (docs); do it from a company-owned Workspace so the app is not tied to one person's seat.",
+    "console": "none documented",
+    "customer": "The authorizing user selects one or more Workspaces during consent; creating or approving may depend on their Workspace role. Admin controls blocking third-party apps not confirmed.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Create the app in your own Workspace and authorize it into that Workspace or another you control.",
+    "No sandbox documented.",
+    "Free plans are limited to 100 requests/minute per token."
+  ],
+  "blockers": [
+    {
+      "problem": "No scopes means broad access",
+      "fix": "Enforce least privilege in your own agent layer and disclose it to customers."
+    },
+    {
+      "problem": "Tokens never expire, so a leaked token stays valid",
+      "fix": "Encrypt at rest and give users a disconnect that deletes it."
+    },
+    {
+      "problem": "Low rate limits on Free to Business plans (100/min) can throttle an agent",
+      "fix": "Queue and back off."
+    },
+    {
+      "problem": "Only admins can create the OAuth app",
+      "fix": "Have an admin of your company Workspace do it."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth code, Workspace discovery, rate-limit handling, secure storage, and test calls.",
+    "humanMust": "Admin sign-in to create the app and any customer-side authorization by the end user."
+  },
+  "uncertain": [
+    "App Center listing or review process, any admin allow-list controls, PKCE/refresh plans, and test-Workspace options were not confirmed.",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://developer.clickup.com/docs/authentication",
+      "label": "developer.clickup.com/docs/authentication"
+    },
+    {
+      "url": "https://developer.clickup.com/docs/faq",
+      "label": "developer.clickup.com/docs/faq"
+    },
+    {
+      "url": "https://developer.clickup.com/docs/rate-limits",
+      "label": "developer.clickup.com/docs/rate-limits"
+    }
+  ]
+}

@@ -1,0 +1,741 @@
+[
+  {
+    "n": 51,
+    "id": "dataforseo",
+    "name": "DataForSEO",
+    "category": "Data, SEO & Scraping",
+    "website": "dataforseo.com",
+    "authModel": "API key / token only",
+    "authDetail": "HTTP Basic auth only: Base64 of the API login and API password (separate from the account password) in the Authorization header; credentials cannot be passed as URL parameters. No OAuth and no token exchange. The sandbox uses the same credentials.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://app.dataforseo.com/api-access",
+      "path": "Sign up at app.dataforseo.com/register, then open the API Access page to see your API login and password"
+    },
+    "access": "Not offered",
+    "productionGate": "No OAuth exists, so no approval gate. Your own production use only needs a funded account: $50 minimum top-up, pay-as-you-go, funds do not expire. No partner program or app review is documented. DataForSEO is a data vendor your product pays for, not an account your customers connect, so call it server-side with your own credentials.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "10-20 min",
+    "timeToProduction": "Same day after the $50 top-up",
+    "cost": "Pay-as-you-go, $50 minimum top-up; $1 trial credit for new accounts; sandbox free",
+    "roles": {
+      "team": "Whoever signs up owns the API credentials; use a company-owned login rather than a personal one. Team roles were not documented in the pages read.",
+      "console": "none documented",
+      "customer": "None for the normal case. If a customer wants to use their own DataForSEO account, they paste their API login and password into your app; store them encrypted."
+    },
+    "testing": "Swap api.dataforseo.com/v3 for sandbox.dataforseo.com/v3 with the same login and password. It is free for any registered user, returns dummy data in the production response shape, supports pingback_url and postback_url, and has the same rate limits (10,000 calls/min). The $1 trial credit covers a few live calls (Playground, MCP, templates).",
+    "steps": [
+      {
+        "do": "Register at app.dataforseo.com/register using a company email",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Open app.dataforseo.com/api-access and copy the API login and password into your secrets manager",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Build requests against https://sandbox.dataforseo.com/v3 using Basic auth (Base64 of login:password)",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Verify task_post with pingback_url and postback_url handlers against the sandbox",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Add the $50 minimum top-up to the account",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Switch the base URL to api.dataforseo.com and run a small live smoke test; set spend alerts in your app",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No scopes. The credentials grant access to every API the funded balance can pay for. Per-key limits or sub-accounts were not confirmed.",
+    "blockers": [
+      "The API password differs from the account password; 401 errors usually mean the wrong one. Copy both from the API Access page.",
+      "No scoped credentials: a leak can drain the balance. Keep calls server-side and avoid large balances or auto top-up.",
+      "Sandbox data is dummy, so it cannot validate result quality. Use the $1 trial credit for a few live checks.",
+      "Live methods take one task per POST; use task_post with pingback for volume."
+    ],
+    "agentCan": "Write the Basic-auth client (official PHP, C#, Java, Python and TypeScript libraries, an OpenAPI spec and a Postman collection exist), run sandbox test calls, and add retry and cost-tracking logic.",
+    "humanMust": "Create the account, accept the terms, pay the top-up, and retrieve the credentials from the console.",
+    "confidence": "High",
+    "uncertain": "Sub-account or per-key spend limits, any partner or reseller program, MCP server auth details, and terms for reselling data to third parties were not confirmed.",
+    "sources": [
+      "https://docs.dataforseo.com/v3/auth/",
+      "https://docs.dataforseo.com/v3/appendix/sandbox/",
+      "https://dataforseo.com/pricing",
+      "https://docs.dataforseo.com/v3/"
+    ]
+  },
+  {
+    "n": 52,
+    "id": "se-ranking",
+    "name": "SE Ranking",
+    "category": "Data, SEO & Scraping",
+    "website": "seranking.com",
+    "authModel": "API key / token only",
+    "authDetail": "Send Authorization: Token <key> (a ?apikey= query parameter also works). One key covers the Data and Project APIs. There is no developer-registered OAuth. Their hosted MCP server (https://api.seranking.com/mcp) offers OAuth 2.1 browser sign-in for MCP clients, or an X-Api-Key header. Keys have full account access; read-only keys are not yet available.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://seranking.com/api/how-to-get-api/",
+      "path": "Log in, click the API icon in the left nav, then Dashboard, then + CREATE API KEY, name it, and click CREATE KEY"
+    },
+    "access": "Not offered",
+    "productionGate": "No approval for using your own key. Embedding SE Ranking data in a third-party product is a non-standard use: the commercial-use page says to book a demo or contact sales for permission, and direct competitors need explicit consent. Customers who want their own data would supply their own key.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "Same day for own use; unknown if sales permission is needed to embed data",
+    "cost": "API access is included in every platform plan (Essential, Pro, Business, Core, Growth, Enterprise); monthly Data API credits are 10k, 25k, or 100k depending on plan. Standalone Data API credit packs are annual, lowest tier 12M credits for $2,148/yr.",
+    "roles": {
+      "team": "Use a company-owned master account; API access belongs to the master account.",
+      "console": "none documented (no role restrictions on key creation were stated; multiple keys per account are allowed)",
+      "customer": "The customer generates a key in their own API Dashboard and pastes it into your app. Sub-account users cannot use OAuth in MCP and must get the key from the account administrator."
+    },
+    "testing": "No sandbox is documented. Use a Postman collection and a free trial account (whether trials include API access is not stated). Only 2xx responses use credits, and the account subscription endpoint costs 0 credits, so use it to validate a pasted key.",
+    "steps": [
+      {
+        "do": "Confirm the account plan includes API access (API icon in the left nav)",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create a key at API Dashboard, then + CREATE API KEY; use one key per environment",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Build the client with Authorization: Token <key> against the Data and Project APIs",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Add a key-validation call to the account subscription endpoint (0 credits) in your connect flow",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Contact sales (demo or contact page) if your product displays SE Ranking data to third parties",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Store customer-pasted keys encrypted and track credit usage per customer",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "None. Keys have full account access across the Data, Project, Local Marketing and SE Visible APIs. The MCP server does not expose every endpoint.",
+    "blockers": [
+      "Full-access keys only: tell customers a pasted key grants everything, and warn that restricted keys are not yet available.",
+      "Sub-account users cannot use OAuth-based MCP; ask the master account holder for a key.",
+      "Credits are consumed per request and per record; model costs before launch.",
+      "Embedding data in a customer-facing product may need written permission from sales."
+    ],
+    "agentCan": "Write the API client, key-validation call and credit tracking, run test calls, and draft the sales request for commercial embedding.",
+    "humanMust": "Create or own the account, buy a plan or credit pack, and ask SE Ranking sales for commercial or embedded-use permission.",
+    "confidence": "High",
+    "uncertain": "Whether trial accounts include API access, rate limit numbers, role requirements for key creation, and whether the MCP OAuth supports third-party clients beyond Claude, ChatGPT and Cursor.",
+    "sources": [
+      "https://seranking.com/api/data/getting-started/",
+      "https://seranking.com/api/how-to-get-api/",
+      "https://seranking.com/api/integrations/mcp/",
+      "https://seranking.com/api/usage-guidelines-for-commercial-purposes/"
+    ]
+  },
+  {
+    "n": 53,
+    "id": "ahrefs",
+    "name": "Ahrefs",
+    "category": "Data, SEO & Scraping",
+    "website": "ahrefs.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "Ahrefs Connect: authorization-code with mandatory PKCE (S256), scope apiv3-integration-apps. Authorize at https://app.ahrefs.com/web/oauth/authorize, token at https://ahrefs.com/oauth/token. Access tokens last 1 year and there are no refresh tokens, so users must re-authorize. Web apps keep a client secret server-side. Separately, API v3 uses Bearer API keys, and the hosted MCP (https://api.ahrefs.com/mcp/mcp) creates an MCP-scoped key on consent.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://docs.ahrefs.com/en/ahrefs-connect/docs/how-to-apply",
+      "path": "Submit the application form (product description, website, planned data use); after acceptance, Ahrefs Account settings then Ahrefs Connect shows the Client ID, Client Secret and redirect URI fields"
+    },
+    "access": "Partner program required",
+    "productionGate": "Mandatory application plus approval. New products need an Enterprise Ahrefs subscription. Submit screenshots of every connection step, an unedited OAuth screen recording (tokens must never be visible), and endpoint and data-usage details. The app stays Inactive until Ahrefs switches it to Active.",
+    "difficulty": "Very hard",
+    "timeToFirstTest": "Days after Ahrefs accepts the application (free test queries with an API key work earlier)",
+    "timeToProduction": "unknown (review timeline not published; the Enterprise sales cycle likely adds weeks)",
+    "cost": "Enterprise subscription for the developer (price not published). Each end user needs a paid plan (Lite, Standard, Advanced or Enterprise); calls use the user's API units, and Connect or MCP keys default to a 200,000-unit cap.",
+    "roles": {
+      "team": "The Enterprise account owner submits the app; the person building the app needs access to Account settings then Ahrefs Connect. Only workspace owners and admins can manage API keys.",
+      "console": "none documented for sharing Ahrefs Connect apps; API keys (up to 1,000 per workspace) are managed by owners and admins.",
+      "customer": "An Ahrefs user on a paid plan authorizes the connection (likely owner or admin; not stated). Workspace admins can cap per-app API units; a key is invalidated if its creator leaves the workspace."
+    },
+    "testing": "While Inactive you can test OAuth flows in staging and make free test queries to API v3 endpoints. Free test queries work without an Enterprise plan.",
+    "steps": [
+      {
+        "do": "Confirm an Enterprise Ahrefs subscription exists for the company",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Apply via the Ahrefs Connect form with product description, website and planned data use",
+        "who": "Owner",
+        "agent": true
+      },
+      {
+        "do": "Copy the Client ID and Secret and register exact redirect URIs in Account settings then Ahrefs Connect",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code with PKCE S256 and a state check; handle the 1-year expiry with a re-connect flow",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test in staging while the app is Inactive using free test queries",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Record an unedited OAuth screen recording and capture screenshots of connect, display and revoke",
+        "who": "Design",
+        "agent": false
+      },
+      {
+        "do": "Send the approval package to your Ahrefs sales contact and wait for Active status",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "A single scope (apiv3-integration-apps); no finer split. The terms restrict storage: cache only to serve the user, purge on revoke or downgrade, no reselling, no shadow databases.",
+    "blockers": [
+      "Enterprise subscription is required for new products; budget and sales cycle apply.",
+      "The MCP endpoint rejects custom scripts and standalone HTTP clients, so it cannot replace Ahrefs Connect for a backend agent.",
+      "No refresh tokens and 1-year tokens: build a re-authorization prompt.",
+      "Review needs an unedited video with no visible tokens; rehearse the flow first."
+    ],
+    "agentCan": "Draft the application text, write the PKCE OAuth client and re-auth handling, add data-retention and purge logic, and run test queries.",
+    "humanMust": "Hold the Enterprise contract, submit the application, record the authorization video, and talk to the Ahrefs sales contact.",
+    "confidence": "High",
+    "uncertain": "Review timeline, Enterprise price, whether non-technology companies are eligible, exact customer role required to authorize, and rate limits for Connect apps.",
+    "sources": [
+      "https://docs.ahrefs.com/en/ahrefs-connect/docs/how-it-works",
+      "https://docs.ahrefs.com/en/ahrefs-connect/docs/oauth-guide",
+      "https://docs.ahrefs.com/en/ahrefs-connect/docs/approval-process",
+      "https://docs.ahrefs.com/en/ahrefs-connect/docs/terms-of-service",
+      "https://docs.ahrefs.com/en/mcp/docs/introduction",
+      "https://docs.ahrefs.com/en/api/docs/api-keys-creation-and-management"
+    ]
+  },
+  {
+    "n": 54,
+    "id": "mrscraper",
+    "name": "MrScraper",
+    "category": "Data, SEO & Scraping",
+    "website": "mrscraper.com",
+    "authModel": "API key / token only",
+    "authDetail": "API token sent in the x-api-token header; marketplace endpoints use Authorization: Bearer <token> (RFC 6750). Base URL in the docs examples is https://api.app.mrscraper.com/api/v1/. No OAuth documented. An official MCP server exists (source: github.com/mrscraper-com/mrscraper-mcp).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.mrscraper.com/docs/getting-started/api-token",
+      "path": "Sign in at app.mrscraper.com and create an API token (the exact dashboard menu was not shown in the docs)"
+    },
+    "access": "Not offered",
+    "productionGate": "No approval gate documented. You need a subscription or token plan with enough usage. Customers do not connect accounts; your app calls the scraping API with your own token, or customers paste their own token.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "Same day",
+    "cost": "Subscription with token-based usage (see Token Plan and Billing pages); free trial terms not confirmed",
+    "roles": {
+      "team": "Whoever owns the MrScraper account creates the token; use a company-owned account.",
+      "console": "none documented",
+      "customer": "None. If customers bring their own token, they create it in their own dashboard and paste it."
+    },
+    "testing": "No sandbox documented. Use a Verify API Token endpoint (returns subscription account details, usage, limits and billing) to validate keys, then run a small scraper and check usage in the dashboard.",
+    "steps": [
+      {
+        "do": "Create a company MrScraper account at app.mrscraper.com",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Generate an API token in the dashboard and store it as a server secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Call the Verify Token endpoint with x-api-token to confirm plan and usage",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Rerun an existing scraper via the API as a smoke test and watch token usage",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "For customer-supplied tokens, add a paste field, validate via Verify Token, and store the token encrypted",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No scopes documented; a token has the account's full API access.",
+    "blockers": [
+      "Token usage varies between runs (see the Token Plan page), so cost forecasting needs a pilot.",
+      "Two header styles (x-api-token versus Bearer for marketplace endpoints); use the right one per endpoint.",
+      "No OAuth, so you cannot offer one-click connect; build a paste-token flow.",
+      "Scraping targets may have their own ToS; review before scraping at scale."
+    ],
+    "agentCan": "Write the client, token validation, retry logic and the MCP configuration, and run test calls.",
+    "humanMust": "Create the account, choose and pay for a plan, and generate the token in the dashboard.",
+    "confidence": "Medium",
+    "uncertain": "Exact dashboard path for creating tokens, free trial terms, rate limits, plan requirements, and whether the MCP server has a hosted OAuth endpoint. The docs pages were thin.",
+    "sources": [
+      "https://docs.mrscraper.com",
+      "https://docs.mrscraper.com/docs/api/authentication",
+      "https://docs.mrscraper.com/docs/getting-started/api-token",
+      "https://docs.mrscraper.com/llms.txt"
+    ]
+  },
+  {
+    "n": 55,
+    "id": "apify",
+    "name": "Apify",
+    "category": "Data, SEO & Scraping",
+    "website": "apify.com",
+    "authModel": "OAuth 2.0 (partner-gated)",
+    "authDetail": "API tokens are the main method (Authorization header, optional expiry, 24-hour overlap on rotation, scopes limited to specific resources). The integrator guide says users can authorize an integration via OAuth 2.0 without sharing credentials, but no self-serve client registration is documented. The hosted MCP server (https://mcp.apify.com) offers browser OAuth sign-in or a Bearer token.",
+    "userOAuth": "partner-only",
+    "registerAt": {
+      "url": "https://docs.apify.com/platform/integrations/integrate",
+      "path": "No OAuth client console found; email integrations@apify.com for OAuth credentials. For tokens: Apify Console, API & Integrations page"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Likely a conversation with Apify (integrations@apify.com) to get OAuth client credentials; this is an inference because the docs do not describe a self-serve registration or review. The token route has no gate: users create a personal or scoped token and paste it. Send x-apify-integration-platform (and x-apify-integration-app-id) headers on every request.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "30-60 min with a token; OAuth timing unknown",
+    "timeToProduction": "1-3 days with the token route; unknown for OAuth",
+    "cost": "Free plan available; pay-per-use for compute and per-Actor pricing; end users pay on their own accounts",
+    "roles": {
+      "team": "Any Apify account owner creates tokens; use a company-owned account for the integration. Contact Apify about OAuth.",
+      "console": "none documented in the pages read",
+      "customer": "A user who owns the Apify account (or has token access) approves OAuth or creates a token. Scoped tokens can be limited to run one Actor; unscoped tokens are needed to create or modify Actors."
+    },
+    "testing": "Use your own Apify free account with scoped tokens. For OAuth, the mcp.apify.com browser sign-in can be exercised from any MCP client; a Developer-tier OAuth app and test mode were not documented.",
+    "steps": [
+      {
+        "do": "Decide between token paste, MCP OAuth, or a custom OAuth integration; email integrations@apify.com for the last",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create a scoped token in Console, API & Integrations, restricted to the Actors you need",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Build the client with the Apify API or JS/Python clients; add the x-apify-integration-platform header",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Connect to https://mcp.apify.com via OAuth in a test MCP client; confirm which tools appear",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Add a connect flow: users paste a scoped token (or complete OAuth) and you validate with a test call",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Document Actor costs and add a per-user usage guard",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "Token scopes are account-level or resource-specific. Full-permission Actors are excluded from MCP search and run. OAuth scopes are not documented.",
+    "blockers": [
+      "OAuth for custom apps is not self-serve in the docs; use scoped tokens or ask Apify.",
+      "Scoped tokens cannot create or modify Actors; use an unscoped token for that.",
+      "Actor costs are borne by the user's account; surface expected cost before running.",
+      "Hosted MCP needs authentication for any run or storage access."
+    ],
+    "agentCan": "Write the API client and token validation, configure the MCP connection, create the scoped-token instructions for users, and draft the OAuth request email.",
+    "humanMust": "Apify account owner creates accounts and tokens, and a person must contact Apify for OAuth credentials and accept terms.",
+    "confidence": "Medium",
+    "uncertain": "Whether Apify issues third-party OAuth client credentials at all and on what terms; OAuth scopes; dynamic client registration for MCP. The OAuth docs page and the MCP OAuth metadata URL could not be fetched (fetch and search limits were reached).",
+    "sources": [
+      "https://docs.apify.com/platform/integrations/integrate",
+      "https://docs.apify.com/platform/integrations/api",
+      "https://docs.apify.com/platform/integrations/mcp",
+      "https://docs.apify.com/platform/integrations"
+    ]
+  },
+  {
+    "n": 56,
+    "id": "firecrawl",
+    "name": "Firecrawl",
+    "category": "Data, SEO & Scraping",
+    "website": "firecrawl.dev",
+    "authModel": "API key / token only",
+    "authDetail": "Authorization: Bearer fc-... API key. Basic keyless use exists with per-IP daily caps. The hosted MCP server has three modes: keyless (Search, Scrape, Parse), OAuth sign-in at https://mcp.firecrawl.dev/v2/mcp-oauth where the user approves a team, or an API key at https://mcp.firecrawl.dev/v2/mcp. No developer-registered OAuth is documented.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://www.firecrawl.dev/app/api-keys",
+      "path": "Create a free account, then open the API Keys page of the dashboard"
+    },
+    "access": "Not offered",
+    "productionGate": "None. Firecrawl is a service you call with your own key; a customer-facing connect step is only needed if customers should use their own team. Production needs a paid plan once free credits (1,000) or rate limits are exceeded.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "5-10 min",
+    "timeToProduction": "Same day",
+    "cost": "Free plan with 1,000 credits; paid tiers Hobby, Standard, Growth, Scale; Enterprise",
+    "roles": {
+      "team": "Any team member with dashboard access creates keys; use a company-owned team. Rate limits are per team and shared across all keys.",
+      "console": "none documented (team roles not covered in the pages read)",
+      "customer": "For the MCP OAuth path the user signs in to Firecrawl and approves a team; connections can be reviewed and revoked in MCP settings. Otherwise customers paste their own key."
+    },
+    "testing": "Use the free account or the keyless mode. Free plan limits: 2 concurrent browsers, 10 scrapes/min, 2 crawls/min; exceeding returns HTTP 429.",
+    "steps": [
+      {
+        "do": "Create a company Firecrawl account and team",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create an API key on the API Keys page; store it as a server secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Call /scrape with Authorization: Bearer using the official SDK",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "If using MCP, point the client at mcp.firecrawl.dev/v2/mcp-oauth and test sign-in and revoke",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Upgrade to a plan sized to expected concurrency and add 429 backoff",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "For customer-owned accounts, add an API key paste field and validate with a cheap call",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No scopes; a key has the team's full API access. MCP OAuth and API key reach the same tools on the team's plan.",
+    "blockers": [
+      "Rate limits are per team and shared across all keys; new keys do not add capacity.",
+      "Keyless mode is capped per IP per day; do not rely on it in production.",
+      "No third-party OAuth app registration documented; use pasted keys or the MCP OAuth path.",
+      "Scraped targets can block or have ToS limits; plan fallbacks."
+    ],
+    "agentCan": "Write the SDK calls, 429 handling and the MCP configuration, run test scrapes, and add key validation.",
+    "humanMust": "Create the account, choose and pay for a plan, and approve MCP OAuth sign-in as a user.",
+    "confidence": "High",
+    "uncertain": "Whether Firecrawl will register OAuth apps for third parties, team role details, and numeric keyless limits. Fetching was cut off before some pages could be checked.",
+    "sources": [
+      "https://docs.firecrawl.dev/introduction",
+      "https://docs.firecrawl.dev/mcp-server",
+      "https://docs.firecrawl.dev/rate-limits"
+    ]
+  },
+  {
+    "n": 57,
+    "id": "bright-data",
+    "name": "Bright Data",
+    "category": "Data, SEO & Scraping",
+    "website": "brightdata.com",
+    "authModel": "API key / token only",
+    "authDetail": "API key as Authorization: Bearer <token>, or proxy-style username brd-customer-[ACCOUNT_ID]-zone-[ZONE] with a per-zone password. Keys have permission levels (Admin, Finance, Ops, Limit, User), optional expiry, and are shown only once. Agent API keys authenticate the MCP server. No OAuth documented. The MCP quickstart page shows https://mcp.brightdata.com/sse?token=<API_TOKEN>; that page may be dated.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.brightdata.com/api-reference/authentication",
+      "path": "Control panel, then Account settings, then Add API key; choose user, permissions and expiration, then save"
+    },
+    "access": "Not offered",
+    "productionGate": "No OAuth gate. Some products (residential network, Web Unlocker) appear to require identity verification (KYC): the docs say access without KYC requires an SSL certificate, so expect verification for full access. This is inferred from that note. Customers do not connect accounts.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days if KYC review applies; otherwise same day",
+    "cost": "Pay-as-you-go from about $1 per 1,000 requests for Unlocker, Crawl and SERP APIs; Residential from $2.50/GB; MCP free tier is 5,000 requests per month per account",
+    "roles": {
+      "team": "Only account admins can generate API keys; each user can have one key and total keys cannot exceed the number of account users. Use a company-owned admin account.",
+      "console": "Add users under account settings and assign Admin, Finance, Ops, Limit or User permissions.",
+      "customer": "None. Customers do not connect accounts; if they bring their own Bright Data account they paste a key you store encrypted."
+    },
+    "testing": "Use the free tier (5,000 MCP requests a month shared across team users) and several products' free tiers. No sandbox is documented.",
+    "steps": [
+      {
+        "do": "Create a company account and complete any KYC prompts",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Add an API key in Account settings with limited permissions and an expiry",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store the key (shown once) in a secrets manager; refresh creates a new key and revokes the old one",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Call the chosen product (Unlocker, SERP or Scraper API) with Bearer auth",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Create a separate Agent API key for MCP use and test the remote server",
+        "who": "QA",
+        "agent": true
+      },
+      {
+        "do": "Add per-job cost caps and a compliance review of scraping targets",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "No OAuth scopes; permission is per user role (Admin, Finance, Ops, Limit, User) and per key.",
+    "blockers": [
+      "Only admins can create keys and the key is shown once; lost keys must be refreshed.",
+      "Key count is capped by user count; add a user before adding another key.",
+      "KYC verification may be required for residential and unlocker products.",
+      "Scraping targets' ToS and data-protection law apply; get legal sign-off."
+    ],
+    "agentCan": "Write the API clients, configure the MCP server, run test calls and add cost controls.",
+    "humanMust": "Create the account, pass any KYC, pay, create and store keys as admin, and approve legal use cases.",
+    "confidence": "Medium",
+    "uncertain": "Exact KYC rules by product, whether the remote MCP supports OAuth, and the current remote MCP URL (the page showed an older SSE form). Further docs could not be fetched because the fetch limit was hit.",
+    "sources": [
+      "https://docs.brightdata.com/api-reference/authentication",
+      "https://docs.brightdata.com/mcp-server/overview",
+      "https://docs.brightdata.com/mcp-server/quickstart/remote",
+      "https://brightdata.com/pricing"
+    ]
+  },
+  {
+    "n": 58,
+    "id": "sherlock",
+    "name": "Sherlock",
+    "category": "Data, SEO & Scraping",
+    "website": "github.com/sherlock-project/sherlock",
+    "authModel": "No auth (local tool)",
+    "authDetail": "Open-source (MIT) Python CLI that checks a username against 400+ social sites by requesting public profile URLs. No accounts, API keys, OAuth or hosted API. Install with pipx install sherlock-project (or pip, uv, Docker: docker run -it --rm sherlock/sherlock). Options include --json, --csv, --xlsx, --site, --proxy and --timeout (default 60 s).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://github.com/sherlock-project/sherlock",
+      "path": "None needed; install the CLI locally or run the Docker image"
+    },
+    "access": "Not offered",
+    "productionGate": "No approval. The gate is your own compliance review: the tool probes many third-party sites for a person's presence, which raises privacy and site-ToS questions (inference; the README shows no disclaimer).",
+    "difficulty": "N/A",
+    "timeToFirstTest": "5-10 min",
+    "timeToProduction": "Same day if self-hosted; legal review time varies",
+    "cost": "Free (MIT)",
+    "roles": {
+      "team": "A developer with shell or Docker access runs it; no accounts needed. Run it in your own sandbox or worker, not on customer machines.",
+      "console": "none documented",
+      "customer": "None. There is no customer connect flow; end users supply a username as input."
+    },
+    "testing": "Run sherlock on your own known username and on a throwaway one, using --site to limit scope, --json for parsing and --print-found to reduce noise.",
+    "steps": [
+      {
+        "do": "Install with pipx install sherlock-project, or pull the sherlock/sherlock Docker image",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Run sherlock <username> --json against a known test username",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Wrap the CLI in a worker that restricts inputs, applies timeouts and optional proxies, and parses JSON results",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Record the permitted use cases (your own accounts, authorized investigations) in an acceptable-use policy",
+        "who": "Legal",
+        "agent": false
+      },
+      {
+        "do": "Add false-positive handling: treat hits as leads that need verification, not identity proof",
+        "who": "QA",
+        "agent": true
+      }
+    ],
+    "scopes": "None. The tool queries public profile URLs only. NSFW sites are off by default and enabled with --nsfw.",
+    "blockers": [
+      "False positives and username reuse: a hit does not prove the same person. Require human verification before acting.",
+      "Rate-limiting or blocking by target sites; use --timeout, --proxy and conservative concurrency.",
+      "Privacy law (such as GDPR) and site ToS may restrict profiling individuals; get legal sign-off and avoid use on private persons without authorization.",
+      "Third-party distro packages (Ubuntu, ParrotOS) may be broken; use pipx, uv, pip or Docker."
+    ],
+    "agentCan": "Install and run the CLI, parse JSON/CSV output, build the worker wrapper, and draft acceptable-use and consent wording.",
+    "humanMust": "Decide legitimate use cases, approve privacy and legal posture, and review results before acting on them.",
+    "confidence": "High",
+    "uncertain": "The README fetched had no ethics disclaimer and the project docs site did not load for details; the privacy and ToS notes here are general inferences, not Sherlock project statements. Current site list accuracy was not checked.",
+    "sources": [
+      "https://github.com/sherlock-project/sherlock",
+      "https://sherlockproject.xyz"
+    ]
+  },
+  {
+    "n": 59,
+    "id": "waterfall-io",
+    "name": "Waterfall.io",
+    "category": "Data, SEO & Scraping",
+    "website": "waterfall.io",
+    "authModel": "API key / token only",
+    "authDetail": "API key in the x-api-key header against https://api.waterfall.io (the marketing page shows two header spellings, the docs say x-api-key). A master key can create and manage sub-keys for teams or workflows. Async endpoints return a job_id; results come via a Finder call or a signed webhook (Ed25519, verified with a public JWKS endpoint). No OAuth.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://docs.waterfall.io/v1/authentication",
+      "path": "Contact support@waterfall.io or book a call on waterfall.io to receive the first (master) API key; no self-serve signup was documented"
+    },
+    "access": "Application/approval required",
+    "productionGate": "Keys appear to be issued by Waterfall's team after a call (the docs say to contact them for access and pricing). Pricing is usage-based with no monthly commitment or credit expiry, but figures are not published. Customers do not connect accounts.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "unknown (depends on Waterfall issuing a key)",
+    "timeToProduction": "unknown, likely days after the onboarding call",
+    "cost": "Usage-based pricing quoted by sales; no published prices",
+    "roles": {
+      "team": "Whoever holds the master key owns the account and can create sub-keys. Use a company-owned contact and shared mailbox.",
+      "console": "Sub-keys via API Key Management endpoints (list, create, update) using the master key.",
+      "customer": "None for the standard model. Sub-keys could separate your customers' usage, but this was not documented."
+    },
+    "testing": "No sandbox or test mode is documented. Ask support about trial credits and use small batches. Test webhook delivery with signature verification against the public JWKS.",
+    "steps": [
+      {
+        "do": "Email support@waterfall.io or book a call to request API access and pricing",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Store the master key in a secrets manager and create sub-keys per environment via the API Key Management endpoints",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call POST /v1/prospector or contact enrichment with x-api-key and a webhook_url",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement webhook verification with the Ed25519 JWKS and polling fallback via job_id",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Review data-privacy obligations for enriched contact data (emails, phones)",
+        "who": "Legal",
+        "agent": false
+      }
+    ],
+    "scopes": "No scopes documented; sub-keys partition access and usage.",
+    "blockers": [
+      "No self-serve key: the first key requires contacting Waterfall; start early.",
+      "Rate limits and sandbox are not documented; ask during onboarding.",
+      "Contact data is personal data; confirm a lawful basis and opt-out handling.",
+      "Async jobs: handle webhook failures by polling job_id results."
+    ],
+    "agentCan": "Draft the access request email, write the client, webhook verifier and sub-key management code, and run test enrichments.",
+    "humanMust": "Contact Waterfall or join a sales call, agree to pricing and terms, and approve privacy and compliance use.",
+    "confidence": "Medium",
+    "uncertain": "How the first key is issued, trial credits, rate limits, sandbox, and sub-key use for customers. The Authentication and API key overview pages were only partly visible.",
+    "sources": [
+      "https://waterfall.io",
+      "https://docs.waterfall.io/v1/introduction",
+      "https://docs.waterfall.io/v1/authentication"
+    ]
+  },
+  {
+    "n": 60,
+    "id": "clay",
+    "name": "Clay",
+    "category": "Data, SEO & Scraping",
+    "website": "clay.com",
+    "authModel": "API key / token only",
+    "authDetail": "Public API (https://api.clay.com/public/v0) with a personal API key in the clay-api-key header, tied to a Clay user and that user's workspace access. Keys are shown only once. A clay CLI and an agent plugin exist. No OAuth documented. Outbound webhooks: signed HMAC-SHA256 POST (X-Clay-Signature) when a routine run finishes.",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://developers.clay.com/public-api/authentication.md",
+      "path": "Clay app, then API and CLI, then API keys (or run clay api-keys create --name <name>)"
+    },
+    "access": "Not offered",
+    "productionGate": "None for OAuth because none exists. The developer platform is on all plans including free and trial, and API use consumes the same credits as in-product actions. Table reads with filters, joins or paging beyond 100 rows need the Enterprise API table sync.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "Same day; Enterprise features need sales",
+    "cost": "Included on all plans; consumes Clay credits and actions; Tables API is Enterprise only",
+    "roles": {
+      "team": "Any Clay user with workspace access can create a key, which acts with that user's permissions (specific roles not documented). Use a dedicated service-user account rather than a personal one so keys survive staff changes (likely sensible; not documented).",
+      "console": "none documented",
+      "customer": "None. Customers cannot connect via OAuth; they would paste their own API key, which acts as their user."
+    },
+    "testing": "Use a free or trial workspace; call GET /me to confirm the user and workspace, and the credits endpoint to check balance without consuming credits. Rate limits are per workspace (HTTP 429 with Retry-After).",
+    "steps": [
+      {
+        "do": "Create or choose a company Clay workspace and a dedicated service user",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Create an API key in the app under API and CLI, then API keys, and store it as a secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Call GET /public/v0/me with the clay-api-key header to validate the key and workspace",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Run a routine or search and register an outbound webhook with clay webhooks create <url>; save the signing secret",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Verify X-Clay-Signature with constant-time HMAC-SHA256 and fall back to polling run results",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "For Tables, contact Clay about the Enterprise plan",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "No scopes documented. Access equals the key owner's workspace permissions.",
+    "blockers": [
+      "Keys are tied to a user: if that user leaves, the key may break. Use a service account.",
+      "Tables API is Enterprise only and read-only; plan for it or use routines.",
+      "Each call spends credits; budget and use the credit-balance endpoint.",
+      "Webhook delivery is not guaranteed; always keep polling."
+    ],
+    "agentCan": "Install the Clay CLI or plugin, write the API client and webhook verifier, create routines, and run test calls.",
+    "humanMust": "Own the Clay workspace and plan, create or approve the API key, and negotiate Enterprise if Tables are needed.",
+    "confidence": "Medium",
+    "uncertain": "Who can create keys (roles), whether inbound webhooks into tables exist and their plan limits (not covered in the pages read), numeric rate limits, and any OAuth plans. The Public API docs appear new; older Clay guidance may differ.",
+    "sources": [
+      "https://university.clay.com/docs/using-clay-as-an-api",
+      "https://developers.clay.com/public-api/authentication.md",
+      "https://developers.clay.com/public-api/webhooks.md",
+      "https://developers.clay.com/public-api/rate-limits.md",
+      "https://developers.clay.com/llms.txt"
+    ]
+  }
+]

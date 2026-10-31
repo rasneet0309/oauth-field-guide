@@ -1,0 +1,142 @@
+{
+  "schema": 3,
+  "id": "mailchimp",
+  "name": "Mailchimp",
+  "category": "Marketing, Ads, Email & Social",
+  "website": "mailchimp.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 35,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: register an app and run OAuth, with no review documented, in about 1-3 days. Marketplace listing is optional and goes through the Integration Partner Program.",
+  "needGuide": "Short one: register the app, redirect users to authorize, exchange the code.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization-code flow: authorize at https://login.mailchimp.com/oauth2/authorize, exchange at https://login.mailchimp.com/oauth2/token. Access tokens have no expiry and there is no refresh token; a token stays valid until the user revokes or is removed. After auth, call https://login.mailchimp.com/oauth2/metadata (header Authorization: OAuth <token>) to get dc, api_endpoint and login_url, since each account lives on a data center like us19 (metadata endpoint from general knowledge; the pages read did not show it).",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None for connecting customers: registering an app is enough and the docs describe no review. Mailchimp Marketplace listing is optional, requires OAuth, and goes through the Integration Partner Program (requirements not read).",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None (listing optional)"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "No scope parameter; the token likely acts with the user's access to the whole account.",
+    "summary": "The OAuth guides read show no scope parameter; the token acts with the authorizing user's access to the whole account (likely, unconfirmed). There are no scope-based review gates.",
+    "table": []
+  },
+  "cost": "Free to register; customers need their own Mailchimp account (plan limits apply to their audiences)",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: A user with a Mailchimp login on a company-owned account to register the app; the secret can be rotated from the same page if exposed.",
+    "Where you register: Mailchimp account -> Registered Apps (OAuth2) -> Register An App -> fill form -> Create; copy client_id and client_secret (secret shown once)",
+    "Cost: Free to register; customers need their own Mailchimp account (plan limits apply to their audiences)"
+  ],
+  "registerAt": {
+    "url": "https://admin.mailchimp.com/account/oauth2/",
+    "path": "Mailchimp account -> Registered Apps (OAuth2) -> Register An App -> fill form -> Create; copy client_id and client_secret (secret shown once)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Log in as the company Mailchimp user; open Registered Apps and click Register An App; enter name, description, company, HTTPS redirect URI",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Copy client_id and client_secret to a secret manager (secret shown once)",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Redirect users to https://login.mailchimp.com/oauth2/authorize?response_type=code&client_id=...&redirect_uri=...",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "POST the code to /oauth2/token with grant_type=authorization_code, client_id, client_secret, redirect_uri to get access_token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call /oauth2/metadata to read dc and api_endpoint; store them per customer and call https://<dc>.api.mailchimp.com/3.0/",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "On 401 treat the token as revoked and ask the user to reconnect; delete stored tokens and sync configs on disconnect",
+          "who": "Developer",
+          "agent": true
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "A user with a Mailchimp login on a company-owned account to register the app; the secret can be rotated from the same page if exposed.",
+    "console": "none documented; app registration belongs to the Mailchimp user who registered it, so share via a company login.",
+    "customer": "A Mailchimp user with access to the account approves in the consent screen; the token carries that user's access. Which user roles may authorize apps was not documented (likely Admin or Owner is safest).",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Mailchimp account (free tier) plus a second account as a stand-in customer; http://127.0.0.1 redirect URIs work for local development.",
+    "No sandbox beyond normal accounts."
+  ],
+  "blockers": [
+    {
+      "problem": "Hard-coding a data center fails for other customers",
+      "fix": "Always read dc from the metadata endpoint."
+    },
+    {
+      "problem": "Client secret is shown only once",
+      "fix": "Rotation invalidates old-secret requests with 401."
+    },
+    {
+      "problem": "Tokens never refresh",
+      "fix": "A 401 means revoked and a full re-authorization is required."
+    },
+    {
+      "problem": "Marketplace listing requires OAuth plus Integration Partner Program steps not documented here",
+      "fix": ""
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the full OAuth, metadata and API client code, handle revocation, run test calls, draft listing copy.",
+    "humanMust": "Log in to register the app, store the secret, and apply to the Integration Partner Program if listing is wanted."
+  },
+  "uncertain": [
+    "Metadata endpoint details, who can register apps, role needed to authorize, and Marketplace requirements were not on the pages read.",
+    "No PKCE mention found."
+  ],
+  "sources": [
+    {
+      "url": "https://mailchimp.com/developer/marketing/guides/access-user-data-oauth-2/",
+      "label": "mailchimp.com/developer/marketing/guides/access-user-data-oauth-2"
+    },
+    {
+      "url": "https://mailchimp.com/developer/marketing/api-concepts/authentication/oauth-2/",
+      "label": "mailchimp.com/developer/marketing/api-concepts/authentication/oauth-2"
+    }
+  ]
+}

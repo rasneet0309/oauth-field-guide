@@ -1,0 +1,148 @@
+{
+  "schema": 3,
+  "id": "harvest",
+  "name": "Harvest",
+  "category": "Productivity & PM",
+  "website": "getharvest.com",
+  "tagline": "",
+  "kind": "researched",
+  "featured": false,
+  "listNumber": 80,
+  "lastChecked": "2026-10-28",
+  "confidence": "Medium",
+  "path": "self",
+  "verdict": "Self-serve: create an OAuth2 application at id.getharvest.com/developers with an HTTPS redirect URL, in about 1-3 days. No review or partner program was found.",
+  "needGuide": "Short one: create the OAuth2 app, register the redirect URL, ship.",
+  "auth": {
+    "model": "OAuth 2.0",
+    "detail": "Authorization code (server-side) and implicit grant via Harvest ID: authorize at id.getharvest.com/oauth2/authorize, exchange at /api/v2/oauth2/token. Docs example shows a 14-day access token (expires_in 1209600) and a refresh_token grant; refresh token lifetime not stated; PKCE not mentioned. Apps can support multiple Harvest/Forecast accounts per user.",
+    "userOAuth": "yes",
+    "access": "Self-serve"
+  },
+  "effort": {
+    "researchRating": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no documented review)",
+    "firstShort": "30–60 min",
+    "prodShort": "1–3 days",
+    "difficulty": "Easy",
+    "prodDays": 3
+  },
+  "approval": {
+    "gate": "None documented: no review or partner program found for OAuth2 apps; the redirect URL is registered and a custom redirect_uri must start with it.",
+    "when": "",
+    "timeline": [],
+    "recurring": "",
+    "required": false,
+    "kind": "None"
+  },
+  "scopes": {
+    "complexity": "Low",
+    "why": "Coarse scopes only: you choose products and accounts, not read or write.",
+    "summary": "Coarse scopes only: all, harvest:{ACCOUNT_ID}, forecast:{ACCOUNT_ID}, harvest:all, forecast:all, so you choose products and accounts rather than read/write. Docs recommend minimal scope. No review is tied to scopes.",
+    "table": []
+  },
+  "cost": "Free to register; a Harvest account is needed to test",
+  "tiers": [],
+  "prerequisites": [
+    "Account and owner: Any Harvest ID holder can create an OAuth2 app; use a company-owned Harvest ID.",
+    "Where you register: id.getharvest.com/developers → Create new OAuth2 Application → name, redirect URL, multiple-accounts option, products (Harvest, Forecast or both)",
+    "Cost: Free to register; a Harvest account is needed to test"
+  ],
+  "registerAt": {
+    "url": "https://id.getharvest.com/developers",
+    "path": "id.getharvest.com/developers → Create new OAuth2 Application → name, redirect URL, multiple-accounts option, products (Harvest, Forecast or both)"
+  },
+  "phases": [
+    {
+      "name": "Setup steps",
+      "duration": "",
+      "steps": [
+        {
+          "do": "Sign in at id.getharvest.com/developers with the company Harvest ID and click Create new OAuth2 Application",
+          "who": "Owner",
+          "agent": false
+        },
+        {
+          "do": "Enter name, HTTPS redirect URL, choose multiple accounts, and select Harvest and/or Forecast products; record client ID and secret",
+          "who": "Developer",
+          "agent": false
+        },
+        {
+          "do": "Implement the server-side authorization code flow with a state parameter and exchange at /api/v2/oauth2/token",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Call id.getharvest.com/api/v2/accounts to list the user's accounts and store the Harvest-Account-Id per connection",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Send every request with a User-Agent naming the app and a contact email, and a Harvest-Account-Id header",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Implement refresh_token handling before the 14-day expiry and re-auth on failure",
+          "who": "Developer",
+          "agent": true
+        },
+        {
+          "do": "Test with a second Harvest account including multi-account users",
+          "who": "QA",
+          "agent": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "team": "Any Harvest ID holder can create an OAuth2 app; use a company-owned Harvest ID.",
+    "console": "none documented",
+    "customer": "The user authorizes and picks the Harvest/Forecast account(s). Access follows the user's role in each account (account admins see more). Admin controls over third-party apps not documented.",
+    "consoleRoles": []
+  },
+  "customerExperience": [],
+  "testing": [
+    "Use your own Harvest ID and a personal access token for quick calls; run the OAuth flow with a second Harvest account.",
+    "A Harvest free trial account is likely usable for testing (not confirmed).",
+    "The id.getharvest.com page itself could not be fetched (robots.txt)."
+  ],
+  "blockers": [
+    {
+      "problem": "User with several accounts needs account selection",
+      "fix": "List accounts and store the account ID, or API calls fail."
+    },
+    {
+      "problem": "Implicit grant exposes tokens in the browser",
+      "fix": "Use authorization code on a backend."
+    },
+    {
+      "problem": "Refresh token lifetime is undocumented",
+      "fix": "Handle refresh failures with a clear re-connect prompt."
+    },
+    {
+      "problem": "No granular scopes, so access equals the user's role",
+      "fix": "Minimize what your agent calls and disclose it."
+    }
+  ],
+  "gotchas": [],
+  "automation": {
+    "agentCan": "Write the OAuth and refresh code, account-selection logic, headers, and test API calls, and draft customer-facing connection text.",
+    "humanMust": "Harvest ID sign-in to register the app, store secrets, and customer-side authorization."
+  },
+  "uncertain": [
+    "Refresh token lifetime, rate limits, PKCE support, admin controls, and any listing process were not confirmed; the developers console and OAuth help pages could not be fetched.",
+    "No community sources consulted."
+  ],
+  "sources": [
+    {
+      "url": "https://help.getharvest.com/api-v2/authentication-api/authentication/authentication/",
+      "label": "help.getharvest.com/api-v2/authentication-api/authentication/authentic…"
+    },
+    {
+      "url": "https://id.getharvest.com/developers",
+      "label": "Harvest developer app registration (cited by the docs; could not be fetched during research)"
+    }
+  ]
+}

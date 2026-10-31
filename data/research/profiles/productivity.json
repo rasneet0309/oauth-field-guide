@@ -1,0 +1,706 @@
+[
+  {
+    "n": 72,
+    "id": "airtable",
+    "name": "Airtable",
+    "category": "Productivity & PM",
+    "website": "airtable.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code grant with PKCE (S256 only; docs list code_challenge/verifier as non-optional, so treat as required). Access token 60 min; refresh token 60 days, rotating (each refresh invalidates the previous pair). Client secret is optional (use one for server-side exchange). Auth at airtable.com/oauth2/v1/authorize, token at airtable.com/oauth2/v1/token. Redirect URIs must be exact-match HTTPS (HTTP only for localhost).",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://airtable.com/create/oauth",
+      "path": "airtable.com/create/oauth → Register new OAuth integration → enter name + redirect URL → Register integration → add scopes, then fill Terms of Service URL, Privacy Policy URL, Support email"
+    },
+    "access": "Self-serve",
+    "productionGate": "No app review documented. Before anyone other than the developer can authorize, the integration must have a Terms of Service URL and Privacy Policy URL (support email optional). Enterprise customers' admins can block users from authorizing OAuth integrations, or allow-list specific integrations by Client ID.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review; need ToS/privacy pages)",
+    "cost": "Free",
+    "roles": {
+      "team": "Any Airtable user can register an integration; it is tied to the creating account, so create it from a company-owned account rather than a personal one (likely; ownership transfer not documented).",
+      "console": "none documented",
+      "customer": "The end user authorizes and picks which workspaces/bases to grant; they cannot grant more than they hold. On Enterprise, an admin may block base/workspace selection, block OAuth authorization entirely, or allow only listed Client IDs, so customer IT may need to allow-list your Client ID."
+    },
+    "testing": "Authorize with your own account against your own bases immediately; the consent dialog can be previewed once at least one scope is added. No separate sandbox documented. The ToS/privacy URL requirement applies to non-development use.",
+    "steps": [
+      {
+        "do": "Publish public Terms of Service, Privacy Policy and a support email address for the product",
+        "who": "Legal",
+        "agent": true
+      },
+      {
+        "do": "Go to airtable.com/create/oauth and click Register new OAuth integration with a unique name and your HTTPS callback URL",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Select minimum scopes (e.g. data.records:read/write, schema.bases:read) and generate a client secret; store it in a secrets manager",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code + PKCE (S256), exchange the code within 10 minutes, and store the rotating refresh token atomically",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Fill ToS, Privacy Policy and support email on the integration page so outside users can authorize",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Test with a second Airtable account on a different workspace; verify refresh, revoke, and base-selection behavior",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Give Enterprise customers your Client ID so their admin can allow-list it",
+        "who": "Owner",
+        "agent": true
+      }
+    ],
+    "scopes": "Granular scopes set on the integration (records read/write, schema read/write, webhooks, comments, user email). Tokens reach only granted scopes and only the bases the user selected. Exact scope names not re-verified this session (see Scopes reference). No scope documented as triggering review.",
+    "blockers": [
+      "Others cannot authorize until ToS and Privacy Policy URLs are set: add them before the first external pilot.",
+      "Refresh tokens rotate and die after 60 days unused: persist the new token on every refresh and serialize refreshes per user (409 means a recent refresh).",
+      "Enterprise admins may block OAuth or require allow-listing by Client ID: ship a one-page admin note with your Client ID.",
+      "Redirect mismatch returns no error at all: register the exact URI and avoid redirecting from it."
+    ],
+    "agentCan": "Draft ToS/privacy copy, write the PKCE and refresh-rotation code, build the base/workspace picker UX, run test calls, and draft the admin allow-list note.",
+    "humanMust": "Sign in and register the integration, generate the client secret, approve legal documents, and coordinate Enterprise admin allow-listing.",
+    "confidence": "High",
+    "uncertain": "Exact scope names, rate limits, whether integrations support co-owners, and any Airtable Marketplace listing process were not confirmed. No community sources consulted (search/fetch budgets ran out).",
+    "sources": [
+      "https://airtable.com/developers/web/guides/oauth-integrations",
+      "https://airtable.com/developers/web/api/oauth-reference"
+    ]
+  },
+  {
+    "n": 73,
+    "id": "linear",
+    "name": "Linear",
+    "category": "Productivity & PM",
+    "website": "linear.app",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code with optional PKCE (S256 or plain; client_secret becomes optional with PKCE). Access tokens last 24 hours; refresh tokens rotate (30-minute replay grace) and all apps were migrated to refresh tokens on 2026-04-01. actor=app installs the app as its own user (agent). Client-credentials grant (30-day app tokens) is available if enabled on the app.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://linear.app/settings/api/applications/new",
+      "path": "Settings → Administration → API → OAuth applications → Create new (admin permission needed to see the page)"
+    },
+    "access": "Self-serve",
+    "productionGate": "No mandatory review to let other workspaces authorize. An actor=app install needs a workspace admin. Listing in Linear's Integration Directory is by submission (process not retrieved). Linear also has a 'Third-Party App Approvals' admin feature (page not retrieved), so customer admins may gate your app.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no review); directory listing timeline unknown",
+    "cost": "Free (agent development is free; installed agents are not billable users)",
+    "roles": {
+      "team": "A workspace admin must create the OAuth app. Linear recommends a dedicated workspace for managing the app because every admin in that workspace can see it and its secrets.",
+      "console": "No per-app collaborators documented; access is every admin of the owning workspace.",
+      "customer": "A workspace admin must install an actor=app agent (workspace-scoped). Admins can later change or revoke the app's team access; admins can also disable member API-key creation. Possible approval gate via Third-Party App Approvals (unconfirmed)."
+    },
+    "testing": "Create a free dedicated Linear workspace, make the OAuth app there, and install it with actor=app into the same or a second test workspace. Agents must emit a 'thought' activity within 10 seconds of a session starting.",
+    "steps": [
+      {
+        "do": "Create a dedicated Linear workspace owned by a company account to host the app",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Open Settings → Administration → API and create an OAuth application with callback URLs, name and icon",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Enable webhooks (Agent session events, Permission changes) if building an agent; enable client credentials only for internal automation",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorize URL with actor=app, scope list (read, write, app:assignable, app:mentionable) and PKCE; exchange the code and store the refresh token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Record the per-workspace app ID (viewer { id }) next to the stored token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Install into a second test workspace as its admin and verify delegation, mentions and revoke handling",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Submit to the Integration Directory if you want public listing",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "read (default), write, issues:create, comments:create, timeSchedule:write, admin (not allowed with actor=app), app:assignable, app:mentionable, customer:read/write, initiative:read/write. Request only narrow scopes. Customer and initiative scopes are separate opt-ins.",
+    "blockers": [
+      "Only admins can install actor=app: give prospects an admin-ready install link and explanation.",
+      "Admin scope cannot combine with actor=app: use narrower scopes or a separate user-actor flow.",
+      "Refresh tokens rotate: use the 30-minute replay grace after network errors and store the newest token.",
+      "Customer admins may restrict third-party apps via approvals or team-access limits: document required team access."
+    ],
+    "agentCan": "Cannot create the app in the UI, but can write the OAuth/refresh code, webhook handlers, agent-session logic, directory submission copy, and an admin install guide, and run test GraphQL calls.",
+    "humanMust": "Admin sign-in to create the app, secrets handling, any directory submission contact, and customer-admin approval of installs.",
+    "confidence": "Medium",
+    "uncertain": "Whether Linear OAuth apps have a public/private toggle, the Third-Party App Approvals behavior, and the Integration Directory submission process were not confirmed (pages failed to fetch). No community sources consulted.",
+    "sources": [
+      "https://linear.app/developers/oauth-2-0-authentication",
+      "https://linear.app/developers/agents",
+      "https://linear.app/developers/oauth-actor-authorization",
+      "https://linear.app/docs/api-and-webhooks",
+      "https://linear.app/developers"
+    ]
+  },
+  {
+    "n": 74,
+    "id": "jira",
+    "name": "Jira",
+    "category": "Productivity & PM",
+    "website": "atlassian.com/software/jira",
+    "authModel": "OAuth 2.0",
+    "authDetail": "OAuth 2.0 (3LO) authorization code via auth.atlassian.com; add offline_access for a refresh token. Refresh tokens rotate (each use issues a new one and disables the old; 10-minute reuse window) and expire after 90 days of inactivity. After auth, call /oauth/token/accessible-resources to get the cloudid and use api.atlassian.com/ex/jira/{cloudid}/.... Access token lifetime comes back as expires_in (commonly 1 hour; not stated on the page).",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developer.atlassian.com/console/myapps/",
+      "path": "Developer console → Create → OAuth 2.0 integration → Permissions (add Jira API + scopes) → Authorization → OAuth 2.0 (3LO) → Configure callback URL → Distribution → Enable sharing"
+    },
+    "access": "Self-serve",
+    "productionGate": "New apps are private (creator only). Turning on Distribution → Enable sharing lets anyone with the authorization URL install, with no review. Users see a warning that Atlassian has not reviewed the integration until it is approved through the Marketplace process. 3LO apps can only have informational Marketplace listings with limited features. Since 2026-03-02, points-based API quotas apply (65,000 points/hour in a global pool shared across all tenants); a per-tenant pool needs Atlassian review via the Partner Portal.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "1-3 days with sharing only; Marketplace approval timeline unknown",
+    "cost": "Free to build and share; Marketplace listing terms not researched",
+    "roles": {
+      "team": "An Atlassian account in the developer console owns the app; use a company-owned account (ownership transfer not documented).",
+      "console": "none documented in the pages read (a collaborator or ownership setting may exist in the console; unconfirmed).",
+      "customer": "The authorizing user picks sites (account-level grant spans sites, resource-level limits to selected ones). Effective access is still limited by the user's Jira permissions. An admin cannot revoke a user's grant from the Connected Apps user screen; they can only uninstall the app. Org-level app access rules not confirmed."
+    },
+    "testing": "The app is private by default and works for the creator's own sites. A free Atlassian cloud developer site is the likely test tenant (not confirmed in fetched pages). Invite a second account on another site to test the sharing link.",
+    "steps": [
+      {
+        "do": "Sign in to developer.atlassian.com/console/myapps with a company account and click Create → OAuth 2.0 integration",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Under Permissions add Jira platform REST API and the minimum scopes (e.g. read:jira-work, write:jira-work, read:jira-user) plus offline_access in the request",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Under Authorization → OAuth 2.0 (3LO) → Configure, set the exact callback URL",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement code exchange, accessible-resources lookup (cloudid per site), rotating-refresh storage with a lock per user, and points-quota backoff using the RateLimit-Reason header",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Under Distribution, complete the sharing form and enable sharing; copy the authorization URL",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Test with an account on a separate site, including re-consent after a scope change",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Optionally request Marketplace approval to remove the unreviewed warning",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Granular and classic Jira scopes added per API in the console; request only scopes already added. Changing scopes forces re-consent. Some resources are not available to 3LO at all. offline_access is needed for refresh tokens. No scope documented as triggering review.",
+    "blockers": [
+      "Refresh token reuse or 90 days of inactivity gives invalid_grant: store each new refresh token immediately, lock refreshes, and prompt re-auth.",
+      "Customers see an 'unreviewed' warning: start Marketplace approval early or brief admins in advance.",
+      "Shared 65,000 points/hour global pool can throttle all customers together: cache, batch, and request tier 2 via Partner Portal if usage is large.",
+      "Each site has a different cloudid and users may authorize several sites: always key tokens and calls by cloudid."
+    ],
+    "agentCan": "Write the 3LO flow, token storage, cloudid routing, rate-limit handling, Marketplace listing copy, and run test calls against a dev site.",
+    "humanMust": "Console sign-in and app creation, completing the sharing form with company details, any Marketplace submission, and customer admin communication.",
+    "confidence": "Medium",
+    "uncertain": "The vendor/privacy info required by the Distribution form, Atlassian org-admin app access rules, console collaborator roles, Forge vs OAuth tradeoffs, and Marketplace review timelines were not confirmed (admin support page failed; fetch budget ended). No community sources consulted.",
+    "sources": [
+      "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+      "https://developer.atlassian.com/cloud/jira/platform/rate-limiting/"
+    ]
+  },
+  {
+    "n": 75,
+    "id": "asana",
+    "name": "Asana",
+    "category": "Productivity & PM",
+    "website": "asana.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code grant; PKCE (S256) supported and required for localhost/native redirects. Access token 1 hour; refresh token is long-lived and valid while the user's authorization stands. Granular scopes in the form resource:action (read, write, delete; write does not imply read) must be registered in the console.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://app.asana.com/0/my-apps",
+      "path": "Developer console (My apps) → Create new app → OAuth tab (client ID/secret, redirect URL, scopes) → Manage distribution tab → Any workspace"
+    },
+    "access": "Self-serve",
+    "productionGate": "Distribution set to 'Any workspace' lets users from any workspace authorize via your authorization URL; no review is stated for that. App Directory publication is optional but requires Any workspace, public status and 'Submit for review' with listing details. Initial response aims for within one week; apps with app components also get security review and QA.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (any-workspace, no review); about 1-3 weeks for App Directory",
+    "cost": "Free",
+    "roles": {
+      "team": "Any Asana user in the developer console; use a company-owned account. To share with Specific workspaces you must belong to those workspaces.",
+      "console": "none documented (distribution role requirements not specified)",
+      "customer": "A workspace member authorizes. The app must be available in that workspace. Admins use the app listing details (name, company, URLs) to approve or block apps, so fill the listing even without publishing."
+    },
+    "testing": "Set distribution to Specific workspace and add workspaces you belong to; authorize from those. Directory submission requires test account credentials in the setup instructions if login is needed. Unpublished apps can change distribution settings at any time.",
+    "steps": [
+      {
+        "do": "Open the developer console (My apps) and click Create new app",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "On the OAuth tab add the HTTPS redirect URL and register the minimum granular scopes (e.g. tasks:read, tasks:write, projects:read)",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorization code + PKCE, refresh at 1-hour expiry, and request scopes as a full set (requests are not additive)",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Fill the App listing details (icon, name without the word Asana, descriptions, company, support and privacy URLs)",
+        "who": "Design",
+        "agent": true
+      },
+      {
+        "do": "On Manage distribution choose Any workspace and share the authorization URL",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Authorize from a second workspace and test revoke and scope changes",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Optionally open Submit for review and add screencast and setup steps for the App Directory",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "Format resource:action (read/write/delete). Unregistered scopes return forbidden_scopes. Endpoints without scopes need 'Full permissions', which disables individual scopes. opt_fields on related objects need matching scopes or return 403. Review is not tied to specific scopes.",
+    "blockers": [
+      "Requested scopes are not additive: users must re-authorize with the full set when you add scopes.",
+      "Apps with Full permissions cannot request individual scopes: pick one mode early.",
+      "Directory review rejects vague setup instructions and listings that mention 'Asana' in the name: follow the listing guidelines.",
+      "Customer admins may block unlisted apps: complete listing details and share an admin explainer."
+    ],
+    "agentCan": "Draft listing copy, setup instructions and privacy text, write OAuth/PKCE/refresh code, script test calls, and prepare the screencast script.",
+    "humanMust": "Console sign-in, supplying company information, recording the screencast, accepting directory terms, and customer admin approvals.",
+    "confidence": "High",
+    "uncertain": "Console collaborator roles, exact admin-console app management paths, and the date of the 2025 granular-scopes rollout were not confirmed. No community sources consulted.",
+    "sources": [
+      "https://developers.asana.com/docs/oauth",
+      "https://developers.asana.com/docs/manage-distribution",
+      "https://developers.asana.com/docs/publish-your-app",
+      "https://developers.asana.com/docs/app-listing-guidelines"
+    ]
+  },
+  {
+    "n": 76,
+    "id": "monday",
+    "name": "Monday.com",
+    "category": "Productivity & PM",
+    "website": "monday.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code at auth.monday.com/oauth2/authorize. Legacy flow: non-expiring access tokens, no refresh tokens. New OAuth 2.1 flow (per app version toggle): PKCE S256 required, expiring JWT access tokens, rotating refresh tokens, token endpoint auth.monday.com/oauth_ms/oauth/token, revoke and RFC 8414 discovery endpoints. Authorization codes are valid 10 minutes.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developer.monday.com/apps/docs/oauth",
+      "path": "monday avatar → Developers (Developer Center) → Create app → OAuth & Permissions tab (scopes, redirect URLs, 'New OAuth Flow' toggle) → App versions → promote to live → Share tab"
+    },
+    "access": "Self-serve",
+    "productionGate": "No review needed to share a public app by link: after promoting a version to live, accept the developer terms on the Share tab and copy the auth.monday.com link (can restrict to specific accounts). Unreviewed apps show a banner saying monday has not vetted them. Marketplace listing is optional but needs review (initial response within 72 business hours); apps using the personal API token, or built mainly with no-code/AI-generated code, are not eligible.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours",
+    "timeToProduction": "1-3 days via share link; marketplace several weeks (likely)",
+    "cost": "Free to build; free developer accounts offered; marketplace listing terms (e.g. revenue share) not confirmed",
+    "roles": {
+      "team": "A monday user who can open the Developer Center; use a company account on a dedicated developer account. Exact role needed not documented.",
+      "console": "App collaborators exist (they can run the OAuth flow on draft versions via app_version_id); exact add-collaborator UI path not confirmed.",
+      "customer": "An account admin typically installs (force_install_if_needed returns users after an admin installs). Recipients find shared apps under Apps → Installed Apps → 'Installed outside the marketplace'. Admin install restrictions not documented."
+    },
+    "testing": "Install on your own account via Developer Center → Install tab; keep the draft version 'Active for me' to test the new OAuth flow before promoting. Free developer accounts are available for fuller testing. Private apps are limited to one account; public apps can be shared.",
+    "steps": [
+      {
+        "do": "Create a monday developer account and open Developers → Create app",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "On OAuth & Permissions set redirect URLs and minimum scopes (e.g. me:read, boards:read, boards:write); enable the New OAuth Flow toggle on the draft",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement authorize with PKCE S256, token exchange at the oauth_ms endpoint, proactive refresh (under 5 minutes left) and refresh-token rotation",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with the draft 'Active for me' and app_version_id, then promote the version to live",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Install on your account (Install tab), then on the Share tab accept developer terms and copy the share link or restrict to specific accounts",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Have an admin of a separate monday account install via the link and run an end-to-end test",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Optionally submit to the marketplace using the listing guidelines and review checklist",
+        "who": "Owner",
+        "agent": true
+      }
+    ],
+    "scopes": "Scopes cover account, boards, docs, updates, users, teams, workspaces, webhooks, tags, notifications and profile, mostly with read and write variants; the requested scope must match the app's configured scopes. Full list at the discovery endpoint. Scope-specific review not documented; marketplace review covers security and privacy generally.",
+    "blockers": [
+      "Legacy tokens never expire but have no refresh; the new flow expires tokens: migrate and store rotating refresh tokens (migration endpoint is temporary).",
+      "Personal API token auth blocks marketplace approval: use OAuth only.",
+      "Unvetted-app banner appears for non-marketplace installs: warn customers or pursue marketplace review.",
+      "Vibe-coded or no-code-built apps are ineligible for the marketplace: plan for hand-written code."
+    ],
+    "agentCan": "Write PKCE and refresh code, draft listing copy and review-checklist answers, run test GraphQL calls, and prepare admin install guidance.",
+    "humanMust": "Developer Center sign-in, accepting developer and listing terms, marketplace submission form and board follow-ups, and customer admin installation.",
+    "confidence": "Medium",
+    "uncertain": "Whether an OAuth-only app needs a feature or view to be valid, admin controls restricting installs, collaborator UI path, the legacy flow deprecation date, and marketplace fees were not confirmed; several doc pages failed to fetch. No community sources consulted.",
+    "sources": [
+      "https://developer.monday.com/apps/docs/oauth",
+      "https://developer.monday.com/apps/docs/migrating-to-the-new-oauth-flow",
+      "https://developer.monday.com/apps/docs/choosing-auth",
+      "https://developer.monday.com/apps/docs/install-and-share-your-apps",
+      "https://developer.monday.com/apps/docs/submit-your-app"
+    ]
+  },
+  {
+    "n": 77,
+    "id": "clickup",
+    "name": "ClickUp",
+    "category": "Productivity & PM",
+    "website": "clickup.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code grant: authorize at app.clickup.com/api, exchange at api.clickup.com/api/v2/oauth/token. Access tokens currently do not expire and no refresh tokens or PKCE are documented (docs warn this may change; non-SSL redirects may be dropped). Users choose which Workspaces to authorize.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developer.clickup.com/docs/authentication",
+      "path": "Avatar → Settings → Apps → Create new app → name + redirect URL → copy client_id and secret"
+    },
+    "access": "Self-serve",
+    "productionGate": "None documented: no review or partner program found for OAuth apps. Only Workspace owners or admins can create the OAuth app. Whether an App Center listing exists or needs review was not found.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no documented review)",
+    "cost": "Free; API rate limits depend on the customer Workspace plan",
+    "roles": {
+      "team": "A ClickUp Workspace owner or admin must create the app (docs); do it from a company-owned Workspace so the app is not tied to one person's seat.",
+      "console": "none documented",
+      "customer": "The authorizing user selects one or more Workspaces during consent; creating or approving may depend on their Workspace role. Admin controls blocking third-party apps not confirmed."
+    },
+    "testing": "Create the app in your own Workspace and authorize it into that Workspace or another you control. No sandbox documented. Free plans are limited to 100 requests/minute per token.",
+    "steps": [
+      {
+        "do": "Sign in as a Workspace owner/admin and open avatar → Settings → Apps → Create new app",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Enter the app name and HTTPS redirect URL; copy client_id and client secret into a secrets manager",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement the authorize redirect with a state parameter and the token exchange; store the non-expiring token encrypted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call Get Authorized Teams (Workspaces) after consent to record which Workspaces were granted",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Handle 429 using X-RateLimit headers (100/min on Free-Business, 1,000 Business Plus, 10,000 Enterprise)",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a second Workspace and a non-admin user; implement a re-authorize flow for changing Workspaces",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Add token-expiry/refresh handling behind a feature flag in case ClickUp starts expiring tokens",
+        "who": "Developer",
+        "agent": true
+      }
+    ],
+    "scopes": "No scope parameter documented; the token acts with the authorizing user's permissions in the Workspaces they selected. No scope-based review.",
+    "blockers": [
+      "No scopes means broad access: enforce least privilege in your own agent layer and disclose it to customers.",
+      "Tokens never expire, so a leaked token stays valid: encrypt at rest and give users a disconnect that deletes it.",
+      "Low rate limits on Free to Business plans (100/min) can throttle an agent: queue and back off.",
+      "Only admins can create the OAuth app: have an admin of your company Workspace do it."
+    ],
+    "agentCan": "Write the OAuth code, Workspace discovery, rate-limit handling, secure storage, and test calls.",
+    "humanMust": "Admin sign-in to create the app and any customer-side authorization by the end user.",
+    "confidence": "Medium",
+    "uncertain": "App Center listing or review process, any admin allow-list controls, PKCE/refresh plans, and test-Workspace options were not confirmed. No community sources consulted.",
+    "sources": [
+      "https://developer.clickup.com/docs/authentication",
+      "https://developer.clickup.com/docs/faq",
+      "https://developer.clickup.com/docs/rate-limits"
+    ]
+  },
+  {
+    "n": 78,
+    "id": "coda",
+    "name": "Coda",
+    "category": "Productivity & PM",
+    "website": "coda.io",
+    "authModel": "API key / token only",
+    "authDetail": "The Coda API v1 uses a per-user bearer API token (UUID format, shown once, from My account). An unrestricted token can do anything its owner can; restricted tokens (by read/write and by doc or table) are described as under development on the docs page. No OAuth 2.0 authorization-code flow for third-party apps was found in the docs reviewed. Packs OAuth works the other way (Coda to third-party services).",
+    "userOAuth": "no",
+    "registerAt": {
+      "url": "https://coda.io/developers/apis/v1",
+      "path": "Each user creates their own token in Coda → My account (account settings) → API settings → Generate API token; there is no developer-registered app"
+    },
+    "access": "Not offered",
+    "productionGate": "None for token use. There is no developer-registered OAuth app to approve. If an OAuth or MCP option exists it was not confirmed.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "15-30 min",
+    "timeToProduction": "1-3 days (token paste UX); OAuth route unknown",
+    "cost": "Free; API usage depends on the token owner's workspace role",
+    "roles": {
+      "team": "Any Coda user can create a token for testing; use a dedicated service-account user for your own test docs.",
+      "console": "none documented (no developer console for the REST API).",
+      "customer": "Each customer user generates and pastes their own token; it works with their workspace role (e.g. creating docs needs Doc Maker or Admin). Workspace admin controls on API tokens not confirmed."
+    },
+    "testing": "Create a free Coda account, generate a token, and call GET /whoami. Use a restricted token if available. No sandbox needed.",
+    "steps": [
+      {
+        "do": "Show customers where to create a token: Coda → My account → API settings → Generate API token, and what access you need",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Offer a secure paste field; store the token encrypted, never log it, and mask it in the UI",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Validate immediately with GET /whoami and a test doc list call; show the connected user name",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Recommend that customers create a dedicated agent user and share only the needed docs with it, then use that user's token",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Add a disconnect button that deletes the stored token and tells the user to delete it in Coda",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Ask Coda support or check current docs about OAuth or restricted-token availability before launch",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "No OAuth scopes. Token permission follows the owner's access, optionally narrowed by operation (read/write) or object (single doc/table) if restricted tokens are available.",
+    "blockers": [
+      "Tokens are user-level and shown once: instruct users to copy immediately and keep a key rotation path.",
+      "Unrestricted tokens grant everything the user can do: prefer a dedicated agent user or restricted tokens.",
+      "Role limits can fail calls (e.g. createDoc needs Doc Maker or Admin): surface clear errors.",
+      "Pasted tokens are weak for enterprise security reviews: be ready to explain storage and offer MCP/OAuth if Coda adds it."
+    ],
+    "agentCan": "Write the token-paste UX, secure storage, validation calls, and customer instructions, and run test API calls.",
+    "humanMust": "Each customer user creates their token in Coda; the developer confirms any OAuth or partnership options with Coda.",
+    "confidence": "Medium",
+    "uncertain": "Whether Coda now offers OAuth or a hosted MCP server for third-party apps was not confirmed (the MCP docs page was blocked by robots.txt and the Packs OAuth page 404'd). The exact token-creation menu path is from memory of the docs wording 'My account'. No community sources consulted.",
+    "sources": [
+      "https://coda.io/developers/apis/v1",
+      "https://coda.io/packs/build/latest/guides/basics/authentication/"
+    ]
+  },
+  {
+    "n": 79,
+    "id": "smartsheet",
+    "name": "Smartsheet",
+    "category": "Productivity & PM",
+    "website": "smartsheet.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code grant: authorize at app.smartsheet.com/b/authorize, exchange at api.smartsheet.com/2.0/token. Access token lasts about 7 days (604,799 s); each refresh returns a new access and refresh token. Authorization code valid about 10 minutes; HTTPS required. PKCE is not mentioned. Tokens for standard, Smartsheet Regions and Smartsheet Gov are not interchangeable; regional OAuth hosts were not confirmed.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://developers.smartsheet.com/api/smartsheet/guides/advanced-topics/oauth",
+      "path": "Submit the service-account email on the Developer Tools Registration page and accept the Developer Agreement → in Smartsheet open Developer Tools → create developer profile → Create New App (name, description, URL, support contact, redirect URL)"
+    },
+    "access": "Application/approval required",
+    "productionGate": "A one-time Developer Tools registration (service-account email + Developer Agreement); Smartsheet can deny it, in which case contact your Customer Success Manager. After that no app review is documented: the 'Publish App?' option only makes the app's profile page public.",
+    "difficulty": "Moderate",
+    "timeToFirstTest": "1-2 hours after registration is approved",
+    "timeToProduction": "unknown (registration approval time not documented); likely days",
+    "cost": "Free to register as far as documented; API token generation needs a Business, Enterprise or Advanced Work Management plan; whether Developer Tools needs a paid plan is unconfirmed",
+    "roles": {
+      "team": "Use a dedicated company-owned Smartsheet 'service account' (not a personal account) to register and own the app.",
+      "console": "none documented",
+      "customer": "The end user authorizes; scopes never exceed their sharing permissions. ADMIN_* scopes (users, sheets, workspaces, webhooks) likely need an admin user. Customers on EU/AU Regions or Gov need region-specific setup (unconfirmed)."
+    },
+    "testing": "Register and authorize with your own Smartsheet account against your own sheets. No sandbox or developer-account program was found in the docs fetched. Test each region separately because tokens are not interchangeable.",
+    "steps": [
+      {
+        "do": "Choose or create a company service-account Smartsheet user and register it on the Developer Tools Registration page, accepting the Developer Agreement",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "After approval, open Developer Tools, create the developer profile, and register the app with redirect URL and support contact",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Pick the minimum scopes (e.g. READ_SHEETS, WRITE_SHEETS, READ_USERS) and implement the authorize redirect with a verified state parameter",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Exchange the code, store both tokens encrypted, and refresh before the 7-day expiry, saving the new refresh token each time",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a second user and, if serving them, EU/AU and Gov accounts separately",
+        "who": "QA",
+        "agent": false
+      },
+      {
+        "do": "Decide whether to flip Publish App? to list the profile publicly",
+        "who": "Owner",
+        "agent": false
+      }
+    ],
+    "scopes": "17 scopes: ADMIN_SHEETS/SIGHTS/USERS/WEBHOOKS/WORKSPACES, CREATE_SHEETS/SIGHTS, DELETE_SHEETS/SIGHTS, READ_CONTACTS/EVENTS/SHEETS/SIGHTS/USERS, SHARE_SHEETS/SIGHTS, WRITE_SHEETS. Scopes do not override user sharing permissions. No scope is documented as triggering review.",
+    "blockers": [
+      "Registration can be denied: use a business service-account email and escalate via your Customer Success Manager.",
+      "Regional and Gov tenants use separate environments and tokens: confirm host URLs and register per region.",
+      "Rotating refresh tokens: write the new pair on every refresh, or the user must re-authorize.",
+      "No PKCE documented, so a confidential server-side client is required: never ship the secret to a browser."
+    ],
+    "agentCan": "Draft the registration text, write the OAuth and refresh code, handle regional base URLs, and run test calls.",
+    "humanMust": "Developer Agreement acceptance, service-account sign-in and registration, any CSM escalation, and customer-side consent.",
+    "confidence": "Medium",
+    "uncertain": "Regional (EU/AU/Gov) OAuth hosts, any developer sandbox, the developer-program page (blocked by robots.txt), registration turnaround, and whether a paid plan is needed were not confirmed. No community sources consulted.",
+    "sources": [
+      "https://developers.smartsheet.com/api/smartsheet/guides/advanced-topics/oauth",
+      "https://developers.smartsheet.com/api/smartsheet/guides/getting-started"
+    ]
+  },
+  {
+    "n": 80,
+    "id": "harvest",
+    "name": "Harvest",
+    "category": "Productivity & PM",
+    "website": "getharvest.com",
+    "authModel": "OAuth 2.0",
+    "authDetail": "Authorization code (server-side) and implicit grant via Harvest ID: authorize at id.getharvest.com/oauth2/authorize, exchange at /api/v2/oauth2/token. Docs example shows a 14-day access token (expires_in 1209600) and a refresh_token grant; refresh token lifetime not stated; PKCE not mentioned. Apps can support multiple Harvest/Forecast accounts per user.",
+    "userOAuth": "yes",
+    "registerAt": {
+      "url": "https://id.getharvest.com/developers",
+      "path": "id.getharvest.com/developers → Create new OAuth2 Application → name, redirect URL, multiple-accounts option, products (Harvest, Forecast or both)"
+    },
+    "access": "Self-serve",
+    "productionGate": "None documented: no review or partner program found for OAuth2 apps; the redirect URL is registered and a custom redirect_uri must start with it.",
+    "difficulty": "Easy",
+    "timeToFirstTest": "30-60 min",
+    "timeToProduction": "1-3 days (no documented review)",
+    "cost": "Free to register; a Harvest account is needed to test",
+    "roles": {
+      "team": "Any Harvest ID holder can create an OAuth2 app; use a company-owned Harvest ID.",
+      "console": "none documented",
+      "customer": "The user authorizes and picks the Harvest/Forecast account(s). Access follows the user's role in each account (account admins see more). Admin controls over third-party apps not documented."
+    },
+    "testing": "Use your own Harvest ID and a personal access token for quick calls; run the OAuth flow with a second Harvest account. A Harvest free trial account is likely usable for testing (not confirmed). The id.getharvest.com page itself could not be fetched (robots.txt).",
+    "steps": [
+      {
+        "do": "Sign in at id.getharvest.com/developers with the company Harvest ID and click Create new OAuth2 Application",
+        "who": "Owner",
+        "agent": false
+      },
+      {
+        "do": "Enter name, HTTPS redirect URL, choose multiple accounts, and select Harvest and/or Forecast products; record client ID and secret",
+        "who": "Developer",
+        "agent": false
+      },
+      {
+        "do": "Implement the server-side authorization code flow with a state parameter and exchange at /api/v2/oauth2/token",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Call id.getharvest.com/api/v2/accounts to list the user's accounts and store the Harvest-Account-Id per connection",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Send every request with a User-Agent naming the app and a contact email, and a Harvest-Account-Id header",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Implement refresh_token handling before the 14-day expiry and re-auth on failure",
+        "who": "Developer",
+        "agent": true
+      },
+      {
+        "do": "Test with a second Harvest account including multi-account users",
+        "who": "QA",
+        "agent": false
+      }
+    ],
+    "scopes": "Coarse scopes only: all, harvest:{ACCOUNT_ID}, forecast:{ACCOUNT_ID}, harvest:all, forecast:all, so you choose products and accounts rather than read/write. Docs recommend minimal scope. No review is tied to scopes.",
+    "blockers": [
+      "User with several accounts needs account selection: list accounts and store the account ID, or API calls fail.",
+      "Implicit grant exposes tokens in the browser: use authorization code on a backend.",
+      "Refresh token lifetime is undocumented: handle refresh failures with a clear re-connect prompt.",
+      "No granular scopes, so access equals the user's role: minimize what your agent calls and disclose it."
+    ],
+    "agentCan": "Write the OAuth and refresh code, account-selection logic, headers, and test API calls, and draft customer-facing connection text.",
+    "humanMust": "Harvest ID sign-in to register the app, store secrets, and customer-side authorization.",
+    "confidence": "Medium",
+    "uncertain": "Refresh token lifetime, rate limits, PKCE support, admin controls, and any listing process were not confirmed; the developers console and OAuth help pages could not be fetched. No community sources consulted.",
+    "sources": [
+      "https://help.getharvest.com/api-v2/authentication-api/authentication/authentication/",
+      {
+        "url": "https://id.getharvest.com/developers",
+        "label": "Harvest developer app registration (cited by the docs; could not be fetched during research)"
+      }
+    ]
+  }
+]
