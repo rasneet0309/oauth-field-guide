@@ -2,7 +2,7 @@
 
 How long until your AI agent can act in a customer's Slack, Salesforce or Stripe account, and who has to approve it first? This prototype answers that for 103 researched apps, and drafts a guide in the same format for any other app, marking what it couldn't confirm.
 
-**Demo:** https://YOUR-SERVICE.onrender.com · **Code:** https://github.com/YOUR-NAME/oauth-field-guide · v3.4.0
+   **Demo:** https://oauth-field-guide.onrender.com · **Code:** https://github.com/rasneet0309/oauth-field-guide · v3.4.0
 
 ## The finding: the approval queue sets the launch date
 
