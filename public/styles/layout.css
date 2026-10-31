@@ -1,0 +1,287 @@
+/* App shell: top bar, page column, footer, loading and failure states. */
+
+/*
+ * Side gutter: never under 16px, and clear of a phone's side system bar when the page runs
+ * edge to edge (viewport-fit=cover). Each full-width band applies it to its inner wrapper.
+ */
+:root {
+  --gutter: var(--s-6);
+}
+
+/* Paints the strip above the sticky top bar when the page runs under a phone's status bar. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+}
+
+.topbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  max-width: var(--content-max);
+  height: var(--topbar-h);
+  margin: 0 auto;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--text);
+  font-weight: 640;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand:hover {
+  color: var(--text);
+}
+
+.brand-mark {
+  width: 1.625rem;
+  height: 1.625rem;
+}
+
+.brand-mark rect {
+  fill: var(--text);
+}
+
+.brand-mark path {
+  stroke: var(--bg);
+}
+
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.hatch-bg {
+  fill: var(--route-track);
+}
+
+.hatch-line {
+  fill: var(--text-3);
+}
+
+.brand-sub {
+  color: var(--text-3);
+  font-weight: 450;
+}
+
+.nav {
+  display: flex;
+  gap: var(--s-1);
+}
+
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28em;
+  min-height: var(--control-h);
+  padding: 0 var(--s-3);
+  border-radius: var(--r-md);
+  color: var(--text-2);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.nav a[aria-current="page"] {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-left: auto;
+}
+
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-block: var(--s-10) var(--s-16);
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+.page:focus {
+  outline: none;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  color: var(--text-3);
+  font-size: var(--text-sm);
+}
+
+.site-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-6);
+  justify-content: space-between;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-block: var(--s-6) calc(var(--s-6) + env(safe-area-inset-bottom, 0px));
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+/* Loading: static skeleton in index.html until the first render. */
+.boot {
+  display: grid;
+  gap: var(--s-4);
+  max-width: 40rem;
+}
+
+.boot-line {
+  height: 1rem;
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--surface-2), var(--surface-3), var(--surface-2));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.boot-line.wide {
+  height: 2.5rem;
+  width: 85%;
+}
+
+.boot-line.short {
+  width: 55%;
+}
+
+.boot-note {
+  color: var(--text-3);
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* No JavaScript: say so instead of showing dead controls. */
+.no-js-note {
+  display: none;
+}
+
+html:not(.js) .no-js-note {
+  display: block;
+}
+
+html:not(.js) .boot,
+html:not(.js) [data-needs-js] {
+  display: none;
+}
+
+/* Status message region and toasts */
+.toast-region {
+  position: fixed;
+  right: calc(var(--s-6) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--s-6) + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: grid;
+  gap: var(--s-2);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  color: var(--text);
+  font-weight: 500;
+  animation: toast-in var(--dur) var(--ease);
+}
+
+.toast svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--success);
+}
+
+.toast.is-error svg {
+  color: var(--danger);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (max-width: 52em) {
+  .brand-sub {
+    display: none;
+  }
+}
+
+@media (max-width: 40em) {
+  :root {
+    --gutter: var(--s-4);
+  }
+
+  .topbar-inner {
+    gap: var(--s-3);
+  }
+
+  .nav a {
+    padding: 0 var(--s-2);
+  }
+
+  .nav .nav-long {
+    display: none;
+  }
+
+  .page {
+    padding-block: var(--s-6) var(--s-12);
+  }
+
+  .kbd-hint {
+    display: none;
+  }
+
+  .toast-region {
+    left: max(var(--s-4), env(safe-area-inset-left, 0px));
+    right: max(var(--s-4), env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (max-width: 26em) {
+  .brand-name {
+    display: none;
+  }
+}

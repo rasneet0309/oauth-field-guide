@@ -1,0 +1,585 @@
+/*
+ * Library (dashboard). One boxed element type, the card; everything around the grid is flat
+ * so the cards don't compete with the chrome. Explanations are keys built from the same marks
+ * the cards draw (route bar, gate diamond, hatch, shield, meter), not paragraphs.
+ */
+
+/* Hero: the value proposition, one line of support, search. */
+.hero {
+  display: grid;
+  gap: var(--s-4);
+  max-width: 52rem;
+  padding-bottom: var(--s-8);
+}
+
+.hero h1 {
+  font-size: var(--text-display);
+  font-weight: 680;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.hero-lead {
+  max-width: 52rem;
+  color: var(--text-2);
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+}
+
+.searchbar {
+  display: flex;
+  gap: var(--s-2);
+  max-width: 44rem;
+  margin-top: var(--s-2);
+}
+
+.search-field {
+  position: relative;
+  flex: 1;
+}
+
+.search-field svg {
+  position: absolute;
+  left: var(--s-4);
+  top: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--text-3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search-field .input {
+  width: 100%;
+  min-height: var(--control-h-lg);
+  padding-left: calc(var(--s-4) + 1.6rem);
+  padding-right: 3.5rem;
+  font-size: var(--text-md);
+}
+
+.search-field kbd {
+  position: absolute;
+  right: var(--s-3);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Where the time goes: median time to production per path, on the cards' log scale. Flat:
+   a rule above and below instead of a box. */
+.timeband {
+  display: grid;
+  gap: var(--s-5);
+  margin-bottom: var(--s-8);
+  padding-block: var(--s-6);
+  border-block: 1px solid var(--border);
+}
+
+.timeband-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-8);
+}
+
+.timeband h2 {
+  font-size: var(--text-xl);
+  text-wrap: balance;
+}
+
+.timeband-sub {
+  margin-top: var(--s-1);
+  color: var(--text-3);
+  font-size: var(--text-sm);
+}
+
+.timeband-rows {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.timeband-row {
+  display: grid;
+  grid-template-columns: 12rem 6.5rem minmax(0, 1fr) 6.5rem;
+  gap: var(--s-4);
+  align-items: center;
+  min-height: 1.75rem;
+  font-size: var(--text-sm);
+}
+
+.tb-path {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tb-path .dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--p-none);
+}
+
+.timeband-row[data-path="self"] .dot {
+  background: var(--p-self);
+}
+
+.timeband-row[data-path="review"] .dot {
+  background: var(--p-review);
+}
+
+.timeband-row[data-path="partner"] .dot {
+  background: var(--p-partner);
+}
+
+.timeband-row[data-path="key"] .dot {
+  background: var(--p-key);
+}
+
+.tb-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.tb-n {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tb-unknown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  color: var(--text-3);
+  font-size: var(--text-xs);
+}
+
+.timeband-row .value {
+  color: var(--text);
+  font-weight: 560;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.timeband-scale {
+  min-height: 0;
+}
+
+/* Filters: one line. Toggles and compact selects share one height; nothing wraps. When the
+   row is wider than the screen it scrolls sideways inside itself, never the page. */
+.filters {
+  position: sticky;
+  top: calc(var(--topbar-h) + env(safe-area-inset-top, 0px));
+  z-index: 10;
+  margin: 0 0 var(--s-6);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--s-2);
+  padding-block: var(--s-3);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.filters-row > * {
+  flex: none;
+}
+
+.filters .segmented {
+  flex-wrap: nowrap;
+}
+
+.filters .segmented button {
+  min-height: calc(var(--control-h) - 6px);
+}
+
+.filters .segmented button svg.icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.filters-end {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-left: auto;
+  padding-left: var(--s-4);
+}
+
+.results-count {
+  color: var(--text-3);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.btn-clear {
+  min-height: var(--control-h);
+  padding: 0 var(--s-3);
+  color: var(--text-2);
+}
+
+/* Section heads: a title and a count; the card key sits opposite the first one. */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-6);
+  margin: var(--s-8) 0 var(--s-4);
+}
+
+.section-head.is-compact {
+  justify-content: flex-end;
+  margin-top: 0;
+}
+
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.section-head h2 {
+  font-size: var(--text-xl);
+}
+
+/* Card grids */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr));
+  gap: var(--s-4);
+  list-style: none;
+}
+
+.grid.featured {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+}
+
+/* Flip card: the front sets the card's size (so the grid looks the same flipped or not) and
+   the back covers it exactly, scrolling if a narrow card can't hold it. The card turns; each
+   face hides its reverse side. Reduced motion (base.css) makes the turn instant. */
+.flip {
+  perspective: 1400px;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 520ms var(--ease);
+}
+
+.flip[data-flipped="true"] > .card {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: relative;
+  grid-area: 1 / 1;
+  display: grid;
+  gap: var(--s-3);
+  min-width: 0;
+  padding: var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.card-front {
+  grid-template-rows: auto 1fr auto auto;
+}
+
+.card-back {
+  position: absolute;
+  inset: 0;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden auto;
+  transform: rotateY(180deg);
+}
+
+.card-face:hover {
+  border-color: var(--border-strong);
+}
+
+.card-front:has(.card-link:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.card-title {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title h3 {
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+}
+
+.card-head > .effort {
+  padding-top: 0.15em;
+  font-size: var(--text-sm);
+}
+
+.card-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.card-link:focus-visible {
+  outline: none;
+}
+
+/* The whole card is the link's hit area. */
+.card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-lg);
+}
+
+.card-verdict {
+  align-self: start;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+/* Time to production: the value, then its bar on the shared scale. */
+.card-time {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.card-prod {
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The fact row: three glyph-led values. The card key above the grid names them. */
+.card-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  list-style: none;
+}
+
+.card-facts > li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+}
+
+.card-facts > li > svg.icon {
+  width: 1em;
+  height: 1em;
+  color: var(--text-3);
+}
+
+.featured .card-face {
+  padding: var(--s-5);
+}
+
+/* Fact row and the flip control share the footer line. */
+.card-foot {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-2);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--border);
+}
+
+.card-foot .card-facts {
+  flex: 1;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Sits above the front face's whole-card link. */
+.flip-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--control-h);
+  height: var(--control-h);
+  margin: calc(-1 * var(--s-2)) calc(-1 * var(--s-2)) calc(-1 * var(--s-2)) auto;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.flip-btn:hover {
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.flip-btn svg.icon {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+/* Back face */
+.back-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.back-title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 620;
+}
+
+.back-head .flip-btn {
+  margin: calc(-1 * var(--s-2)) calc(-1 * var(--s-2)) 0 0;
+}
+
+.back-block {
+  display: grid;
+  gap: var(--s-1);
+  align-content: start;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.card-back {
+  gap: var(--s-3);
+}
+
+.card-back .split-key {
+  font-size: var(--text-xs);
+}
+
+.back-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--text-3);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.back-label svg.icon {
+  color: var(--p-review);
+}
+
+.back-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.back-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.back-open {
+  margin-left: auto;
+}
+
+.featured .card-title h3 {
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 60em) {
+  .timeband-row {
+    grid-template-columns: 10.5rem 6rem minmax(0, 1fr) 5.5rem;
+    gap: var(--s-3);
+  }
+}
+
+@media (max-width: 40em) {
+  .searchbar {
+    flex-direction: column;
+  }
+
+  .timeband {
+    padding-block: var(--s-5);
+  }
+
+  /* Phones: path and count on one line, the bar and its value on the next. */
+  .timeband-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--s-1);
+  }
+
+  .timeband-row .route {
+    grid-column: 1;
+  }
+
+  .timeband-row .value {
+    grid-column: 2;
+  }
+
+  .timeband-scale {
+    display: none;
+  }
+
+  .filters {
+    position: static;
+  }
+
+  /* The row runs to the screen edges so it's clear it scrolls. */
+  .filters-row {
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .filters-row::-webkit-scrollbar {
+    display: none;
+  }
+}

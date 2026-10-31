@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OAuth Field Guide</title>
+    <meta
+      name="description"
+      content="Setup effort, approval waits, prerequisites, blockers and human-versus-agent steps for connecting 103 apps to your AI agent over OAuth, plus a live generator for any other app."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/geist-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/styles/tokens.css" />
+    <link rel="stylesheet" href="/styles/base.css" />
+    <link rel="stylesheet" href="/styles/layout.css" />
+    <link rel="stylesheet" href="/styles/components.css" />
+    <link rel="stylesheet" href="/styles/library.css" />
+    <link rel="stylesheet" href="/styles/guide.css" />
+    <link rel="stylesheet" href="/styles/generator.css" />
+    <script src="/app/theme-boot.js"></script>
+    <script type="module" src="/app/main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/" data-route="/">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <rect width="32" height="32" rx="8" />
+            <path
+              d="M11 13.5a5 5 0 1 0 0 10a5 5 0 0 0 0-10z M14.6 15.2L25 4.8 M21.3 8.5l3.2 3.2 M18.2 11.6l2.6 2.6"
+              fill="none"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span class="brand-name">OAuth Field Guide</span>
+          <span class="brand-sub">APM Integrations</span>
+        </a>
+        <nav class="nav" aria-label="Main">
+          <a href="/" data-route="/">Library</a>
+          <a href="/generate" data-route="/generate"><span>Live</span><span class="nav-long">Generator</span></a>
+          <a href="/method" data-route="/method">Method</a>
+        </nav>
+        <div class="topbar-actions" data-needs-js>
+          <button type="button" id="theme-toggle" class="btn btn-quiet btn-icon" aria-pressed="false">
+            <span class="visually-hidden">Switch theme</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="page" tabindex="-1" aria-busy="true">
+      <div class="boot" aria-hidden="true">
+        <div class="boot-line wide"></div>
+        <div class="boot-line"></div>
+        <div class="boot-line short"></div>
+      </div>
+      <p class="no-js-note">This guide needs JavaScript. The API still works without it: try /api/guides.</p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <span>OAuth Field Guide <span id="version"></span>. Research checked <span id="data-date">2026-10-28</span>.</span>
+        <span>Provider rules change often: check the sources on each guide before you commit to dates.</span>
+      </div>
+    </footer>
+
+    <div id="toasts" class="toast-region" aria-hidden="true"></div>
+    <div id="announcer" class="visually-hidden" role="status" aria-live="polite"></div>
+
+    <!-- Shared SVG pattern for "unknown" route bars -->
+    <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect class="hatch-bg" width="6" height="6" />
+          <rect class="hatch-line" width="2.5" height="6" />
+        </pattern>
+      </defs>
+    </svg>
+  </body>
+</html>

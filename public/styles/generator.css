@@ -1,0 +1,336 @@
+/* Live Generator: the form, the agent run (stages + log) and the result. */
+.gen-head {
+  display: grid;
+  gap: var(--s-3);
+  margin-bottom: var(--s-8);
+}
+
+.gen-head > p {
+  max-width: 48rem;
+}
+
+.gen-head h1 {
+  font-size: var(--text-title);
+  font-weight: 680;
+  letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
+}
+
+.gen-head p {
+  color: var(--text-2);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+}
+
+.gen-form {
+  display: grid;
+  gap: var(--s-5);
+  padding: var(--s-6);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.gen-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: end;
+}
+
+.gen-row .field {
+  flex: 1 1 22rem;
+}
+
+.gen-row .input {
+  width: 100%;
+  min-height: var(--control-h-lg);
+  font-size: var(--text-md);
+}
+
+.gen-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-6);
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--border);
+}
+
+.engine {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--text-2);
+  font-size: var(--text-sm);
+}
+
+.engine-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+
+.engine[data-mode="live"] .engine-dot {
+  background: var(--p-self);
+  box-shadow: 0 0 0 3px var(--p-self-bg);
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+  color: var(--text-3);
+  font-size: var(--text-sm);
+}
+
+.gen-form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.gen-form legend {
+  margin-bottom: var(--s-1);
+  padding: 0;
+}
+
+.gen-form .field-hint {
+  color: var(--text-3);
+  font-size: var(--text-xs);
+}
+
+/* The run */
+.run {
+  display: grid;
+  grid-template-columns: minmax(15rem, 20rem) minmax(0, 1fr);
+  margin-top: var(--s-6);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.run-head {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.run-title {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  font-weight: 600;
+}
+
+.run-title .muted {
+  font-size: var(--text-sm);
+  font-weight: 450;
+}
+
+.run-clock {
+  color: var(--text-3);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.stages {
+  display: grid;
+  align-content: start;
+  gap: 0;
+  padding: var(--s-3);
+  border-right: 1px solid var(--border);
+  list-style: none;
+}
+
+.stage {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: var(--s-3);
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+}
+
+.stage[data-status="running"] {
+  background: var(--accent-soft);
+}
+
+.stage-icon {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.05rem;
+}
+
+.stage-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.stage-icon .pending {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+}
+
+.stage[data-status="done"] .stage-icon {
+  color: var(--p-self);
+}
+
+.stage[data-status="warn"] .stage-icon {
+  color: var(--warn);
+}
+
+.stage[data-status="error"] .stage-icon {
+  color: var(--danger);
+}
+
+.stage[data-status="skipped"] .stage-icon {
+  color: var(--text-3);
+}
+
+.stage-label {
+  font-size: var(--text-sm);
+  font-weight: 560;
+}
+
+.stage[data-status="pending"] .stage-label {
+  color: var(--text-3);
+}
+
+.stage-summary {
+  display: block;
+  color: var(--text-3);
+  font-size: var(--text-xs);
+}
+
+/* Agent log: always dark, like a terminal, in both themes */
+.log {
+  min-height: 18rem;
+  max-height: 26rem;
+  margin: 0;
+  padding: var(--s-4);
+  overflow-y: auto;
+  background: var(--log-bg);
+  color: var(--log-text);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  list-style: none;
+  scrollbar-color: #3a4452 transparent;
+}
+
+.log-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.log li {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  gap: var(--s-2);
+}
+
+.log time {
+  color: var(--log-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.log .msg {
+  overflow-wrap: anywhere;
+}
+
+.log li[data-level="success"] .msg {
+  color: #7ee2a0;
+}
+
+.log li[data-level="warn"] .msg {
+  color: #f2cc60;
+}
+
+.log li[data-level="error"] .msg {
+  color: #ff9b94;
+}
+
+.log li[data-kind="stage"] .msg {
+  color: #b9b6ff;
+}
+
+.log .cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.1em;
+  vertical-align: -0.15em;
+  background: var(--log-text);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.run-error {
+  margin-top: var(--s-4);
+}
+
+.result {
+  margin-top: var(--s-10);
+  padding-top: var(--s-8);
+  border-top: 1px solid var(--border);
+}
+
+.result-note {
+  margin-bottom: var(--s-6);
+}
+
+.recent {
+  margin-top: var(--s-10);
+}
+
+.recent h2 {
+  margin-bottom: var(--s-3);
+  font-size: var(--text-md);
+}
+
+@media (max-width: 52em) {
+  .run {
+    grid-template-columns: 1fr;
+  }
+
+  .stages {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .log {
+    min-height: 12rem;
+  }
+}
+
+@media (max-width: 40em) {
+  .gen-form {
+    padding: var(--s-4);
+  }
+
+  .log li {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

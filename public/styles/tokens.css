@@ -1,0 +1,224 @@
+/*
+ * Design tokens. Components use these variables, never literal colours or sizes.
+ *
+ * Colour encodes one thing only: the connection path (self-serve, review, partner, API key,
+ * none). Effort is encoded by shape (circle, square, diamond), so nothing depends on colour
+ * alone. Text tokens meet WCAG 2.2 AA (4.5:1) on every surface in both themes; control
+ * borders meet 3:1. The theme follows the OS unless the visitor picks one.
+ */
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/geist-latin-wght.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+    U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/geist-latin-ext-wght.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/geist-mono-latin-wght.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+    U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* Surfaces and text (light) */
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --surface-3: #e8ebf0;
+  --border: #dfe3e9;
+  --border-strong: #c9cfd8;
+  --control-border: #767f8c;
+  --text: #131820;
+  --text-2: #485262;
+  --text-3: #5f6b7a;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #eef0ff;
+  --accent-ink: #3730a3;
+  --on-accent: #ffffff;
+  --focus: #4f46e5;
+  --danger: #b8322a;
+  --danger-soft: #fdecea;
+  --success: #18733a;
+  --warn: #8a5a00;
+  --code-bg: #f0f2f5;
+  --log-bg: #11161d;
+  --log-text: #d7dee7;
+  --log-dim: #8d99a8;
+  --scrim: rgb(19 24 32 / 40%);
+  --shadow-pop: 0 12px 32px rgb(19 24 32 / 14%), 0 2px 6px rgb(19 24 32 / 8%);
+
+  /* Connection paths: the only data colours */
+  --p-self: #18733a;
+  --p-self-bg: #e8f5ec;
+  --p-review: #8a5a00;
+  --p-review-bg: #fff3d6;
+  --p-partner: #b8322a;
+  --p-partner-bg: #fdecea;
+  --p-key: #0b6a80;
+  --p-key-bg: #e1f3f7;
+  --p-none: #57606a;
+  --p-none-bg: #edf0f3;
+  --route-track: #e3e7ed;
+  --route-tick: #c3cad4;
+
+  /* Monogram tiles: hue from .hue-N, saturation and lightness per theme */
+  --tile-s: 62%;
+  --tile-l: 93%;
+  --tile-fg-l: 28%;
+
+  /* Type */
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", menlo, consolas, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.3125rem;
+  --text-2xl: 1.625rem;
+  --text-display: clamp(2rem, 1.25rem + 3vw, 3.25rem);
+  --text-title: clamp(1.75rem, 1.35rem + 1.6vw, 2.375rem);
+  --leading-tight: 1.12;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.62;
+
+  /* Space (4px grid) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.25rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
+  --s-10: 2.5rem;
+  --s-12: 3rem;
+  --s-16: 4rem;
+
+  /* Shape: radii follow hierarchy (controls < cards < panels) */
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-full: 999px;
+
+  /* Layout */
+  --content-max: 76rem;
+  --prose-max: 46rem;
+  --topbar-h: 3.5rem;
+  --control-h: 2.25rem;
+  --control-h-lg: 3rem;
+  --target-min: 1.5rem;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  color-scheme: light;
+}
+
+/* Dark: the OS preference, unless the visitor chose light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1318;
+    --surface: #151a21;
+    --surface-2: #1b2129;
+    --surface-3: #222a34;
+    --border: #29313c;
+    --border-strong: #36404d;
+    --control-border: #6b7684;
+    --text: #e6ebf1;
+    --text-2: #a7b1bd;
+    --text-3: #8c97a4;
+    --accent: #8b87ff;
+    --accent-hover: #a19eff;
+    --accent-soft: #22234a;
+    --accent-ink: #b9b6ff;
+    --on-accent: #0b0d12;
+    --focus: #a19eff;
+    --danger: #ff8a80;
+    --danger-soft: #3a1714;
+    --success: #56d07a;
+    --warn: #e3b341;
+    --code-bg: #1b2129;
+    --log-bg: #0b0f14;
+    --scrim: rgb(0 0 0 / 55%);
+    --shadow-pop: 0 16px 40px rgb(0 0 0 / 45%);
+    --p-self: #56d07a;
+    --p-self-bg: #11301c;
+    --p-review: #e3b341;
+    --p-review-bg: #33270b;
+    --p-partner: #ff8a80;
+    --p-partner-bg: #3a1714;
+    --p-key: #4cc9db;
+    --p-key-bg: #0d2e36;
+    --p-none: #a1abb7;
+    --p-none-bg: #232a33;
+    --route-track: #232a34;
+    --route-tick: #3a4452;
+    --tile-s: 38%;
+    --tile-l: 22%;
+    --tile-fg-l: 82%;
+    color-scheme: dark;
+  }
+}
+
+/* Dark: chosen explicitly. Same values as above. */
+:root[data-theme="dark"] {
+  --bg: #0f1318;
+  --surface: #151a21;
+  --surface-2: #1b2129;
+  --surface-3: #222a34;
+  --border: #29313c;
+  --border-strong: #36404d;
+  --control-border: #6b7684;
+  --text: #e6ebf1;
+  --text-2: #a7b1bd;
+  --text-3: #8c97a4;
+  --accent: #8b87ff;
+  --accent-hover: #a19eff;
+  --accent-soft: #22234a;
+  --accent-ink: #b9b6ff;
+  --on-accent: #0b0d12;
+  --focus: #a19eff;
+  --danger: #ff8a80;
+  --danger-soft: #3a1714;
+  --success: #56d07a;
+  --warn: #e3b341;
+  --code-bg: #1b2129;
+  --log-bg: #0b0f14;
+  --scrim: rgb(0 0 0 / 55%);
+  --shadow-pop: 0 16px 40px rgb(0 0 0 / 45%);
+  --p-self: #56d07a;
+  --p-self-bg: #11301c;
+  --p-review: #e3b341;
+  --p-review-bg: #33270b;
+  --p-partner: #ff8a80;
+  --p-partner-bg: #3a1714;
+  --p-key: #4cc9db;
+  --p-key-bg: #0d2e36;
+  --p-none: #a1abb7;
+  --p-none-bg: #232a33;
+  --route-track: #232a34;
+  --route-tick: #3a4452;
+  --tile-s: 38%;
+  --tile-l: 22%;
+  --tile-fg-l: 82%;
+  color-scheme: dark;
+}

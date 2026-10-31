@@ -1,0 +1,27 @@
+# Production-like local run: docker compose up --build
+# Read-only root filesystem, no Linux capabilities, shared guides on a named volume.
+services:
+  oauth-field-guide:
+    build: .
+    image: oauth-field-guide:3.4.0
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Host names the server answers to (DNS-rebinding guard); add your public name.
+      ALLOWED_HOSTS: localhost,127.0.0.1
+    volumes:
+      - guides-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  guides-data:

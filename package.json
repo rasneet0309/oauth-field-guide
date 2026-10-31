@@ -1,0 +1,31 @@
+{
+  "name": "apm-oauth-field-guide",
+  "version": "3.4.0",
+  "private": true,
+  "description": "APM Integrations: OAuth Field Guide & Live Generator. Setup effort, approval waits, prerequisites, blockers and human-vs-agent steps for 103 apps, plus a streaming agent that drafts the same guide for any other app.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch-path=src --watch-path=public --watch-path=data src/app.js",
+    "build": "npm run data:check && node scripts/build-static.mjs",
+    "data:import": "node scripts/import-research.mjs",
+    "data:check": "node scripts/import-research.mjs --check",
+    "test": "node scripts/run-tests.mjs tests/unit",
+    "test:e2e": "node scripts/run-tests.mjs tests/e2e",
+    "check": "npm run lint && npm run data:check && npm test && npm run build && npm run test:e2e",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "axe-core": "4.14.0",
+    "esbuild": "0.28.2",
+    "eslint": "10.12.0",
+    "globals": "17.13.0",
+    "playwright": "1.63.0"
+  }
+}
